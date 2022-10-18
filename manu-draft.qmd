@@ -15,7 +15,7 @@ author:
       email: jva5648@psu.edu 
       institute: [PSU]
       correspondence: false
-  - Maria:
+  - Maria Hermann:
       email: mxh367@psu.edu
       institute: [PSU]
       correspondence: false
@@ -52,9 +52,24 @@ library(flextable)
 
 ## Introduction
 
+* Overview of metabolism - importance
+* Existing methods: Odum/WtRegDO, BASEmetab, references in @Grace15, applications to lakes and streams
+* Applications to estuaries - challenges
+* Goals and objectives
+
 ## Materials and Procedures
 
+* EBASE theory
+* EBASE R package
+
 ## Assessment
+
+* Comparison with Odum and BASEmetab: Fwoxy Appalachicola
+* Comparison with Odum and BASemetab: Apalachicola
+* Sensitivity analyses:
+     * optimization length
+     * priors
+* Application to representative NERR sites
 
 ## Discussion
 
@@ -62,14 +77,30 @@ library(flextable)
 
 ## Acknowledgments {.unnumbered}
 
-\newpage
+<!-- \newpage -->
 
 ## Figures {.unnumbered}
 
-\newpage 
+Figure 1: Fwoxy comparisons
+
+Figure 2: Apalachicola comparisons
+
+Figure 3: Sensitivity analyses
+
+Figure 4: NERRS application
+
+<!-- \newpage  -->
 
 ## Tables {.unnumbered}
 
-\newpage
+Table 1: EBASE parameters and outputs
+
+Table 2: Summary stats of Fwoxy comparison
+
+Table 3: Summary stats of Apalachicola comparison
+
+Table 4: Key parameters form NERRS application
+
+<!-- \newpage -->
 
 ## References {.unnumbered}
