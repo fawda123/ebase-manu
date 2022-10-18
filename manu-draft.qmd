@@ -1,0 +1,75 @@
+---
+format: 
+  docx:
+    reference-doc: my_styles.docx
+    number-sections: true
+title: "EBASE manuscript"
+bibliography: refs.bib
+csl: limnology-and-oceanography.csl
+author: 
+  - Marcus W Beck:
+      email: mbeck@tbep.org
+      institute: [TBEP]
+      correspondence: true
+  - Jill M Arriola:
+      email: jva5648@psu.edu 
+      institute: [PSU]
+      correspondence: false
+  - Maria:
+      email: mxh367@psu.edu
+      institute: [PSU]
+      correspondence: false
+  - Raymond G Najjar:
+      email: rgn1@psu.edu
+      institute: [PSU]
+      correspondence: false
+ 
+institute:
+  - TBEP: Tampa Bay Estuary Program, St. Petersburg, Florida 33701 USA
+  - PSU: Pennsylvania State University, University Park, Pennsylvania 16802 USA
+
+filters: 
+  - templates/scholarly-metadata.lua
+  - templates/author-info-blocks.lua
+  
+execute: 
+  echo: false
+  warning: false
+  ft.keepnext: false
+  ft.align: left
+---
+
+```{r, results = 'hide'}
+library(knitr)
+library(here)
+library(flextable)
+
+```
+
+## Abstract {.unnumbered}
+
+*Key words*: 
+
+## Introduction
+
+## Materials and Procedures
+
+## Assessment
+
+## Discussion
+
+## Comments and Recommendations
+
+## Acknowledgments {.unnumbered}
+
+\newpage
+
+## Figures {.unnumbered}
+
+\newpage 
+
+## Tables {.unnumbered}
+
+\newpage
+
+## References {.unnumbered}
