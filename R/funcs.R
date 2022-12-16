@@ -1,3 +1,16 @@
+# function for formatting p-values in tables
+p_ast <- function(x){
+  
+  sig_cats <- c('**', '*', '')
+  sig_vals <- c(-Inf, 0.005, 0.05, Inf)
+  
+  out <- cut(x, breaks = sig_vals, labels = sig_cats, right = FALSE)
+  out <- as.character(out)
+  
+  return(out)
+  
+}
+
 # capitalization function
 simpleCap <- function(x) {
   s <- strsplit(x, " ")[[1]]
@@ -56,9 +69,10 @@ apacmp_plo <- function(dat, xlb = 'EBASE', ylb = 'Odum', dotyp = 'observed', add
     
     lims <- range(toplotmp[, c('yval', 'EBASE')], na.rm = T)
     
-    ptmp <- ggplot(toplotmp, aes(x = EBASE, y = yval, colour = seas)) + 
-      geom_point(alpha = alph) + 
+    ptmp <- ggplot(toplotmp, aes(x = EBASE, y = yval)) + 
+      geom_point(aes(colour = seas), alpha = alph) + 
       geom_abline(intercept = 0, slope = 1) +
+      geom_smooth(method = 'lm', se = F, colour = 'tomato1', size = 0.7) +
       facet_wrap(~var, ncol = 1) +
       scale_colour_manual(values = cols) + 
       scale_x_continuous(limits = lims) + 
