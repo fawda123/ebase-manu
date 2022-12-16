@@ -3,6 +3,8 @@ library(lubridate)
 library(here)
 library(patchwork)
 
+source(here('R/funcs.R'))
+
 load(file = url('https://github.com/fawda123/BASEmetab_script/raw/master/data/apacmp.RData'))
 
 toplo <- apacmp %>% 
@@ -32,6 +34,6 @@ p <- p1a[[1]] + p1a[[2]] + p1a[[3]] + p1a[[4]] + p1b[[1]] + p1b[[2]] + p1b[[3]] 
   plot_layout(ncol = 4, guides = 'collect') & 
   theme(legend.position = 'bottom')
 
-png(here('figs/apacmp2.png'), height = 9, width = 8, family = 'serif', units = 'in', res = 500)
+png(here('figs/apacmp.png'), height = 9, width = 8, family = 'serif', units = 'in', res = 500)
 print(p)
 dev.off()
