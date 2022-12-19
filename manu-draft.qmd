@@ -42,6 +42,8 @@ execute:
 ```{r, results = 'hide'}
 library(knitr)
 library(here)
+library(officer)
+library(officedown)
 library(flextable)
 
 load(file = here('tabs/apacmptab.RData'))
@@ -70,7 +72,7 @@ load(file = here('tabs/apacmptab.RData'))
 
 Metabolic estimates from EBASE were compared to those from existing methods to benchmark and evaluate potential differences from alternative model formulations used by each approach. An approximate one year continuous time series from Apalachicola Bay, Florida was provided as input to each method.  The input data were 2012 observations from February 22nd to December 19th at the Cat Point water quality monitoring station (29.7021$^{\circ}$ N, -84.8802$^{\circ}$ W) and included 15 minute observations of dissolved oxygen (mg/L), water temperature (C), salinity (psu), and sonde depth (m).  Continuous meteorological observations from the nearby East Bay station (29.7909$^{\circ}$ N, -84.8834$^{\circ}$ W, ~10km from Cat Point) were combined with the water quality data at the same time step and included air temperature (C), wind speed (m/s), PAR (mmol/m$^2$ as total per 15 minute observation), and barometric pressure (mb).  The combined input data were provided to each method after converting the units as required (e.g., BASEmetab requires PAR as $\mu$mol m$^{-2}$ s$^{-1}$).  Water column depth at Cat Point is approximately 1.8 m and all metabolic estimates returned by each method were converted to volumetric rates by dividing by the depth.  Each comparison also evaluated metabolic estimates using the observed dissolved oxygen time series and a detided time series using weighted regression [@Beck15].  The latter comparison provided an assessment of metabolic rates that are expected to be minimally influenced by tidal advection.  All metabolic estimates were obtained using the default setting for each of the three methods, with an exception that the prior distribution for the reaeration coefficient ($K$) in BASEmetab was informed by results from the Odum output.  Initial assessments indicated that unstable and inaccurate results are obtained from BASEmetab using an uninformed prior distribution for $K$.  All other prior distributions for BASEmetab and EBASE were set as the software default.  A one-day model optimization period was used for EBASE.  
 
-The common set of metabolic parameters returned by the Odum, BASEmetab, and EBASE methods are net ecosystem metabolism, gross production, respiration, and gas exchange.  Pairwise comparisons of the daily estimates returned by each method were evaluated using simple summary statistics including Pearson correlation coefficients and linear regression fits to evaluate potential biases in each method.  For the latter analysis, differences in intercept suggested an overall bias in magnitude, whereas the slope was further tested to determine if the estimate was significantly different than one, suggesting a bias that depended on relative value of each observation (e.g., bias may differ between lower or higher values).  Comparisons were made for the whole year and by wet (June, July, August, September) or dry (all other months) season observations.  Results were also assessed separately for estimates based on the observed or detided disssolved oxygen time series.   
+The common set of metabolic parameters returned by the Odum, BASEmetab, and EBASE methods are net ecosystem metabolism, gross production, respiration, and gas exchange.  Pairwise comparisons of the daily estimates returned by each method were evaluated using simple summary statistics including Pearson correlation coefficients and linear regression fits to evaluate potential biases in each method.  For the latter analysis, differences in intercept estimates less than or greater than zero suggested a bias in magnitude, whereas differences in slope estimates less than or greater than one suggested a bias that depended on relative value of each observation (e.g., bias may differ between lower or higher values). Comparisons of the slope and estimates values to zero and one, respectively, were based on confidence intervals from the standard errors of each estimate. Results were assessed separately for estimates based on the observed or detided dissolved oxygen time series.   
 
 * Sensitivity analyses:
      * optimization length
@@ -104,6 +106,8 @@ Figure 4: NERRS application
 
 ## Tables {.unnumbered}
 
+
+
 Table 1: EBASE parameters and outputs
 
 Table 2: Summary stats of Fwoxy comparison
@@ -114,9 +118,12 @@ Table 4: Key parameters form NERRS application
 
 \newpage
 
+`r run_reference(id = "apacmptab")`
+
 ```{r}
-#| tbl-cap: "Table 1: "  
-# apacmptab
+#| label: apacmptab
+#| tbl-cap: "Summary statisics of daily metabolic estimates comparing Odum and BASEmetab to EBASE for net ecosystem metabolism (NEM), gross production (P), respiration (R), and gas exchange (D).  Separate comparisons are made for estimates based on observed and detided dissolved oxygen.  Summary statistics include Pearson correlation coefficients and intercept, slope, and residual standard deviation of a linear fit between the same metabolic estimates obtained from each method. Significance of the p-values for the intercept and slope indicates if the estimate is different from zero or one, respectively."
+apacmptab
 ```
 
 <!-- \newpage -->

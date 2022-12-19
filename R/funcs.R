@@ -47,17 +47,7 @@ apacmp_plo <- function(dat, xlb = 'EBASE', ylb = 'Odum', dotyp = 'observed', add
     toplotmp <- dat %>% 
       filter(var == vr)
     ind <- which(vr == vars)
-    
-    corv <- cor.test(toplotmp$yval, toplotmp$EBASE) %>% 
-      .$estimate %>% 
-      round(., 2) %>% 
-      format(., nsmall = 2)
-    
-    toplotmp <- toplotmp %>% 
-      mutate(
-        var = paste0(var, ' (', corv, ')')
-      )
-    
+  
     if(ind != 1)
       ylb <- NULL
     
