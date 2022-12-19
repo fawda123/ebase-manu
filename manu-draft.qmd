@@ -67,17 +67,29 @@ load(file = here('tabs/apacmptab.RData'))
 
 ## Assessment
 
-* Comparison with Odum and BASEmetab: Fwoxy Appalachicola
-* Comparison with Odum and BASemetab: Apalachicola, @fig-apacmpfig
+### EBASE comparison with modelled observations
 
-Metabolic estimates from EBASE were compared to those from existing methods to benchmark and evaluate potential differences from alternative model formulations used by each approach. An approximate one year continuous time series from Apalachicola Bay, Florida was provided as input to each method.  The input data were 2012 observations from February 22nd to December 19th at the Cat Point water quality monitoring station (29.7021$^{\circ}$ N, -84.8802$^{\circ}$ W) and included 15 minute observations of dissolved oxygen (mg/L), water temperature (C), salinity (psu), and sonde depth (m).  Continuous meteorological observations from the nearby East Bay station (29.7909$^{\circ}$ N, -84.8834$^{\circ}$ W, ~10km from Cat Point) were combined with the water quality data at the same time step and included air temperature (C), wind speed (m/s), PAR (mmol/m$^2$ as total per 15 minute observation), and barometric pressure (mb).  The combined input data were provided to each method after converting the units as required (e.g., BASEmetab requires PAR as $\mu$mol m$^{-2}$ s$^{-1}$).  Water column depth at Cat Point is approximately 1.8 m and all metabolic estimates returned by each method were converted to volumetric rates by dividing by the depth.  Each comparison also evaluated metabolic estimates using the observed dissolved oxygen time series and a detided time series using weighted regression [@Beck15].  The latter comparison provided an assessment of metabolic rates that are expected to be minimally influenced by tidal advection.  All metabolic estimates were obtained using the default setting for each of the three methods, with an exception that the prior distribution for the reaeration coefficient ($K$) in BASEmetab was informed by results from the Odum output.  Initial assessments indicated that unstable and inaccurate results are obtained from BASEmetab using an uninformed prior distribution for $K$.  All other prior distributions for BASEmetab and EBASE were set as the software default.  A one-day model optimization period was used for EBASE.  
+* Comparison with Odum and BASEmetab: Fwoxy Appalachicola
+
+### EBASE comparison with real observations
+
+Metabolic estimates from EBASE were compared to those from existing methods to benchmark and evaluate potential differences from alternative model formulations used by each approach. An approximate one year continuous time series from Apalachicola Bay, Florida was provided as input to each method.  The input data were 2012 observations from February 22nd to December 19th at the Cat Point water quality monitoring station (29.7021$^{\circ}$ N, -84.8802$^{\circ}$ W) and included 15 minute observations of dissolved oxygen (mg/L), water temperature (C), salinity (psu), and sonde depth (m).  Continuous meteorological observations from the nearby East Bay station (29.7909$^{\circ}$ N, -84.8834$^{\circ}$ W, ~10km north of Cat Point) were combined with the water quality data at the same time step and included air temperature (C), wind speed (m/s), PAR (mmol/m$^2$ as total per 15 minute observation), and barometric pressure (mb).  The combined input data were provided to each method after converting the units as required (e.g., BASEmetab requires PAR as $\mu$mol m$^{-2}$ s$^{-1}$).  Water column depth at Cat Point is approximately 1.8 m and all daily metabolic estimates returned by each method were converted to volumetric rates by dividing by the depth ($\mu$mol O$_2$ m$^{-3}$ d$^{-1}$).  Each comparison also evaluated metabolic estimates using the observed dissolved oxygen time series and a detided time series using weighted regression [@Beck15].  The latter comparison provided an assessment of metabolic rates that are expected to be minimally influenced by tidal advection.  All metabolic estimates were obtained using the default settings for each of the three methods, with an exception that the prior distribution for the reaeration coefficient ($K$) in BASEmetab was informed by results from the Odum output.  Initial assessments indicated that unstable and inaccurate results are obtained from BASEmetab using an uninformed prior distribution for $K$.  All other prior distributions for BASEmetab and EBASE were set as the software default.  A one-day model optimization period was used for EBASE.  
 
 The common set of metabolic parameters returned by the Odum, BASEmetab, and EBASE methods are net ecosystem metabolism, gross production, respiration, and gas exchange.  Pairwise comparisons of the daily estimates returned by each method were evaluated using simple summary statistics including Pearson correlation coefficients and linear regression fits to evaluate potential biases in each method.  For the latter analysis, differences in intercept estimates less than or greater than zero suggested a bias in magnitude, whereas differences in slope estimates less than or greater than one suggested a bias that depended on relative value of each observation (e.g., bias may differ between lower or higher values). Comparisons of the slope and estimates values to zero and one, respectively, were based on confidence intervals from the standard errors of each estimate. Results were assessed separately for estimates based on the observed or detided dissolved oxygen time series.   
 
-* Sensitivity analyses:
-     * optimization length
-     * priors
-* Application to representative NERR sites
+@fig-apacmpfig and `r run_reference(id = "apacmptab")` provide a comparison of the EBASE metabolic estimates with those from the Odum and BASmetab methods. 
+
+### Sensitivity analyses
+
+Several configurations of the EBASE model can influence how the metabolic rates are estimated.  A simulated time series with known values for the $a$, $r$, and $b$ parameters that are returned by EBASE was used to determine if 1) EBASE estimates similar values, and 2) how the estimated values change with different model configurations.  Two types of sensitivity analyses were conducted to evaluate changes in the parameters returned by EBASE, where in all cases, the parameters were compared to the known values in the simulated time series. First, parameter estimates were compared to the known values after changing characteristics of their prior distributions.  Second, parameter estimates were compared using a model period of optimization for one day and one week of observations.  Details of these analyses are as follows.  
+
+The standard prior distributions for the EBASE parameters follow normal distributions with defined means and standard deviations.  The sensitivity analysis evaluated changes in the distributions by varying the standard deviations from small to large to test the effect of more or less constrained ranges, respectively, on the priors. For each parameter, low, medium, and high values for the standard deviation were assessed as 10%, 100%, and 1000% of the default value.  Each unique combination of low, medium, and high values for the standard deviation of each parameter were evaluated, creating 3$^3$ = 27 different combinations of prior distributions that were used with the simulated time series in EBASE.  Because initial assessments indicated that all parameter estimates were especially sensitive to changes in the prior distribution for the $b$ parameter, a second sensitivity analysis evaluated additional changes in both the mean and standard deviation of the prior for the $b$ parameter.  Changes in both the mean and standard deviation of the $b$ prior were evaluated, where the mean was varied as 50%, 100%, and 200% (the upper limit) of the default and the standard deviation was varied as before.  This resulted in 3$^2$ = 9 unique combinations of means and standard deviations for the $b$ prior that were evaluated.  
+
+The optimization period used for a time series determines how much data are used to estimate the three EBASE parameters ($a$, $r$, and $b$).  Unlike BASEmetab, the EBASE software allows flexibility in the period of time used for optimization, with a minimum period of time being one day and a maximum period of being the length of the time series.  For a chosen optimization period, a single estimate for $r$ and $b$ is returned by the model, whereas $n$ number of observations in each optimization period are returned for the $a$ parameter (e.g., 96 values for  24 hour time period if the samplign interval is 15 minutes).  Short periods of observation may return unstable parameter estimates if forcing factors (e.g., wind, temperature) that affect estuarine biogeochemical rates occur at time scales longer the chosen period of optimization for EBASE.  As such, potentially longer optimization periods may return more stable and robust estimates given that more data are used for parameter estimation.  An optimization period of one day was compared to results using an optimization period of seven days for the simulated one-year time series. Each optimization period was evaluated for every unique combination of prior distributions, totaling 54 unique analyses for the assessment of changing standard deviations of all parameters and 18 unique analyses for the assessment of changing the mean and standard deviation of only the $b$ parameter. 
+
+The metabolic estimates returned from each analysis were compared to the known values to determine which priors the model was most sensitive to and if the conclusions varied by optimization period.  Estimates for the modeled dissolved oxygen, gross production, respiration ($r$), gas exchange ($D$), and $a$ were compared to those from the simulated time series using coefficient of variation ($R^2$) and root mean square error ($RMSE$) summaries of the 1:1 comparison of the estimated vs simulated values.  For the one day optimization period, all parameter estimates returned at the time step of the input data (e.g., $a$) were daily-averaged for comparison.  For the seven day optimization period, all parameter estimates and those from the known time series were weekly-averaged.  Estimates for the $b$ parameter were evaluated only by visual comparison because a single value was used in the simulated time series, preventing the estimate of quantitative comparisons. 
+     
+### Application to represenatiave NERR sites
 
 ## Discussion
 
@@ -106,8 +118,6 @@ Figure 4: NERRS application
 
 ## Tables {.unnumbered}
 
-
-
 Table 1: EBASE parameters and outputs
 
 Table 2: Summary stats of Fwoxy comparison
@@ -117,8 +127,6 @@ Table 3: Summary stats of Apalachicola comparison
 Table 4: Key parameters form NERRS application
 
 \newpage
-
-`r run_reference(id = "apacmptab")`
 
 ```{r}
 #| label: apacmptab
