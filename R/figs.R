@@ -2,8 +2,19 @@ library(tidyverse)
 library(lubridate)
 library(here)
 library(patchwork)
+library(EBASE)
 
 source(here('R/funcs.R'))
+
+# prior distribution plot ---------------------------------------------------------------------
+
+p <- prior_plot(n = 1e5)
+
+png(here('figs/priorplot.png'), height = 3, width = 8, family = 'serif', units = 'in', res = 500)
+print(p)
+dev.off()
+
+# Fwoxy apa comparison ------------------------------------------------------------------------
 
 load(file = url('https://github.com/fawda123/BASEmetab_script/raw/master/data/apacmp.RData'))
 
