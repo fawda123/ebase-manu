@@ -66,14 +66,13 @@ load(file = here('tabs/apacmptab.RData'))
 
 ## Materials and Procedures
 
-The Estuarine BAyesian Single station Estimation (EBASE) method provides a simple approach to quantify metabolic parameters from continuous dissolved oxygen time series.  The estimates are based on a modified version of the mass balance equation described in @Grace15.  The original mass balance equation is:
+The Estuarine BAyesian Single station Estimation (EBASE) method provides a simple approach to quantify metabolic parameters from continuous dissolved oxygen time series.  The estimates use a modified version of the BASE mass balance equation described in @Grace15.  The original equation is:
 
 $$
 \frac{\delta{C_d}}{\delta{t}} = [\,aPAR^p]\, - [\,r\Theta^{T - \bar{T}}]\, - \left[-K\cdot1.0241^{T-\bar{T}}\left(C_{sat} - C_d \right )\right]
 $$ {#eq-base}
 
-where the terms in the square brackets are production (P), respiration (R), and gas exchange (D) as a function of the change in dissolved oxygen ($\delta{C_d}$) per unit time of the input data ($\delta{t}$).  Five unknown parameters are estimated by the model: $a$, $p$, $r$, $\Theta$, and $K$.  The required inputs are the time series of diel oxygen ($C_d$, mmol/m$^2$), surface irradiance ($PAR$, $\mu$mol/m$^2$/s), water temperature ($T$, C), and oxygen saturation ($C_{sat}$, mmol/m$^3$). 
-Dissolved oxygen at saturation $C_{sat}$ is calculated from the input data as a function of water temperature and salinity (psu) [@Garcia92]. @eq-ts is temperature scaled, as input to @eq-co that calculates the solubility of dissolved oxygen per volume of seawater at the given temperature. The coefficients are $A_0$ = 5.80818, $A_1$ = 3.20684, $A_2$ = 4.11890, $A_3$ = 4.93845, $A_4$ = 1.01567, $A_5$ = 1.41575, $B_0$ = -7.01211e-3, $B_1$ = -7.25958e-3, $B_2$ = -7.93334e-3, $B_3$ = -5.54491e-3, and $C_0$ = -1.32412e-7.
+where the terms in the square brackets are production (P), respiration (R), and gas exchange (D), respecitively, modeled as a function of the change in dissolved oxygen ($\delta{C_d}$) per unit time of the input data ($\delta{t}$).  Five unknown parameters are estimated by the model: $a$, $p$, $r$, $\Theta$, and $K$.  The required inputs are the time series of surface irradiance ($PAR$, $\mu$mol/m$^2$/s), water temperature ($T$, C), diel oxygen ($C_d$, mmol/m$^2$), and oxygen saturation ($C_{sat}$, mmol/m$^3$). Dissolved oxygen at saturation $C_{sat}$ is calculated from the input data as a function of water temperature and salinity (psu) [@Garcia92]. @eq-ts is temperature scaled, as input to @eq-co that calculates the solubility of dissolved oxygen per volume of seawater at the given temperature. The coefficients are $A_0$ = 5.80818, $A_1$ = 3.20684, $A_2$ = 4.11890, $A_3$ = 4.93845, $A_4$ = 1.01567, $A_5$ = 1.41575, $B_0$ = -7.01211e-3, $B_1$ = -7.25958e-3, $B_2$ = -7.93334e-3, $B_3$ = -5.54491e-3, and $C_0$ = -1.32412e-7.
 
 $$
 T_s = \log((298.15 - T)/(273.15 + T)
@@ -94,19 +93,19 @@ $$
 \frac{\delta{C_d}}{\delta{t}} = [\,aPAR^p]\, - [\,r\Theta^{T - \bar{T}}]\, - \frac{1}{H}\left[-bU_{10}^2\left(\frac{s_c}{600} \right)^{-0.5} \left(C_{Sat} - C_d \right )\right]
 $$ {#eq-basewan}
 
-where $U_{10}^2$ is the wind speed at 10-m height and $S_c$ is the Schmidt number defined as the ratio of the kinematic viscosity of water to the molecular diffusivity of the gas for oxygen calculated as a function of water temperature and salinity using the polynomial fit of @Wanninkhof14.  The parameter $b$ ($\buni$) must be estimated from the data. The other variables are as defined as in @eq-base.
+where $U_{10}^2$ is the wind speed at 10-m height, $H$ is water column depth (m, as a fixed parameter or time series from a pressure sensor) and $S_c$ is the Schmidt number defined as the ratio of the kinematic viscosity of water to the molecular diffusivity of the gas for oxygen [from water temperature and salinity using the polynomial fit of @Wanninkhof14].  The parameter $b$ ($\buni$) must be estimated from the data. The other variables are defined as in @eq-base.
 
-The final modification to @eq-base for EBASE is a simplification to remove the $\Theta$ and $p$ parameters.  For EBASE, the temperature dependency of respiration is removed by setting $\Theta^(T-\bar{T}$ = 1) and $p$ is also set as 1.  This further simplifies @eq-basewan to:
+The final modification to @eq-base for EBASE is a simplification to remove the $\Theta$ and $p$ parameters.  For EBASE, the temperature dependency of respiration is removed by setting $\Theta^{(T-\bar{T})}$ = 1.  Th $p$ parameter, which is dimensionless, is also set to 1 as in @Holtgrieve10.  This further simplifies @eq-basewan to:
 
 $$
 \frac{\delta{C_d}}{\delta{t}} = [\,aPAR]\, - [\,r]\, - \frac{1}{H}\left[-bU_{10}^2\left(\frac{s_c}{600} \right)^{-0.5} \left(C_{Sat} - C_d \right )\right]
 $$ {#eq-ebase}
 
-As for BASE, the metabolic estimates in EBASE are defined by the change in dissolved oxygen over the time step $\frac{\delta{C_d}}{\delta{t}}$, where gross production is provided by $aPAR$, respiration is provided by $r$, and gas exchange is provided by the remainder [as in @Wanninkhof14].  Units for each of the metabolic estimates are $\runi$.  
+As for BASE, the metabolic estimates in EBASE are defined by the change in dissolved oxygen over the time step $\delta{C_d}/\delta{t}$, where gross production is provided by $aPAR$, respiration is provided by $r$, and gas exchange is provided by the remainder [as in @Wanninkhof14].  Units for each of the metabolic estimates are $\runi$.  
 
 The remaining three parameters $a$ (light efficiency, $\auni$), $r$ (respiration, $\runi$), and $b$ ($\buni$) are estimated by likelihood given the observed data with the JAGS model using prior distributions shown in the model file. At each time step, the change in oxygen concentration between time steps is calculated from the equation using model inputs and parameter guesses, and then a finite difference approximation is used to estimate modeled oxygen concentration.  The estimated dissolved oxygen concentration is also returned, which can be compared to observed as one measure of model performance.
 
-The metabolism estimates and their parameters returned by the Bayesian routine implemented in JAGS are affected by the prior distributions assigned to each.  As for the BASE model, relatively uninformed prior distributions following a normal Gaussian distribution are used by default, although the priors can of course be changed based on previous knowledge of parameter specific to an ecosystem.  The default priors were based on those that returned reasonable parameter estimates using a forward-feeding oxygen mass balance equation call FWOXY (ForWard OXYgen).  For FWOXY, a dissolved oxygen time series is simulated by providing known parameter values in an equation similar to @eq-ebase. All of the physical parameters are held constant, e.g., wind speed, temperature, and salinity.  The other required inputs are the $a$, $r$, and $b$ parameters, which are set by the user.  As such, the dissolved oxygen output simulated by FWOXY as change per unit time is modelled by EBASE using the constant physical parameters as input. Reasonable prior distributions by EBASE were identified based on the ability to return the known parameters from FWOXY:
+The metabolism estimates and their parameters returned by the Bayesian routine implemented in JAGS are affected by the prior distributions assigned to each.  As for the BASE model, relatively uninformed prior distributions following a normal Gaussian distribution are used by default, although the priors can of course be changed based on previous knowledge of parameter specific to an ecosystem.  The default priors were based on those that returned reasonable parameter estimates using a forward-feeding oxygen mass balance equation call FWOXY (ForWard OXYgen).  For FWOXY, a dissolved oxygen time series is simulated by providing known parameter values in an equation similar to @eq-ebase. All of the physical parameters are held constant, e.g., wind speed, temperature, and salinity.  The other required inputs are the $a$, $r$, and $b$ parameters, which are set by the user.  As such, the dissolved oxygen output simulated by FWOXY as change per unit time is modelled by EBASE using the constant physical parameters as input. Reasonable prior distributions by EBASE were identified (Equations [-@eq-aprior], [-@eq-rprior], and [-@eq-bprior]) based on the ability to return the known parameters from FWOXY:
 
 $$
 a \sim N(0.2, 0.1)T(0,)
@@ -125,7 +124,7 @@ The $T$ notation is JAGS model syntax indicating the distributions are truncated
 
 ### EBASE R package
 
-For ease of application, an R package was developed to implement the EBASE methods described above.  
+For ease of application, an R package was developed to implement the EBASE methods described above. A detailed web page (<https://fawda123.github.io/EBASE/>) describes the required data inputs for estimating the metabolic parameters using the core R functions with the JAGS software.  A JAGS model file is included with the package that implements @eq-ebase, with options to supply a custom model file as needed.  Users can also specify alternative prior distributions from those in Equations [-@eq-aprior], [-@eq-rprior], and [-@eq-bprior] for each parameter. Additional functions are available for viewing model results, including a plot of the modelled dissolved oxygen with the observed, a time series plot of the primary metabolic estimates (P, R, and D), and a time series plot of the credible intervals for the $a$, $r$, and $b$ parameters. All results provided herein were generated using the EBASE R package. 
 
 ## Assessment
 
