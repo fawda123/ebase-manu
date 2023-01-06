@@ -3,6 +3,7 @@ library(lubridate)
 library(here)
 library(patchwork)
 library(EBASE)
+library(readr)
 
 source(here('R/funcs.R'))
 
@@ -11,6 +12,53 @@ source(here('R/funcs.R'))
 p <- prior_plot(n = 1e5)
 
 png(here('figs/priorplot.png'), height = 3, width = 8, family = 'serif', units = 'in', res = 500)
+print(p)
+dev.off()
+
+# simulated apa data --------------------------------------------------------------------------
+
+fwdat <- read_csv(file = url('https://raw.githubusercontent.com/fawda123/BASEmetab_script/master/data/apafwoxy.csv'))
+
+fwdatcmp <- fwdat %>% 
+  mutate(
+    DateTimeStamp = dmy_hms(datet, tz = 'America/Jamaica'),
+    Date = as.Date(DateTimeStamp, tz = 'America/Jamaica'),
+    DO_obs = `oxy,mmol/m3`, 
+    a = `aparam,(mmolO2/m2/d)/(W/m2)` / `ht,m`,
+    Rt_vol = `er,mmol/m2/d` / `ht,m`,
+    Pg_vol = `gpp,mmol/m2/d` / `ht,m`,
+    D = -1 * `gasex,mmol/m2/d` / `ht,m`,
+    b = 100 * 3600 * `kw,m/s` / `wspd2,m2/s2` / (`sc,dimensionless` / 660) ^ -0.5 # (m/s)/(m2/s2) to (cm/hr) / (m2/s2)
+  ) %>% 
+  select(Date, DateTimeStamp, DO_obs, a, b, Pg_vol, Rt_vol, D)
+
+p1 <- ggplot(fwdatcmp, aes(x = DateTimeStamp, y = DO_obs)) + 
+  geom_line(linewidth = 0.2) + 
+  scale_x_datetime(breaks = "1 month", labels = date_format("%b")) +
+  theme_minimal() + 
+  labs(
+    x = NULL, 
+    y = expression(paste(O [2], ' (mmol ', m^-3, ')')),
+    title = '(a) Simulated dissolved oxygen'
+  )
+
+p2 <- ggplot(fwdatcmp, aes(x = DateTimeStamp, y = a)) + 
+  geom_line(linewidth = 0.2) + 
+  scale_x_datetime(breaks = "1 month", labels = date_format("%b")) +
+  theme_minimal() + 
+  labs(
+    x = NULL, 
+    y = expression(paste(italic(a), ' (mmol ', m^-3, d^-1, ') / (W ', m^{-2}, ')')), 
+    title = expression(paste('(b) Simulated ', italic(a), ' parameter'))
+  )
+
+p3 <- ebase_plot(fwdatcmp, instantaneous = F) +
+  scale_x_date(breaks = "1 month", labels = date_format("%b")) +
+  labs(title = '(c) Simulated metabolic estimates')
+
+p <- p1 + p2 + p3 + plot_layout(ncol = 1) & theme(panel.grid.minor = element_blank())
+
+png(here('figs/simapa.png'), height = 8, width = 8, family = 'serif', units = 'in', res = 500)
 print(p)
 dev.off()
 
