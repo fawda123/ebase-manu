@@ -74,6 +74,42 @@ png(here('figs/apasumdat.png'), height = 6, width = 6, family = 'serif', units =
 print(p1)
 dev.off()
 
+# best fwoxy apa comparison -------------------------------------------------------------------
+
+fl <- paste0(tempdir(), '/apagrd.RData')
+download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/apagrd.RData', destfile = fl)
+load(file = fl)
+
+fwdat <- read_csv(file = url('https://raw.githubusercontent.com/fawda123/BASEmetab_script/master/data/apafwoxy.csv'))
+
+fwdatcmp <- fwdat %>% 
+  mutate(
+    DateTimeStamp = dmy_hms(datet, tz = 'America/Jamaica'),
+    Date = as.Date(DateTimeStamp, tz = 'America/Jamaica'),
+    DO_obs = `oxy,mmol/m3`, 
+    a = `aparam,(mmolO2/m2/d)/(W/m2)` / `ht,m`,
+    Rt_vol = `er,mmol/m2/d` / `ht,m`,
+    Pg_vol = `gpp,mmol/m2/d` / `ht,m`,
+    D = -1 * `gasex,mmol/m2/d` / `ht,m`,
+    b = 100 * 3600 * `kw,m/s` / `wspd2,m2/s2` / (`sc,dimensionless` / 660) ^ -0.5 # (m/s)/(m2/s2) to (cm/hr) / (m2/s2)
+  ) %>% 
+  select(Date, DateTimeStamp, DO_obs, a, b, Pg_vol, Rt_vol, D)
+
+p1 <- optex(apagrd, fwdatcmp, asdin = 1, rsdin = 50, bsdin = 0.001, ndaysin = 1) + 
+  labs(
+    subtitle = parse(text = paste(c('ndays=1', 'italic(a)(sd)=1', 'italic(r)(sd)=50', 'italic(b)(sd)=0.001'), collapse = ', '))
+  )
+p2 <- optex(apagrd, fwdatcmp, asdin = 0.01, rsdin = 50, bsdin = 0.001, ndaysin = 7) #+ 
+  # labs(
+  #   subtitle = parse(text = 'ndays=7,'~'italic(a)(sd)=0.01,'~'italic(r)(sd)=50,'~'italic(b)(sd)=0.001')
+  # )
+
+p <- p1 + p2 + plot_layout(ncol = 2, guides = 'collect')
+
+png(here('figs/optex.png'), height = 8, width = 8, family = 'serif', units = 'in', res = 500)
+print(p)
+dev.off()
+
 # actual apa comparison -----------------------------------------------------------------------
 
 load(file = url('https://github.com/fawda123/BASEmetab_script/raw/master/data/apacmp.RData'))

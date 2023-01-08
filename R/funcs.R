@@ -185,101 +185,109 @@ priorcomp <- function(dat, ind){
   
 }
 
-# Fwoxy apa comparison to EBASE for different priors, b mean and sd changes only
-priorcompmean <- function(dat, ind){
+# comparison of fwoxy and ebase results for selected prior at time step of ndays
+optex <- function(apagrd, fwdatcmp, asdin, rsdin, bsdin, ndaysin){
   
-  met <- tibble(
-    lbs = c('r2', 'rmse', 'aved'),
-    lbspr = c('italic(R)^2', 'RMSE', 'Ave.\nDiff.'), 
-    direc = c(-1, 1, 1)
+  res <- apagrd %>% 
+    filter(
+      asd == asdin & rsd == rsdin & bsd == bsdin & ndays == ndaysin
+    ) %>% 
+    pull(out) %>% 
+    .[[1]] %>% 
+    .[[1]]
+  cmp <- inner_join(fwdatcmp, res, by = c('Date', 'DateTimeStamp')) %>%
+    select(-converge, -dDO, -DO_obs.y, -rsq, -matches('lo$|hi$')) %>%
+    rename(
+      DO_mod.x = DO_obs.x,
+      DO_mod.y = DO_mod
+    ) %>%
+    pivot_longer(!all_of(c('DateTimeStamp', 'Date', 'grp')), names_to = 'var', values_to = 'val') %>%
+    separate(var, c('var', 'mod'), sep = '\\.') %>%
+    mutate(
+      mod = case_when(
+        mod == 'x' ~ 'Fwoxy',
+        mod == 'y' ~ 'EBASE'
+      )
+    ) %>%
+    pivot_wider(names_from = 'mod', values_from = 'val')
+  
+  toplo1 <- cmp %>% 
+    filter(var %in% c('Pg_vol', 'Rt_vol', 'D')) %>% 
+    group_by(grp, var) %>% 
+    summarise(
+      Fwoxy = mean(Fwoxy, na.rm = T), 
+      EBASE = mean(EBASE, na.rm = T),
+      Date  = min(Date),
+      .groups = 'drop'
+    ) %>% 
+    pivot_longer(-c(Date, grp, var), names_to = 'model', values_to = 'est') %>% 
+    mutate(
+      var = factor(var, 
+                   levels = c('Pg_vol', 'Rt_vol', 'D'), 
+                   labels = c('Pg [vol]', 'Rt [vol]', 'D')
+      )
+    ) %>% 
+    select(-grp)
+  
+  ylab <- expression(paste(O [2], ' (mmol ', m^-3, ' ', d^-1, ')'))
+  
+  p1 <- ggplot(toplo1, aes(x = Date, y = est, group = model, color = model)) + 
+    geom_line() +
+    geom_point() + 
+    facet_wrap(~var, ncol = 1, strip.position = 'left', scales = 'free_y', labeller = label_parsed) + 
+    theme_minimal() + 
+    theme(
+      strip.placement = 'outside', 
+      strip.background = element_blank(), 
+      legend.position = 'top', 
+      legend.title = element_blank(),
+      strip.text = element_text(size = rel(1))
+    ) + 
+    labs(
+      x = NULL, 
+      y = ylab
+    )
+  
+  labs <- c('DO[mod]~(mmol~O[2]~m^{3}~d^{-1})',
+            'a~(mmol~m^{-3}~d^{-1})/(W~m^{-2})', 
+            'b~(cm~hr^{-1})/(m^{2}~s^{-2})'
   )
   
-  toshw <- met$lbs[ind]
-  leglb <- met$lbspr[ind]
-  direc <- met$direc[ind]
-  
-  toplo <- dat %>% 
-    select(-amean, -asd, -rmean, -rsd) %>% 
-    unnest('ests') %>% 
-    select(ndays, bmean, bsd, var, matches(toshw)) %>%
-    filter(!var %in% 'b') %>%
-    pivot_wider(names_from = 'var', values_from = !!toshw) %>% 
+  toplo2 <- cmp %>% 
+    filter(var %in% c('DO_mod', 'a', 'b')) %>% 
+    group_by(grp, var) %>%
+    summarise(
+      Fwoxy = mean(Fwoxy, na.rm = T),
+      EBASE = mean(EBASE, na.rm = T),
+      Date = min(Date),
+      .groups = 'drop'
+    ) %>%
+    pivot_longer(-c(Date, grp, var), names_to = 'model', values_to = 'est') %>% 
     mutate(
-      ind = sort(rep(1: (nrow(.) / 2), times = 2)), 
-      ndays = case_when(
-        ndays == 1 ~ paste(ndays, 'day'), 
-        T ~ paste(ndays, 'days')
+      var = factor(var, 
+                   levels = c('DO_mod', 'a', 'b'), 
+                   labels = labs
       )
-    )
-  
-  toplo1 <- toplo %>% 
-    select(ind, bmean, bsd) %>% 
-    unique() %>% 
-    mutate(
-      def = case_when(
-        bmean == 0.251 & bsd == 0.01 ~ '*', 
-        T ~ ''
-      ),
-      bmean = factor(bmean, labels = c('L', 'M', 'H')),
-      bsd = factor(bsd, labels = c('L', 'M', 'H'))
     ) %>% 
-    pivot_longer(-c('ind', 'def'), names_to = 'var', values_to = 'val') %>% 
-    mutate(
-      var = factor(var, 
-                   levels = c('bmean', 'bsd'), 
-                   labels = c('mean', 'sd'))
-    ) 
+    select(-grp)
   
-  toplo2 <- toplo %>% 
-    select(-bmean, -bsd) %>%
-    pivot_longer(-c(ind, ndays), names_to = 'var', values_to = 'val') %>% 
-    mutate(
-      var = factor(var, 
-                   levels = c('DO_mod', 'Pg_vol', 'Rt_vol', 'D', 'a'), 
-                   labels = c('DO', 'P', 'R', 'D', 'italic(a)')
-      )
-    )
-  
-  p1 <- ggplot(toplo1, aes(y = ind, x = var, fill = val)) + 
-    geom_tile(color = 'black') + 
+  p2 <- ggplot(toplo2, aes(x = Date, y = est, group = model, color = model)) + 
+    geom_line() +
+    geom_point() +
+    facet_wrap(~var, ncol = 1, strip.position = 'left', scales = 'free_y', labeller = label_parsed) + 
+    theme_minimal() + 
     theme(
-      axis.text.x = element_text(size = 12), 
-      axis.text.y = element_text(size = 12),
-      axis.ticks = element_blank(), 
-      legend.position = 'left', 
-      legend.title = element_blank()
-    ) + 
-    scale_fill_brewer(palette = 'Greys') + 
-    scale_x_discrete(position = 'top', expand = c(0, 0)) + 
-    scale_y_reverse(expand = c(0, 0), breaks = toplo1$ind, labels = toplo1$def) + 
-    labs(
-      y = NULL, 
-      x = parse(text = 'italic(b)~prior'),
-      caption = '* EBASE default'
-    )
-  
-  p2 <- ggplot(toplo2, aes(y = ind, x = var, fill = val)) + 
-    geom_tile(color = 'black') + 
-    theme(
-      axis.text.x = element_text(face = 'italic', size = 12), 
-      axis.text.y = element_blank(),
-      axis.ticks = element_blank(), 
-      legend.position = 'right', 
+      strip.placement = 'outside', 
       strip.background = element_blank(), 
-      strip.text = element_text(hjust = 0, size = 12, face = 'bold')
+      legend.position = 'top', 
+      legend.title = element_blank(), 
+      strip.text = element_text(size = rel(1))
     ) + 
-    facet_wrap(~ndays, ncol = 2) + 
-    scale_fill_distiller(palette = 'YlOrRd', direction = direc, limits = c(0, 100)) + 
-    scale_x_discrete(position = 'top', expand = c(0, 0), labels = parse(text = levels(toplo2$var))) + 
-    scale_y_reverse(expand = c(0, 0)) +
     labs(
-      y = NULL, 
-      fill = parse(text = leglb),
-      x = 'Parameter from EBASE vs simulated,\nby optimization period'
+      x = NULL, 
+      y = NULL
     )
   
-  out <- p1 + p2 + plot_layout(ncol = 2, widths = c(0.3, 1))
-  
-  return(out)
+  p1 + p2 + plot_layout(ncol = 1, guides = 'collect') & theme(legend.position = 'top')
   
 }
