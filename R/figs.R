@@ -67,20 +67,11 @@ dev.off()
 fl <- paste0(tempdir(), '/apasumdat.RData')
 download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/apasumdat.RData', destfile = fl)
 load(file = fl)
-fl <- paste0(tempdir(), '/apasumdatmean.RData')
-download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/apasumdatmean.RData', destfile = fl)
-load(file = fl)
 
 p1 <- priorcomp(apasumdat, 1)
 
-p2 <- priorcompmean(apasumdatmean, 1)
-
 png(here('figs/apasumdat.png'), height = 6, width = 6, family = 'serif', units = 'in', res = 500)
 print(p1)
-dev.off()
-
-png(here('figs/apasumdatmean.png'), height = 3, width = 6, family = 'serif', units = 'in', res = 500)
-print(p2)
 dev.off()
 
 # actual apa comparison -----------------------------------------------------------------------
