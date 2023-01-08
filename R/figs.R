@@ -95,10 +95,10 @@ fwdatcmp <- fwdat %>%
   ) %>% 
   select(Date, DateTimeStamp, DO_obs, a, b, Pg_vol, Rt_vol, D)
 
-p1 <- optex(apagrd, fwdatcmp, asdin = 1, rsdin = 50, bsdin = 0.001, ndaysin = 1) + 
-  labs(
-    subtitle = parse(text = paste(c('ndays=1', 'italic(a)(sd)=1', 'italic(r)(sd)=50', 'italic(b)(sd)=0.001'), collapse = ', '))
-  )
+p1 <- optex(apagrd, fwdatcmp, asdin = 1, rsdin = 50, bsdin = 0.001, ndaysin = 1) #+ 
+  # labs(
+  #   subtitle = parse(text = paste(c('ndays=1', 'italic(a)(sd)=1', 'italic(r)(sd)=50', 'italic(b)(sd)=0.001'), collapse = ', '))
+  # )
 p2 <- optex(apagrd, fwdatcmp, asdin = 0.01, rsdin = 50, bsdin = 0.001, ndaysin = 7) #+ 
   # labs(
   #   subtitle = parse(text = 'ndays=7,'~'italic(a)(sd)=0.01,'~'italic(r)(sd)=50,'~'italic(b)(sd)=0.001')
