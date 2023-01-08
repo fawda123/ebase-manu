@@ -84,3 +84,202 @@ apacmp_plo <- function(dat, xlb = 'EBASE', ylb = 'Odum', dotyp = 'observed', add
   return(out)
   
 }
+
+# Fwoxy apa comparison to EBASE for different priors sd only
+priorcomp <- function(dat, ind){
+  
+  met <- tibble(
+    lbs = c('r2', 'rmse', 'aved'),
+    lbspr = c('italic(R)^2', 'RMSE', 'Ave.\nDiff.'), 
+    direc = c(-1, 1, 1)
+  )
+  
+  toshw <- met$lbs[ind]
+  leglb <- met$lbspr[ind]
+  direc <- met$direc[ind]
+  
+  toplo <- dat %>% 
+    select(-amean, -rmean, -bmean) %>% 
+    unnest('ests') %>% 
+    select(ndays, asd, rsd, bsd, var, matches(toshw)) %>%
+    filter(!var %in% 'b') %>% 
+    pivot_wider(names_from = 'var', values_from = !!toshw) %>% 
+    mutate(
+      ind = sort(rep(1: (nrow(.) / 2), times = 2)), 
+      ndays = case_when(
+        ndays == 1 ~ paste(ndays, 'day'), 
+        T ~ paste(ndays, 'days')
+      )
+    )
+  
+  toplo1 <- toplo %>% 
+    select(ind, asd, rsd, bsd) %>% 
+    unique() %>% 
+    mutate(
+      def = case_when(
+        asd == 0.1 & rsd == 5 & bsd == 0.01 ~ '*', 
+        T ~ ''
+      ),
+      asd = factor(asd, labels = c('L', 'M', 'H')), 
+      rsd = factor(rsd, labels = c('L', 'M', 'H')), 
+      bsd = factor(bsd, labels = c('L', 'M', 'H')), 
+    ) %>% 
+    pivot_longer(-c('ind', 'def'), names_to = 'var', values_to = 'val') %>% 
+    mutate(
+      var = factor(var, 
+                   levels = c('asd', 'rsd', 'bsd'), 
+                   labels = c('italic(a)', 'italic(r)', 'italic(b)'))
+    ) 
+  
+  toplo2 <- toplo %>% 
+    select(-asd, -rsd, -bsd) %>%
+    pivot_longer(-c(ind, ndays), names_to = 'var', values_to = 'val') %>% 
+    mutate(
+      var = factor(var, 
+                   levels = c('DO_mod', 'Pg_vol', 'Rt_vol', 'D', 'a'), 
+                   labels = c('DO', 'P', 'R', 'D', 'italic(a)')
+      )
+    )
+  
+  p1 <- ggplot(toplo1, aes(y = ind, x = var, fill = val)) + 
+    geom_tile(color = 'black') + 
+    theme(
+      axis.text.x = element_text(size = 12), 
+      axis.text.y = element_text(size = 12),
+      axis.ticks = element_blank(), 
+      legend.position = 'left', 
+      legend.title = element_blank()
+    ) + 
+    scale_fill_brewer(palette = 'Greys') + 
+    scale_x_discrete(position = 'top', expand = c(0, 0), labels = parse(text = levels(toplo1$var))) + 
+    scale_y_reverse(expand = c(0, 0), breaks = toplo1$ind, labels = toplo1$def) + 
+    labs(
+      y = NULL, 
+      x = 'Variance of prior',
+      caption = '* EBASE default'
+    )
+  
+  p2 <- ggplot(toplo2, aes(y = ind, x = var, fill = val)) + 
+    geom_tile(color = 'black') + 
+    theme(
+      axis.text.x = element_text(face = 'italic', size = 12), 
+      axis.text.y = element_blank(),
+      axis.ticks = element_blank(), 
+      legend.position = 'right', 
+      strip.background = element_blank(), 
+      strip.text = element_text(hjust = 0, size = 12, face = 'bold')
+    ) + 
+    facet_wrap(~ndays, ncol = 2) + 
+    scale_fill_distiller(palette = 'YlOrRd', direction = direc, limits = c(0, 100)) + 
+    scale_x_discrete(position = 'top', expand = c(0, 0), labels = parse(text = levels(toplo2$var))) + 
+    scale_y_reverse(expand = c(0, 0)) + 
+    labs(
+      y = NULL, 
+      fill = parse(text = leglb),
+      x = 'Parameter from EBASE vs simulated,\nby optimization period'
+    )
+  
+  out <- p1 + p2 + plot_layout(ncol = 2, widths = c(0.3, 1))
+  
+  return(out)
+  
+}
+
+# Fwoxy apa comparison to EBASE for different priors, b mean and sd changes only
+priorcompmean <- function(dat, ind){
+  
+  met <- tibble(
+    lbs = c('r2', 'rmse', 'aved'),
+    lbspr = c('italic(R)^2', 'RMSE', 'Ave.\nDiff.'), 
+    direc = c(-1, 1, 1)
+  )
+  
+  toshw <- met$lbs[ind]
+  leglb <- met$lbspr[ind]
+  direc <- met$direc[ind]
+  
+  toplo <- dat %>% 
+    select(-amean, -asd, -rmean, -rsd) %>% 
+    unnest('ests') %>% 
+    select(ndays, bmean, bsd, var, matches(toshw)) %>%
+    filter(!var %in% 'b') %>%
+    pivot_wider(names_from = 'var', values_from = !!toshw) %>% 
+    mutate(
+      ind = sort(rep(1: (nrow(.) / 2), times = 2)), 
+      ndays = case_when(
+        ndays == 1 ~ paste(ndays, 'day'), 
+        T ~ paste(ndays, 'days')
+      )
+    )
+  
+  toplo1 <- toplo %>% 
+    select(ind, bmean, bsd) %>% 
+    unique() %>% 
+    mutate(
+      def = case_when(
+        bmean == 0.251 & bsd == 0.01 ~ '*', 
+        T ~ ''
+      ),
+      bmean = factor(bmean, labels = c('L', 'M', 'H')),
+      bsd = factor(bsd, labels = c('L', 'M', 'H'))
+    ) %>% 
+    pivot_longer(-c('ind', 'def'), names_to = 'var', values_to = 'val') %>% 
+    mutate(
+      var = factor(var, 
+                   levels = c('bmean', 'bsd'), 
+                   labels = c('mean', 'sd'))
+    ) 
+  
+  toplo2 <- toplo %>% 
+    select(-bmean, -bsd) %>%
+    pivot_longer(-c(ind, ndays), names_to = 'var', values_to = 'val') %>% 
+    mutate(
+      var = factor(var, 
+                   levels = c('DO_mod', 'Pg_vol', 'Rt_vol', 'D', 'a'), 
+                   labels = c('DO', 'P', 'R', 'D', 'italic(a)')
+      )
+    )
+  
+  p1 <- ggplot(toplo1, aes(y = ind, x = var, fill = val)) + 
+    geom_tile(color = 'black') + 
+    theme(
+      axis.text.x = element_text(size = 12), 
+      axis.text.y = element_text(size = 12),
+      axis.ticks = element_blank(), 
+      legend.position = 'left', 
+      legend.title = element_blank()
+    ) + 
+    scale_fill_brewer(palette = 'Greys') + 
+    scale_x_discrete(position = 'top', expand = c(0, 0)) + 
+    scale_y_reverse(expand = c(0, 0), breaks = toplo1$ind, labels = toplo1$def) + 
+    labs(
+      y = NULL, 
+      x = parse(text = 'italic(b)~prior'),
+      caption = '* EBASE default'
+    )
+  
+  p2 <- ggplot(toplo2, aes(y = ind, x = var, fill = val)) + 
+    geom_tile(color = 'black') + 
+    theme(
+      axis.text.x = element_text(face = 'italic', size = 12), 
+      axis.text.y = element_blank(),
+      axis.ticks = element_blank(), 
+      legend.position = 'right', 
+      strip.background = element_blank(), 
+      strip.text = element_text(hjust = 0, size = 12, face = 'bold')
+    ) + 
+    facet_wrap(~ndays, ncol = 2) + 
+    scale_fill_distiller(palette = 'YlOrRd', direction = direc, limits = c(0, 100)) + 
+    scale_x_discrete(position = 'top', expand = c(0, 0), labels = parse(text = levels(toplo2$var))) + 
+    scale_y_reverse(expand = c(0, 0)) +
+    labs(
+      y = NULL, 
+      fill = parse(text = leglb),
+      x = 'Parameter from EBASE vs simulated,\nby optimization period'
+    )
+  
+  out <- p1 + p2 + plot_layout(ncol = 2, widths = c(0.3, 1))
+  
+  return(out)
+  
+}
