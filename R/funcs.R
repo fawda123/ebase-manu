@@ -186,7 +186,7 @@ priorcomp <- function(dat, ind){
 }
 
 # comparison of fwoxy and ebase results for selected prior at time step of ndays
-optex <- function(apagrd, fwdatcmp, asdin, rsdin, bsdin, ndaysin){
+optex <- function(apagrd, fwdatcmp, asdin, rsdin, bsdin, ndaysin, subttl, ylbs = TRUE){
   
   res <- apagrd %>% 
     filter(
@@ -224,7 +224,7 @@ optex <- function(apagrd, fwdatcmp, asdin, rsdin, bsdin, ndaysin){
     mutate(
       var = factor(var, 
                    levels = c('Pg_vol', 'Rt_vol', 'D'), 
-                   labels = c('Pg [vol]', 'Rt [vol]', 'D')
+                   labels = c('P~(mmol~m^{3}~d^{-1})', 'R~(mmol~m^{3}~d^{-1})', 'D~(mmol~m^{3}~d^{-1})')
       )
     ) %>% 
     select(-grp)
@@ -232,8 +232,8 @@ optex <- function(apagrd, fwdatcmp, asdin, rsdin, bsdin, ndaysin){
   ylab <- expression(paste(O [2], ' (mmol ', m^-3, ' ', d^-1, ')'))
   
   p1 <- ggplot(toplo1, aes(x = Date, y = est, group = model, color = model)) + 
-    geom_line() +
-    geom_point() + 
+    geom_line(alpha = 1) +
+    # geom_point() + 
     facet_wrap(~var, ncol = 1, strip.position = 'left', scales = 'free_y', labeller = label_parsed) + 
     theme_minimal() + 
     theme(
@@ -241,16 +241,18 @@ optex <- function(apagrd, fwdatcmp, asdin, rsdin, bsdin, ndaysin){
       strip.background = element_blank(), 
       legend.position = 'top', 
       legend.title = element_blank(),
-      strip.text = element_text(size = rel(1))
+      strip.text = element_text(size = rel(0.7)), 
+      axis.text.x = element_blank()
     ) + 
     labs(
       x = NULL, 
-      y = ylab
+      y = NULL,
+      subtitle = subttl
     )
   
-  labs <- c('DO[mod]~(mmol~O[2]~m^{3}~d^{-1})',
-            'a~(mmol~m^{-3}~d^{-1})/(W~m^{-2})', 
-            'b~(cm~hr^{-1})/(m^{2}~s^{-2})'
+  labs <- c('DO~(mmol~m^{3}~d^{-1})',
+            'italic(a)~(mmol~m^{-3}~d^{-1})/(W~m^{-2})', 
+            'italic(b)~(cm~hr^{-1})/(m^{2}~s^{-2})'
   )
   
   toplo2 <- cmp %>% 
@@ -272,8 +274,8 @@ optex <- function(apagrd, fwdatcmp, asdin, rsdin, bsdin, ndaysin){
     select(-grp)
   
   p2 <- ggplot(toplo2, aes(x = Date, y = est, group = model, color = model)) + 
-    geom_line() +
-    geom_point() +
+    geom_line(alpha = 1) +
+    # geom_point() +
     facet_wrap(~var, ncol = 1, strip.position = 'left', scales = 'free_y', labeller = label_parsed) + 
     theme_minimal() + 
     theme(
@@ -281,13 +283,22 @@ optex <- function(apagrd, fwdatcmp, asdin, rsdin, bsdin, ndaysin){
       strip.background = element_blank(), 
       legend.position = 'top', 
       legend.title = element_blank(), 
-      strip.text = element_text(size = rel(1))
+      strip.text = element_text(size = rel(0.7))
     ) + 
     labs(
       x = NULL, 
       y = NULL
     )
   
-  p1 + p2 + plot_layout(ncol = 1, guides = 'collect') & theme(legend.position = 'top')
+  if(!ylbs){
+    p1 <- p1 + 
+      theme(strip.text = element_blank()) + 
+      labs(y = NULL)
+    p2 <- p2 + 
+      theme(strip.text = element_blank())
+    
+  }
+    
+  p1 + p2
   
 }
