@@ -3,6 +3,10 @@ library(tidyverse)
 library(lubridate)
 library(here)
 
+source(file = here('R/funcs.R'))
+
+# comparison of EBASE to other methods with actual apa data -----------------------------------
+
 load(file = url('https://github.com/fawda123/BASEmetab_script/raw/master/data/apacmp.RData'))
 
 tosum <- apacmp %>% 

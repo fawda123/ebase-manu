@@ -95,15 +95,15 @@ fwdatcmp <- fwdat %>%
   ) %>% 
   select(Date, DateTimeStamp, DO_obs, a, b, Pg_vol, Rt_vol, D)
 
-subttl <- expression(paste('ndays = 1, ', italic(a), ' (sd) = 1, ', italic(r), ' (sd) = 50, ', italic(b), ' (sd) = 0.001'))
+subttl <- expression(paste('(a) ndays = 1, ', italic(a), ' (sd) = 1, ', italic(r), ' (sd) = 50, ', italic(b), ' (sd) = 0.001'))
 p1 <- optex(apagrd, fwdatcmp, asdin = 1, rsdin = 50, bsdin = 0.001, ndaysin = 1, subttl = subttl)
 
-subttl <- expression(paste('ndays = 7, ', italic(a), ' (sd) = 0.01, ', italic(r), ' (sd) = 50, ', italic(b), ' (sd) = 0.001'))
+subttl <- expression(paste('(b) ndays = 7, ', italic(a), ' (sd) = 0.01, ', italic(r), ' (sd) = 50, ', italic(b), ' (sd) = 0.001'))
 p2 <- optex(apagrd, fwdatcmp, asdin = 0.01, rsdin = 50, bsdin = 0.001, ndaysin = 7, subttl = subttl, ylbs = F)
 
 p <- ((p1 + plot_layout(ncol = 1)) | (p2 + plot_layout(ncol = 1)))  + plot_layout(ncol = 2, guides = 'collect') & theme(legend.position = 'top')
 
-png(here('figs/optex.png'), height = 9, width = 8, family = 'serif', units = 'in', res = 500)
+png(here('figs/optex.png'), height = 8.75, width = 8, family = 'serif', units = 'in', res = 500)
 print(p)
 dev.off()
 
