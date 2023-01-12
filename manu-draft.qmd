@@ -46,6 +46,7 @@ library(officer)
 library(officedown)
 library(flextable)
 
+load(file = here('tabs/ebaseiotab.RData'))
 load(file = here('tabs/apacmptab.RData'))
 ```
 
@@ -129,7 +130,7 @@ $$ {#eq-ebase}
 
 As for BASEmetab, the metabolic estimates in EBASE are defined by the change in dissolved oxygen over the time step, $\delta{C_d}/\delta{t}$, where gross production is provided by $aPAR$, respiration is provided by $r$, and gas exchange is provided by the remainder [as in @Wanninkhof14].  Units for each of the metabolic estimates are $\runi$.  
 
-The remaining three parameters $a$ (light efficiency, $\auni$), $r$ (respiration, $\runi$), and $b$ ($\buni$) are estimated by likelihood given the observed data and prior distributions for the parameters.  The JAGS software [@Plummer03] is used with the EBASE R package [described below, @Beck22;@RCT22] to estimate the unknown parameters using Markov Chain Monte Carlo simulations in a Bayesian framework. At each time step, the change in oxygen concentration between time steps is calculated from the equation using model inputs and parameter guesses, and then a finite difference approximation is used to estimate modeled oxygen concentration. Estimations proceed using a forward in time integration where the dissolved oxygen at each time step is informed by parameter estimates from the preceding time steps.  The estimated dissolved oxygen concentration is also returned, which can be compared to observed as one measure of model performance.
+The remaining three parameters $a$ (light efficiency, $\auni$), $r$ (respiration, $\runi$), and $b$ ($\buni$) are estimated by likelihood given the observed data and prior distributions for the parameters.  The JAGS software [@Plummer03] is used with the EBASE R package [described below, @Beck22;@RCT22] to estimate the unknown parameters using Markov Chain Monte Carlo simulations in a Bayesian framework. At each time step, the change in oxygen concentration between time steps is calculated from the equation using model inputs and parameter guesses, and then a finite difference approximation is used to estimate modeled oxygen concentration. Estimations proceed using a forward in time integration where the dissolved oxygen at each time step is informed by parameter estimates from the preceding time steps.  The estimated dissolved oxygen concentration is also returned, which can be compared to observed as one measure of model performance.  All parameter inputs and outputs for EBASE are shown in `r run_reference(id = "ebaseiotab")`.
 
 ### Bayesian prior
 
@@ -213,13 +214,11 @@ As noted in the previous paragraph, metabolic estimates between the methods were
 
 ## Tables {.unnumbered}
 
-Table 1: EBASE parameters and outputs
-
-Table 2: Summary stats of Fwoxy comparison
-
-Table 3: Summary stats of Apalachicola comparison
-
-Table 4: Key parameters form NERRS application
+```{r}
+#| label: ebaseiotab
+#| tbl-cap: "EBASE model parameters showing the required input, parameters derived from the model input, and model output.  The model notation shows the components decribed in @eq-ebase.  The model notation for production, respiration, and gas exchange shows both the simple parameter name and the components of @eq-ebase used to estimate the parameter."
+ebaseiotab
+```
 
 \newpage
 
