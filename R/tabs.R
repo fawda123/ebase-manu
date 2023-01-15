@@ -35,8 +35,8 @@ ebaseiotab <- flextable(totab) %>%
   flextable::compose(i = 10, j = 3, value = as_paragraph(as_equation('S_c', props = eqsz))) %>% 
   flextable::compose(i = 11, j = 3, value = as_paragraph(as_equation('C_{sat}', props = eqsz))) %>% 
   flextable::compose(i = 13, j = 3, value = as_paragraph(as_equation('C_{mod}', props = eqsz))) %>% 
-  flextable::compose(i = 14, j = 3, value = as_paragraph(as_equation('Pg_{vol}, aPAR', props = eqsz))) %>% 
-  flextable::compose(i = 15, j = 3, value = as_paragraph(as_equation('Rt_{vol}, r', props = eqsz))) %>% 
+  flextable::compose(i = 14, j = 3, value = as_paragraph(as_equation('P, aPAR', props = eqsz))) %>% 
+  flextable::compose(i = 15, j = 3, value = as_paragraph(as_equation('R, r', props = eqsz))) %>% 
   flextable::compose(i = 16, j = 3, value = as_paragraph(as_equation('D, \\frac{1}{H}\\left[-bU_{10}^2\\left(\\frac{s_c}{600} \\right)^{-0.5} \\left(C_{Sat} - C_d\\right )\\right]', props = eqsz))) %>% 
   flextable::compose(i = 17, j = 3, value = as_paragraph(as_equation('a', props = eqsz))) %>% 
   flextable::compose(i = 18, j = 3, value = as_paragraph(as_equation('b', props = eqsz))) %>% 
@@ -70,6 +70,7 @@ load(file = url('https://github.com/fawda123/BASEmetab_script/raw/master/data/ap
 
 tosum <- apacmp %>% 
   mutate(
+    typ = ifelse(typ == 'BASEmetab', 'BASE', typ),
     val = case_when(
       var == 'Rt_vol' ~ -1 * val, 
       T ~ val
@@ -84,7 +85,7 @@ tosum <- apacmp %>%
 grd <- crossing(
   dotyp = unique(tosum$dotyp), 
   var = levels(tosum$var), 
-  comp = c('Odum v EBASE', 'BASEmetab v EBASE')
+  comp = c('Odum v EBASE', 'BASE v EBASE')
   ) %>% 
   mutate(
     corv = NA, 
@@ -144,7 +145,7 @@ totab <- grd %>%
   select(dotyp, comp, var, corv, int, slo, rse) %>% 
   mutate(
     dotyp = factor(dotyp, levels = c('observed', 'detided'), labels = c('Observed', 'Detided')), 
-    comp = factor(comp, levels = c('Odum v EBASE', 'BASEmetab v EBASE')), 
+    comp = factor(comp, levels = c('Odum v EBASE', 'BASE v EBASE')), 
     var = factor(var, levels = c('NEM', 'P', 'R', 'D'))
   ) %>% 
   arrange(dotyp, comp, var) %>%

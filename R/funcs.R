@@ -155,7 +155,7 @@ priorcomp <- function(dat, ind){
     scale_y_reverse(expand = c(0, 0), breaks = toplo1$ind, labels = toplo1$def) + 
     labs(
       y = NULL, 
-      x = 'Variance of prior',
+      x = 'St. dev. of prior',
       caption = '* EBASE default'
     )
   

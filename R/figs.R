@@ -4,6 +4,7 @@ library(here)
 library(patchwork)
 library(EBASE)
 library(readr)
+library(scales)
 
 source(here('R/funcs.R'))
 
@@ -53,6 +54,10 @@ p2 <- ggplot(fwdatcmp, aes(x = DateTimeStamp, y = a)) +
   )
 
 p3 <- ebase_plot(fwdatcmp, instantaneous = F) +
+  ggplot2::scale_color_discrete(
+    breaks = c('Pg_vol', 'Rt_vol', 'D'),
+    labels = c('P', 'R', 'D')
+  ) +
   scale_x_date(breaks = "1 month", labels = date_format("%b")) +
   labs(title = '(c) Simulated metabolic estimates')
 
@@ -113,6 +118,7 @@ load(file = url('https://github.com/fawda123/BASEmetab_script/raw/master/data/ap
 
 toplo <- apacmp %>% 
   mutate(
+    typ = ifelse(typ == 'BASEmetab', 'BASE', typ),
     val = case_when(
       var == 'Rt_vol' ~ -1 * val, 
       T ~ val
@@ -129,9 +135,9 @@ toplo <- apacmp %>%
   pivot_wider(names_from = 'typ', values_from = 'val')
 
 p1a <- apacmp_plo(toplo, xlb = NULL, ylb = 'Odum', dotyp = 'observed', addtitle = T)
-p1b <- apacmp_plo(toplo, xlb = NULL, ylb = 'BASEmetab', dotyp = 'observed', addtitle = F)
+p1b <- apacmp_plo(toplo, xlb = NULL, ylb = 'BASE', dotyp = 'observed', addtitle = F)
 p2a <- apacmp_plo(toplo, xlb = NULL, ylb = 'Odum', dotyp = 'detided', addtitle = T)
-p2b <- apacmp_plo(toplo, xlb = 'EBASE', ylb = 'BASEmetab', dotyp = 'detided', addtitle = F)
+p2b <- apacmp_plo(toplo, xlb = 'EBASE', ylb = 'BASE', dotyp = 'detided', addtitle = F)
 
 p <- p1a[[1]] + p1a[[2]] + p1a[[3]] + p1a[[4]] + p1b[[1]] + p1b[[2]] + p1b[[3]] + p1b[[4]] + 
   p2a[[1]] + p2a[[2]] + p2a[[3]] + p2a[[4]] + p2b[[1]] + p2b[[2]] + p2b[[3]] + p2b[[4]] + 
