@@ -70,10 +70,10 @@ load(file = here('tabs/apacmptab.RData'))
 The Estuarine BAyesian Single station Estimation (EBASE) method provides a simple approach to quantify metabolic parameters from continuous dissolved oxygen time series.  The EBASE method is a modified version of the BASE mass balance equation described in @Grace15.  The original equation is:
 
 $$
-\frac{\delta{C_d}}{\delta{t}} = [\,aPAR^p]\, - [\,r\Theta^{T - \bar{T}}]\, - \left[-K\cdot1.0241^{T-\bar{T}}\left(C_{sat} - C_d \right )\right]
+\frac{\partial{C_d}}{\partial{t}} = [\,aPAR^p]\, - [\,r\Theta^{T - \bar{T}}]\, - \left[-K\cdot1.0241^{T-\bar{T}}\left(C_{sat} - C_d \right )\right]
 $$ {#eq-base}
 
-where the terms in the square brackets are production (P), respiration (R), and gas exchange (D), respectively, modeled as a function of the change in dissolved oxygen ($\delta{C_d}$) per unit time ($\delta{t}$) of the input data.  Five unknown parameters are estimated from the data: $a$, $p$, $r$, $\Theta$, and $K$.  The required inputs are the time series of surface irradiance ($PAR$, $\mu$mol/m$^2$/s), water temperature ($T$, C), barometric pressure (atm), diel oxygen ($C_d$, mmol/m$^2$), and oxygen saturation ($C_{sat}$, mmol/m$^3$). Dissolved oxygen at saturation $C_{sat}$ is calculated from the input data as a function of water temperature, salinity, and barometric pressure.  Several changes, outlined and justified below, were made to @eq-base for EBASE.
+where the terms in the square brackets are production (P), respiration (R), and gas exchange (D), respectively, modeled as a function of the change in dissolved oxygen ($\partial{C_d}$) per unit time ($\partial{t}$) of the input data.  Five unknown parameters are estimated from the data: $a$, $p$, $r$, $\Theta$, and $K$.  The required inputs are the time series of surface irradiance ($PAR$, $\mu$mol/m$^2$/s), water temperature ($T$, C), barometric pressure (atm), diel oxygen ($C_d$, mmol/m$^2$), and oxygen saturation ($C_{sat}$, mmol/m$^3$). Dissolved oxygen at saturation $C_{sat}$ is calculated from the input data as a function of water temperature, salinity, and barometric pressure.  Several changes, outlined and justified below, were made to @eq-base for EBASE.
 
 ### Modification of the gas exchange parameterization
 
@@ -96,7 +96,7 @@ where $\bar{T}$ is the average water temperature over each 24-hour period in the
 Based on the above differences, the first modification to @eq-base for EBASE is use of a wind-based parameterization for gas exchange that is more appropriate for estuaries [@Wanninkhof14]:
 
 $$
-\frac{\delta{C_d}}{\delta{t}} = [\,aPAR^p]\, - [\,r\Theta^{T - \bar{T}}]\, - \frac{1}{H}\left[-bU_{10}^2\left(\frac{s_c}{600} \right)^{-0.5} \left(C_{Sat} - C_d \right )\right]
+\frac{\partial{C_d}}{\partial{t}} = [\,aPAR^p]\, - [\,r\Theta^{T - \bar{T}}]\, - \frac{1}{H}\left[-bU_{10}^2\left(\frac{s_c}{600} \right)^{-0.5} \left(C_{Sat} - C_d \right )\right]
 $$ {#eq-basewan}
 
 where $U_{10}^2$ is the wind speed at 10-m height, $H$ is water column depth (m, as a fixed parameter or time series from a pressure sensor) and $S_c$ is the Schmidt number defined as the ratio of the kinematic viscosity of water to the molecular diffusivity of the gas for oxygen [from water temperature and salinity using the polynomial fit of @Wanninkhof14].  The parameter $b$ ($\buni$) must be estimated from the data. 
@@ -125,10 +125,10 @@ $$ {#eq-ts}
 The second modification to @eq-base for EBASE is a simplification to remove the $p$ and $\Theta$ parameters from the production (P) and respiration (R) components, respectively, of the mass balance equation.  The BASE method provides options to estimate both $\Theta$ and $p$ from the data or to set as fixed values defined in the model file ($\Theta = 1.07177$, $p=1$). For EBASE, the temperature dependency of respiration is removed by setting $\Theta^{(T-\bar{T})}$ = 1.  The $p$ parameter, which is dimensionless, is also set to 1 as in @Holtgrieve10. Removing these components improved model stability by creating more reasonable estimates for the other parameters.  This further simplifies @eq-basewan to the final form for EBASE:
 
 $$
-\frac{\delta{C_d}}{\delta{t}} = [\,aPAR]\, - [\,r]\, - \frac{1}{H}\left[-bU_{10}^2\left(\frac{s_c}{600} \right)^{-0.5} \left(C_{Sat} - C_d \right )\right]
+\frac{\partial{C_d}}{\partial{t}} = [\,aPAR]\, - [\,r]\, - \frac{1}{H}\left[-bU_{10}^2\left(\frac{s_c}{600} \right)^{-0.5} \left(C_{Sat} - C_d \right )\right]
 $$ {#eq-ebase}
 
-As for BASE, the metabolic estimates in EBASE are defined by the change in dissolved oxygen over the time step, $\delta{C_d}/\delta{t}$, where gross production is provided by $aPAR$, respiration is provided by $r$, and gas exchange is provided by the remainder [as in @Wanninkhof14].  Units for each of the metabolic estimates are $\runi$.  
+As for BASE, the metabolic estimates in EBASE are defined by the change in dissolved oxygen over the time step, $\partial{C_d}/\partial{t}$, where gross production is provided by $aPAR$, respiration is provided by $r$, and gas exchange is provided by the remainder [as in @Wanninkhof14].  Units for each of the metabolic estimates are $\runi$.  
 
 The remaining three parameters $a$ (light efficiency, $\auni$), $r$ (respiration, $\runi$), and $b$ ($\buni$) are estimated by likelihood given the observed data and prior distributions for the parameters.  The JAGS software [as for BASE, @Plummer03] is used with the EBASE R package [described below, @Beck22;@RCT22] to estimate the unknown parameters using Markov Chain Monte Carlo simulations in a Bayesian framework. At each time step, the change in oxygen concentration between time steps is calculated from the equation using model inputs and parameter guesses, and then a finite difference approximation is used to estimate modeled oxygen concentration. Estimations proceed using a forward in time integration where the dissolved oxygen at each time step is informed by parameter estimates from the preceding time steps.  The estimated dissolved oxygen concentration is also returned, which can be compared to the observed values as one measure of model performance.  All parameter inputs and outputs for EBASE are shown in `r run_reference(id = "ebaseiotab")`.
 
