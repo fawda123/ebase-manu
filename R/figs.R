@@ -25,13 +25,13 @@ fwdatcmp <- fwdat %>%
     DateTimeStamp = dmy_hms(datet, tz = 'America/Jamaica'),
     Date = as.Date(DateTimeStamp, tz = 'America/Jamaica'),
     DO_obs = `oxy,mmol/m3`, 
-    a = `aparam,(mmolO2/m2/d)/(W/m2)` / `ht,m`,
-    Rt_vol = `er,mmol/m2/d` / `ht,m`,
-    Pg_vol = `gpp,mmol/m2/d` / `ht,m`,
-    D = -1 * `gasex,mmol/m2/d` / `ht,m`,
+    a = `aparam,(mmolO2/m2/d)/(W/m2)`,
+    R = `er,mmol/m2/d`,
+    P = `gpp,mmol/m2/d`,
+    D = -1 * `gasex,mmol/m2/d`,
     b = 100 * 3600 * `kw,m/s` / `wspd2,m2/s2` / (`sc,dimensionless` / 660) ^ -0.5 # (m/s)/(m2/s2) to (cm/hr) / (m2/s2)
   ) %>% 
-  select(Date, DateTimeStamp, DO_obs, a, b, Pg_vol, Rt_vol, D)
+  select(Date, DateTimeStamp, DO_obs, a, b, P, R, D)
 
 p1 <- ggplot(fwdatcmp, aes(x = DateTimeStamp, y = DO_obs)) + 
   geom_line(linewidth = 0.2) + 
@@ -40,7 +40,7 @@ p1 <- ggplot(fwdatcmp, aes(x = DateTimeStamp, y = DO_obs)) +
   labs(
     x = NULL, 
     y = expression(paste(O [2], ' (mmol ', m^-3, ')')),
-    title = '(a) Simulated dissolved oxygen'
+    title = '(a) Synthetic dissolved oxygen'
   )
 
 p2 <- ggplot(fwdatcmp, aes(x = DateTimeStamp, y = a)) + 
@@ -49,21 +49,20 @@ p2 <- ggplot(fwdatcmp, aes(x = DateTimeStamp, y = a)) +
   theme_minimal() + 
   labs(
     x = NULL, 
-    y = expression(paste(italic(a), ' (mmol ', m^-3, d^-1, ') / (W ', m^{-2}, ')')), 
-    title = expression(paste('(b) Simulated ', italic(a), ' parameter'))
+    y = expression(paste(italic(a), ' (mmol ', m^-2, d^-1, ') / (W ', m^{-2}, ')')), 
+    title = expression(paste('(b) Synthetic ', italic(a), ' parameter'))
   )
 
 p3 <- ebase_plot(fwdatcmp, instantaneous = F) +
   ggplot2::scale_color_discrete(
-    breaks = c('Pg_vol', 'Rt_vol', 'D'),
-    labels = c('P', 'R', 'D')
+    breaks = c('P', 'R', 'D')
   ) +
   scale_x_date(breaks = "1 month", labels = date_format("%b")) +
-  labs(title = '(c) Simulated metabolic estimates')
+  labs(title = '(c) Synthetic metabolic estimates')
 
 p <- p1 + p2 + p3 + plot_layout(ncol = 1) & theme(panel.grid.minor = element_blank())
 
-png(here('figs/simapa.png'), height = 8, width = 8, family = 'serif', units = 'in', res = 500)
+png(here('figs/synapa.png'), height = 8, width = 8, family = 'serif', units = 'in', res = 500)
 print(p)
 dev.off()
 
