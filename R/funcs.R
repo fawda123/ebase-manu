@@ -19,7 +19,7 @@ simpleCap <- function(x) {
 }
 
 # create subplots for apalachicola obs v dtd metab comparisons
-apacmp_plo <- function(dat, xlb = 'EBASE', ylb = 'Odum', dotyp = 'observed', addtitle = T, alph = 0.8, cols = c('darkgrey', 'black')){
+apacmp_plo <- function(dat, xlb = 'EBASE', ylb = 'Odum', dotyp = 'observed', addtitle = T, alph = 0.5, col = 'black'){
 
   thm <- theme_minimal() + 
     theme(
@@ -60,9 +60,9 @@ apacmp_plo <- function(dat, xlb = 'EBASE', ylb = 'Odum', dotyp = 'observed', add
     lims <- range(toplotmp[, c('yval', 'EBASE')], na.rm = T)
     
     ptmp <- ggplot(toplotmp, aes(x = EBASE, y = yval)) + 
-      geom_point(aes(colour = seas), alpha = alph) + 
+      geom_point(color = col, alpha = alph, stroke = 0, size = 2) + 
       geom_abline(intercept = 0, slope = 1) +
-      geom_smooth(method = 'lm', se = F, colour = 'tomato1', size = 0.7) +
+      geom_smooth(formula = y ~ x ,method = 'lm', se = F, colour = 'tomato1', size = 0.7) +
       facet_wrap(~var, ncol = 1) +
       scale_colour_manual(values = cols) + 
       scale_x_continuous(limits = lims) + 

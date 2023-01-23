@@ -210,7 +210,7 @@ As noted in the previous paragraph, metabolic estimates between the methods were
 
 \newpage
 
-![Comparisons of daily metabolic estimates from the Odum, BASE, and EBASE methods for one year of continuous monitoring data at Apalachicola Bay. Results for net ecosystem metabolism (NEM), gross production (P), respiration (R), and gas exchange (D) are compared using the (a) observed and (b) detided dissolved oxygen time series as input to each model.  All values are volumetric as mmol O$_2$ m$^3$ d$^{-1}$ and are grouped by the dry or wet season. Black lines show the 1:1 comparison and the red lines show the linear regression fit.](figs/apacmpfig.png){#fig-apacmpfig fig-align="center"}
+![Comparisons of daily metabolic estimates from the Odum, BASE, and EBASE methods for one year of continuous monitoring data at Apalachicola Bay. Results for net ecosystem metabolism (NEM), gross production (P), respiration (R), and gas exchange (D) are compared using the (a) observed and (b) detided dissolved oxygen time series as input to each model.  All values are volumetric as mmol O$_2$ m$^3$ d$^{-1}$. Black lines show the 1:1 comparison and the red lines show the linear regression fit.](figs/apacmpfig.png){#fig-apacmpfig fig-align="center"}
 
 \newpage
 
