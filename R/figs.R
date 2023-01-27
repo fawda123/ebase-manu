@@ -25,7 +25,7 @@ fwdatcmp <- fwdat %>%
     DateTimeStamp = dmy_hms(datet, tz = 'America/Jamaica'),
     Date = as.Date(DateTimeStamp, tz = 'America/Jamaica'),
     DO_obs = `oxy,mmol/m3`, 
-    a = `aparam,(mmolO2/m2/d)/(W/m2)`,
+    a = `aparam,(mmolO2/m2/d)/(W/m2)`, # no conversion to volumetric, just for this plot
     R = `er,mmol/m2/d`,
     P = `gpp,mmol/m2/d`,
     D = -1 * `gasex,mmol/m2/d`,
@@ -123,8 +123,7 @@ toplo <- apacmp %>%
       T ~ val
     ), 
     var = factor(var, 
-                 levels = c('NEM', 'Pg_vol', 'Rt_vol', 'D'), 
-                 labels = c('NEM', 'P', 'R', 'D')
+                 levels = c('NEM', 'P', 'R', 'D')
     ), 
     seas = case_when(
       month(Date) %in% c(1:5, 10:12) ~ 'dry', 
