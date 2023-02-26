@@ -87,7 +87,7 @@ apacmp_plo <- function(dat, xlb = 'EBASE', ylb = 'Odum', dotyp = 'observed', add
 
 # Fwoxy apa comparison to EBASE for different priors sd only
 priorcomp <- function(dat, ind){
-  
+
   met <- tibble(
     lbs = c('r2', 'rmse', 'aved'),
     lbspr = c('italic(R)^2', 'RMSE', 'Ave.\nDiff.'), 
@@ -99,13 +99,12 @@ priorcomp <- function(dat, ind){
   direc <- met$direc[ind]
   
   toplo <- dat %>% 
-    select(-amean, -rmean, -bmean) %>% 
     unnest('ests') %>% 
-    select(ndays, asd, rsd, bsd, var, matches(toshw)) %>%
+    select(ndays, amean, asd, rmean, rsd, bmean, bsd, var, matches(toshw)) %>%
     filter(!var %in% 'b') %>% 
     pivot_wider(names_from = 'var', values_from = !!toshw) %>% 
     mutate(
-      ind = sort(rep(1: (nrow(.) / 2), times = 2)), 
+      ind = rep(1: (nrow(.) / 2), times = 2), 
       ndays = case_when(
         ndays == 1 ~ paste(ndays, 'day'), 
         T ~ paste(ndays, 'days')
@@ -113,30 +112,23 @@ priorcomp <- function(dat, ind){
     )
   
   toplo1 <- toplo %>% 
-    select(ind, asd, rsd, bsd) %>% 
+    select(ind, amean, asd, rmean, rsd, bmean, bsd) %>% 
     unique() %>% 
-    mutate(
-      def = case_when(
-        asd == 0.1 & rsd == 5 & bsd == 0.01 ~ '*', 
-        T ~ ''
-      ),
-      asd = factor(asd, labels = c('L', 'M', 'H')), 
-      rsd = factor(rsd, labels = c('L', 'M', 'H')), 
-      bsd = factor(bsd, labels = c('L', 'M', 'H')), 
-    ) %>% 
-    pivot_longer(-c('ind', 'def'), names_to = 'var', values_to = 'val') %>% 
+    mutate_at(-ind, factor, labels = c('L', 'H')) %>% 
+    pivot_longer(-c('ind'), names_to = 'var', values_to = 'val') %>% 
     mutate(
       var = factor(var, 
-                   levels = c('asd', 'rsd', 'bsd'), 
-                   labels = c('italic(a)', 'italic(r)', 'italic(b)'))
+                   levels = c('amean', 'asd', 'rmean', 'rsd', 'bmean', 'bsd'), 
+                   labels = c('italic(a)~mean', 'italic(a)~sd', 'italic(r)~mean', 'italic(r)~sd', 'italic(b)~mean', 'italic(b)~sd')), 
+      fac = ''
     ) 
   
   toplo2 <- toplo %>% 
-    select(-asd, -rsd, -bsd) %>%
+    select(-amean, -asd, -rmean, -rsd, -bmean, -bsd) %>%
     pivot_longer(-c(ind, ndays), names_to = 'var', values_to = 'val') %>% 
     mutate(
       var = factor(var, 
-                   levels = c('DO_mod', 'Pg_vol', 'Rt_vol', 'D', 'a'), 
+                   levels = c('DO_mod', 'P', 'R', 'D', 'a'), 
                    labels = c('DO', 'P', 'R', 'D', 'italic(a)')
       )
     )
@@ -144,19 +136,21 @@ priorcomp <- function(dat, ind){
   p1 <- ggplot(toplo1, aes(y = ind, x = var, fill = val)) + 
     geom_tile(color = 'black') + 
     theme(
-      axis.text.x = element_text(size = 12), 
-      axis.text.y = element_text(size = 12),
+      axis.text.x = element_text(size = 9, angle = 45, hjust = 0), 
       axis.ticks = element_blank(), 
       legend.position = 'left', 
-      legend.title = element_blank()
+      legend.title = element_blank(),
+      axis.text.y = element_blank(), 
+      strip.placement = 'outside', 
+      strip.background = element_blank()
     ) + 
+    facet_wrap(~fac) + 
     scale_fill_brewer(palette = 'Greys') + 
     scale_x_discrete(position = 'top', expand = c(0, 0), labels = parse(text = levels(toplo1$var))) + 
-    scale_y_reverse(expand = c(0, 0), breaks = toplo1$ind, labels = toplo1$def) + 
+    scale_y_reverse(expand = c(0, 0)) + 
     labs(
       y = NULL, 
-      x = 'St. dev. of prior',
-      caption = '* EBASE default'
+      x = 'Prior parameters'
     )
   
   p2 <- ggplot(toplo2, aes(y = ind, x = var, fill = val)) + 
@@ -167,7 +161,8 @@ priorcomp <- function(dat, ind){
       axis.ticks = element_blank(), 
       legend.position = 'right', 
       strip.background = element_blank(), 
-      strip.text = element_text(hjust = 0, size = 12, face = 'bold')
+      strip.placement = 'outside', 
+      strip.text = element_text(vjust = 0, size = 12, hjust = 0.5, face = "plain")
     ) + 
     facet_wrap(~ndays, ncol = 2) + 
     scale_fill_distiller(palette = 'YlOrRd', direction = direc, limits = c(0, 100)) + 
@@ -179,7 +174,7 @@ priorcomp <- function(dat, ind){
       x = 'Parameter from EBASE vs simulated,\nby optimization period'
     )
   
-  out <- p1 + p2 + plot_layout(ncol = 2, widths = c(0.3, 1))
+  out <- p1 + p2 + plot_layout(ncol = 2, widths = c(0.5, 1))
   
   return(out)
   
