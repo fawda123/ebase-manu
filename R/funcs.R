@@ -111,6 +111,30 @@ priorcomp <- function(dat, ind){
       )
     )
   
+  # ave r2 summary
+  optest <- dat %>% 
+    mutate(
+      ind = rep(1: (nrow(.) / 2), times = 2), 
+      ndays = case_when(
+        ndays == 1 ~ paste(ndays, 'day'), 
+        T ~ paste(ndays, 'days')
+      )
+    ) %>% 
+    unnest('ests') %>% 
+    summarise(
+      r2 = mean(r2), 
+      .by = c('ind', 'ndays')
+    ) %>% 
+    mutate(
+      rnkr2 = rank(-r2), 
+      .by = 'ndays'
+    )
+  
+  # get ndays = 1 only
+  optest <- optest %>% 
+    filter(ndays == '7 days') %>% 
+    select(-ndays)
+  
   toplo1 <- toplo %>% 
     select(ind, amean, asd, rmean, rsd, bmean, bsd) %>% 
     unique() %>% 
@@ -121,7 +145,10 @@ priorcomp <- function(dat, ind){
                    levels = c('amean', 'asd', 'rmean', 'rsd', 'bmean', 'bsd'), 
                    labels = c('italic(a)~mean', 'italic(a)~sd', 'italic(r)~mean', 'italic(r)~sd', 'italic(b)~mean', 'italic(b)~sd')), 
       fac = ''
-    ) 
+    ) %>% 
+    left_join(optest, by = 'ind', multiple= 'all') %>% 
+    arrange(rnkr2, var) %>% 
+    mutate(ind = factor(ind, levels = rev(unique(ind))))
   
   toplo2 <- toplo %>% 
     select(-amean, -asd, -rmean, -rsd, -bmean, -bsd) %>%
@@ -131,7 +158,10 @@ priorcomp <- function(dat, ind){
                    levels = c('DO_mod', 'P', 'R', 'D', 'a'), 
                    labels = c('DO', 'P', 'R', 'D', 'italic(a)')
       )
-    )
+    ) %>% 
+    left_join(optest, by = 'ind', multiple= 'all') %>% 
+    arrange(rnkr2, var) %>% 
+    mutate(ind = factor(ind, levels = rev(unique(ind))))
   
   p1 <- ggplot(toplo1, aes(y = ind, x = var, fill = val)) + 
     geom_tile(color = 'black') + 
@@ -147,7 +177,7 @@ priorcomp <- function(dat, ind){
     facet_wrap(~fac) + 
     scale_fill_brewer(palette = 'Greys') + 
     scale_x_discrete(position = 'top', expand = c(0, 0), labels = parse(text = levels(toplo1$var))) + 
-    scale_y_reverse(expand = c(0, 0)) + 
+    scale_y_discrete(expand = c(0, 0)) + 
     labs(
       y = NULL, 
       x = 'Prior parameters'
@@ -167,7 +197,7 @@ priorcomp <- function(dat, ind){
     facet_wrap(~ndays, ncol = 2) + 
     scale_fill_distiller(palette = 'YlOrRd', direction = direc, limits = c(0, 100)) + 
     scale_x_discrete(position = 'top', expand = c(0, 0), labels = parse(text = levels(toplo2$var))) + 
-    scale_y_reverse(expand = c(0, 0)) + 
+    scale_y_discrete(expand = c(0, 0)) + 
     labs(
       y = NULL, 
       fill = parse(text = leglb),
