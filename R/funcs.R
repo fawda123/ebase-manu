@@ -86,7 +86,7 @@ apacmp_plo <- function(dat, xlb = 'EBASE', ylb = 'Odum', dotyp = 'observed', add
 }
 
 # Fwoxy apa comparison to EBASE for different priors sd only
-priorcomp <- function(dat, ind){
+priorcomp <- function(dat, ind, topbot = 3){
 
   met <- tibble(
     lbs = c('r2', 'rmse', 'aved'),
@@ -111,6 +111,7 @@ priorcomp <- function(dat, ind){
       )
     )
   
+  
   # ave r2 summary
   optest <- dat %>% 
     mutate(
@@ -128,12 +129,17 @@ priorcomp <- function(dat, ind){
     mutate(
       rnkr2 = rank(-r2), 
       .by = 'ndays'
-    )
+    ) 
   
-  # get ndays = 1 only
+  topn <- sort(unique(optest$rnkr2))[1:topbot]
+  botn <- sort(unique(optest$rnkr2), decreasing = T)[1:topbot]
+  
   optest <- optest %>% 
-    filter(ndays == '7 days') %>% 
-    select(-ndays)
+    mutate(
+      fnts = ifelse(!rnkr2 %in% c(topn, botn), 'plain', ifelse(rnkr2 %in% topn, 'bold', 'italic')), 
+      cols = ifelse(rnkr2 %in% c(botn, topn), 'black', '#828282'), 
+      .by = 'ndays'
+    )
   
   toplo1 <- toplo %>% 
     select(ind, amean, asd, rmean, rsd, bmean, bsd) %>% 
@@ -145,10 +151,7 @@ priorcomp <- function(dat, ind){
                    levels = c('amean', 'asd', 'rmean', 'rsd', 'bmean', 'bsd'), 
                    labels = c('italic(a)~mean', 'italic(a)~sd', 'italic(r)~mean', 'italic(r)~sd', 'italic(b)~mean', 'italic(b)~sd')), 
       fac = ''
-    ) %>% 
-    left_join(optest, by = 'ind', multiple= 'all') %>% 
-    arrange(rnkr2, var) %>% 
-    mutate(ind = factor(ind, levels = rev(unique(ind))))
+    )
   
   toplo2 <- toplo %>% 
     select(-amean, -asd, -rmean, -rsd, -bmean, -bsd) %>%
@@ -159,9 +162,7 @@ priorcomp <- function(dat, ind){
                    labels = c('DO', 'P', 'R', 'D', 'italic(a)')
       )
     ) %>% 
-    left_join(optest, by = 'ind', multiple= 'all') %>% 
-    arrange(rnkr2, var) %>% 
-    mutate(ind = factor(ind, levels = rev(unique(ind))))
+    left_join(optest, by = c('ind', 'ndays'), multiple= 'all')
   
   p1 <- ggplot(toplo1, aes(y = ind, x = var, fill = val)) + 
     geom_tile(color = 'black') + 
@@ -175,16 +176,17 @@ priorcomp <- function(dat, ind){
       strip.background = element_blank()
     ) + 
     facet_wrap(~fac) + 
-    scale_fill_brewer(palette = 'Greys') + 
+    scale_fill_brewer(palette = 'Blues') + 
     scale_x_discrete(position = 'top', expand = c(0, 0), labels = parse(text = levels(toplo1$var))) + 
-    scale_y_discrete(expand = c(0, 0)) + 
+    scale_y_reverse(expand = c(0, 0)) + 
     labs(
       y = NULL, 
       x = 'Prior parameters'
     )
-  
+
   p2 <- ggplot(toplo2, aes(y = ind, x = var, fill = val)) + 
     geom_tile(color = 'black') + 
+    geom_text(aes(y = ind, x = 5.6, label = rnkr2), size = 2.35, hjust = 0, color = toplo2$cols, fontface = toplo2$fnts) + 
     theme(
       axis.text.x = element_text(face = 'italic', size = 12), 
       axis.text.y = element_blank(),
@@ -192,19 +194,23 @@ priorcomp <- function(dat, ind){
       legend.position = 'right', 
       strip.background = element_blank(), 
       strip.placement = 'outside', 
-      strip.text = element_text(vjust = 0, size = 12, hjust = 0.5, face = "plain")
+      strip.text = element_text(vjust = 0, size = 12, hjust = 0.5, face = "plain"), 
+      panel.grid = element_blank(), 
+      panel.background = element_blank()
     ) + 
     facet_wrap(~ndays, ncol = 2) + 
     scale_fill_distiller(palette = 'YlOrRd', direction = direc, limits = c(0, 100)) + 
     scale_x_discrete(position = 'top', expand = c(0, 0), labels = parse(text = levels(toplo2$var))) + 
-    scale_y_discrete(expand = c(0, 0)) + 
+    scale_y_reverse(expand = c(0, 0)) + 
+    coord_cartesian(clip = 'off') + 
+    theme(panel.spacing = unit(1.25, "lines")) +
     labs(
       y = NULL, 
       fill = parse(text = leglb),
       x = 'Parameter from EBASE vs simulated,\nby optimization period'
     )
   
-  out <- p1 + p2 + plot_layout(ncol = 2, widths = c(0.5, 1))
+  out <- p1 + p2 + plot_layout(ncol = 2, widths = c(0.45, 1))
   
   return(out)
   

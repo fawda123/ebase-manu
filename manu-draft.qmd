@@ -174,7 +174,7 @@ As noted in the previous paragraph, metabolic estimates between the methods were
 
 \newpage
 
-![Comparison of EBASE results to a synthetic time series created with known metabolic parameters. Results are compared for unique combination of prior distributions, where the means and standard deviations are evaluated from low (L) to high (H) for a one day and seven day model optimization period. The metabolic results for dissolved oxygen (DO), production (P), respiration (R), gas exchange (D), and the $a$ parameter are evaluated based on the $R^2$ value of the linear fit between the EBASE results and synthetic values. The $b$ parameter is a fixed constant and was not evaluated.](figs/apasumdat.png){#fig-apasumdat}
+![Comparison of EBASE results to a synthetic time series created with known metabolic parameters. Results are compared for unique combination of prior distributions, where the means and standard deviations are evaluated from low (L) to high (H) for a one day and seven day model optimization period. The metabolic results for dissolved oxygen (DO), production (P), respiration (R), gas exchange (D), and the $a$ parameter are evaluated based on the $R^2$ value of the linear fit between the EBASE results and synthetic values. The $b$ parameter is a fixed constant and was not evaluated.  Rankings of each combination as the average $R^2$ value across all parameters in a row are shown on the right, with the top three as black/bold and bottom three as black/italic.](figs/apasumdat.png){#fig-apasumdat}
 
 \newpage
 
