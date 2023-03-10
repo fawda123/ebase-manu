@@ -149,7 +149,7 @@ priorcomp <- function(dat, ind, topbot = 3){
     mutate(
       var = factor(var, 
                    levels = c('amean', 'asd', 'rmean', 'rsd', 'bmean', 'bsd'), 
-                   labels = c('italic(a)~mean', 'italic(a)~sd', 'italic(r)~mean', 'italic(r)~sd', 'italic(b)~mean', 'italic(b)~sd')), 
+                   labels = c('italic(a)~mu', 'italic(a)~sigma', 'italic(r)~mu', 'italic(r)~sigma', 'italic(b)~mu', 'italic(b)~sigma')), 
       fac = ''
     )
   
@@ -163,7 +163,7 @@ priorcomp <- function(dat, ind, topbot = 3){
       )
     ) %>% 
     left_join(optest, by = c('ind', 'ndays'), multiple= 'all')
-  
+
   p1 <- ggplot(toplo1, aes(y = ind, x = var, fill = val)) + 
     geom_tile(color = 'black') + 
     theme(

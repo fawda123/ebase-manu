@@ -18,7 +18,7 @@ dev.off()
 
 # simulated apa data --------------------------------------------------------------------------
 
-fwdat <- read_csv(file = url('https://raw.githubusercontent.com/fawda123/BASEmetab_script/master/data/apafwoxy.csv'))
+fwdat <- read_csv(file = url('https://raw.githubusercontent.com/fawda123/BASEmetab_script/master/data/apafwoxy2.csv'))
 
 fwdatcmp <- fwdat %>% 
   mutate(
