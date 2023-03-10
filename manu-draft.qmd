@@ -178,7 +178,7 @@ As noted in the previous paragraph, metabolic estimates between the methods were
 
 \newpage
 
-![Comparison of EBASE results for the best performing model to a synthetic time series created with known metabolic parameters. The best performing model for the one day (a, ndays = 1) and seven day (b, ndays = 7) optimization period is based on the EBASE results with prior distributions that produced the highest mean $R^2$ values across all parameter estimates (@fig-apasumdat). The standard deviations of the prior distributions of each parameter for the best performing model are shown at the top. The results are averaged at the time step of the model optimization period. The $b$ parameter is fixed at 0.251 $\left(\text{cm}/\text{hr}\right)/\left(\text{m}^2/\text{s}^2\right)$.](figs/optex.png){#fig-optex fig-align="center"}
+![Comparison of EBASE results for the best and worst performing models to a synthetic time series created with known metabolic parameters. The best and worst performing models for the one day (a, b) and seven day (c, d) optimization periods are based on the EBASE results with prior distributions that produced the highest mean $R^2$ values across all parameter estimates (@fig-apasumdat).  The results are averaged at the time step of the model optimization period. The $b$ parameter is fixed at 0.251 $\left(\text{cm}/\text{hr}\right)/\left(\text{m}^2/\text{s}^2\right)$.](figs/optex.png){#fig-optex fig-align="center"}
 
 \newpage
 

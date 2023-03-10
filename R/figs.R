@@ -72,40 +72,61 @@ fl <- paste0(tempdir(), '/apasumdat.RData')
 download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/apasumdat.RData', destfile = fl)
 load(file = fl)
 
-p1 <- priorcomp(apasumdat, 1)
+p1 <- priorcomp(apasumdat, met = 'rmse')
 
 png(here('figs/apasumdat.png'), height = 6, width = 6, family = 'serif', units = 'in', res = 500)
 print(p1)
 dev.off()
 
-# best fwoxy apa comparison -------------------------------------------------------------------
+# best/worst fwoxy apa comp -------------------------------------------------------------------
 
-fl <- paste0(tempdir(), '/apagrd.RData')
-download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/apagrd.RData', destfile = fl)
+# grid ests
+fl1a <- paste0(tempdir(), '/apagrd1a.RData')
+download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/apagrd1a.RData', destfile = fl1a)
+load(file = fl1a)
+fl1b <- paste0(tempdir(), '/apagrd1b.RData')
+download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/apagrd1b.RData', destfile = fl1b)
+load(file = fl1b)
+fl7a <- paste0(tempdir(), '/apagrd7a.RData')
+download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/apagrd7a.RData', destfile = fl7a)
+load(file = fl7a)
+fl7b <- paste0(tempdir(), '/apagrd7b.RData')
+download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/apagrd7b.RData', destfile = fl7b)
+load(file = fl7b)
+
+apagrd <- bind_rows(apagrd1a, apagrd1b, apagrd7a, apagrd7b)
+
+# summary ests
+fl <- paste0(tempdir(), '/apasumdat.RData')
+download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/apasumdat.RData', destfile = fl)
 load(file = fl)
 
-fwdat <- read_csv(file = url('https://raw.githubusercontent.com/fawda123/BASEmetab_script/master/data/apafwoxy.csv'))
+fwdat <- read_csv(file = url('https://raw.githubusercontent.com/fawda123/BASEmetab_script/master/data/apafwoxy2.csv'))
 
 fwdatcmp <- fwdat %>% 
   mutate(
     DateTimeStamp = dmy_hms(datet, tz = 'America/Jamaica'),
     Date = as.Date(DateTimeStamp, tz = 'America/Jamaica'),
     DO_obs = `oxy,mmol/m3`, 
-    a = `aparam,(mmolO2/m2/d)/(W/m2)` / `ht,m`,
-    Rt_vol = `er,mmol/m2/d` / `ht,m`,
-    Pg_vol = `gpp,mmol/m2/d` / `ht,m`,
-    D = -1 * `gasex,mmol/m2/d` / `ht,m`,
+    a = `aparam,(mmolO2/m2/d)/(W/m2)`, # no conversion to volumetric, just for this plot
+    R = `er,mmol/m2/d`,
+    P = `gpp,mmol/m2/d`,
+    D = -1 * `gasex,mmol/m2/d`,
     b = 100 * 3600 * `kw,m/s` / `wspd2,m2/s2` / (`sc,dimensionless` / 660) ^ -0.5 # (m/s)/(m2/s2) to (cm/hr) / (m2/s2)
   ) %>% 
-  select(Date, DateTimeStamp, DO_obs, a, b, Pg_vol, Rt_vol, D)
+  select(Date, DateTimeStamp, DO_obs, a, b, P, R, D)
 
-subttl <- expression(paste('(a) ndays = 1, ', italic(a), ' (sd) = 1, ', italic(r), ' (sd) = 50, ', italic(b), ' (sd) = 0.001'))
-p1 <- optex(apagrd, fwdatcmp, asdin = 1, rsdin = 50, bsdin = 0.001, ndaysin = 1, subttl = subttl)
+p1 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 1, ndays = 1, met = 'rmse', subttl = '(a) Best priors, 1 day')
+p2 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 64, ndays = 1, met = 'rmse', subttl = '(b) Worst priors, 1 day', ylbs = F)
+p3 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 1, ndays = 7, met = 'rmse', subttl = '(c) Best priors, 7 day', ylbs = F)
+p4 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 64, ndays = 7, met = 'rmse', subttl = '(d) Worst priors, 7 day', ylbs = F)
 
-subttl <- expression(paste('(b) ndays = 7, ', italic(a), ' (sd) = 0.01, ', italic(r), ' (sd) = 50, ', italic(b), ' (sd) = 0.001'))
-p2 <- optex(apagrd, fwdatcmp, asdin = 0.01, rsdin = 50, bsdin = 0.001, ndaysin = 7, subttl = subttl, ylbs = F)
-
-p <- ((p1 + plot_layout(ncol = 1)) | (p2 + plot_layout(ncol = 1)))  + plot_layout(ncol = 2, guides = 'collect') & theme(legend.position = 'top')
+p <- ((p1 + plot_layout(ncol = 1)) | (p2 + plot_layout(ncol = 1)) | (p3 + plot_layout(ncol = 1)) | (p4 + plot_layout(ncol = 1)))  + plot_layout(ncol = 4, guides = 'collect') & 
+  theme(
+    legend.position = 'top', 
+    axis.text.x = element_text(size = 8)
+  ) & 
+  scale_x_date(date_labels = '%b')
 
 png(here('figs/optex.png'), height = 8.75, width = 8, family = 'serif', units = 'in', res = 500)
 print(p)

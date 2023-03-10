@@ -86,17 +86,22 @@ apacmp_plo <- function(dat, xlb = 'EBASE', ylb = 'Odum', dotyp = 'observed', add
 }
 
 # Fwoxy apa comparison to EBASE for different priors sd only
-priorcomp <- function(dat, ind, topbot = 3){
+priorcomp <- function(dat, met, topbot = 3){
 
-  met <- tibble(
-    lbs = c('r2', 'rmse', 'aved'),
-    lbspr = c('italic(R)^2', 'RMSE', 'Ave.\nDiff.'), 
-    direc = c(-1, 1, 1)
-  )
-  
-  toshw <- met$lbs[ind]
-  leglb <- met$lbspr[ind]
-  direc <- met$direc[ind]
+  metsel <- tibble(
+      met = c('r2', 'rmse', 'mape', 'mae'),
+      lbspr = c('italic(R)^2', 'RMSE', 'MAPE', 'mae'), 
+      direc = c(-1, 1, 1 ,1),
+      limts = list(c(0, 100), NULL, NULL, NULL),
+      trans = c('identity', 'log10', 'log10', 'log10')
+    ) %>% 
+    filter(met == !!met)
+ 
+  toshw <- metsel$met
+  leglb <- metsel$lbspr
+  direc <- metsel$direc
+  limts <- metsel$limts[[1]]
+  trans <- metsel$trans
   
   toplo <- dat %>% 
     unnest('ests') %>% 
@@ -111,40 +116,29 @@ priorcomp <- function(dat, ind, topbot = 3){
       )
     )
   
-  
   # ave r2 summary
-  optest <- dat %>% 
+  optest <- meansum_fun(dat, met) %>% 
     mutate(
-      ind = rep(1: (nrow(.) / 2), times = 2), 
       ndays = case_when(
         ndays == 1 ~ paste(ndays, 'day'), 
         T ~ paste(ndays, 'days')
       )
-    ) %>% 
-    unnest('ests') %>% 
-    summarise(
-      r2 = mean(r2), 
-      .by = c('ind', 'ndays')
-    ) %>% 
-    mutate(
-      rnkr2 = rank(-r2), 
-      .by = 'ndays'
-    ) 
+    )
   
-  topn <- sort(unique(optest$rnkr2))[1:topbot]
-  botn <- sort(unique(optest$rnkr2), decreasing = T)[1:topbot]
+  topn <- sort(unique(optest$rnkmetsum))[1:topbot]
+  botn <- sort(unique(optest$rnkmetsum), decreasing = T)[1:topbot]
   
   optest <- optest %>% 
     mutate(
-      fnts = ifelse(!rnkr2 %in% c(topn, botn), 'plain', ifelse(rnkr2 %in% topn, 'bold', 'italic')), 
-      cols = ifelse(rnkr2 %in% c(botn, topn), 'black', '#828282'), 
+      fnts = ifelse(!rnkmetsum %in% c(topn, botn), 'plain', ifelse(rnkmetsum %in% topn, 'bold', 'italic')), 
+      cols = ifelse(rnkmetsum %in% c(botn, topn), 'black', '#828282'), 
       .by = 'ndays'
     )
   
   toplo1 <- toplo %>% 
     select(ind, amean, asd, rmean, rsd, bmean, bsd) %>% 
     unique() %>% 
-    mutate_at(-ind, factor, labels = c('L', 'H')) %>% 
+    mutate_at(vars(-matches('ind')), factor, labels = c('L', 'H')) %>% 
     pivot_longer(-c('ind'), names_to = 'var', values_to = 'val') %>% 
     mutate(
       var = factor(var, 
@@ -186,7 +180,7 @@ priorcomp <- function(dat, ind, topbot = 3){
 
   p2 <- ggplot(toplo2, aes(y = ind, x = var, fill = val)) + 
     geom_tile(color = 'black') + 
-    geom_text(aes(y = ind, x = 5.6, label = rnkr2), size = 2.35, hjust = 0, color = toplo2$cols, fontface = toplo2$fnts) + 
+    geom_text(aes(y = ind, x = 5.6, label = rnkmetsum), size = 2.35, hjust = 0, color = toplo2$cols, fontface = toplo2$fnts) + 
     theme(
       axis.text.x = element_text(face = 'italic', size = 12), 
       axis.text.y = element_blank(),
@@ -199,7 +193,7 @@ priorcomp <- function(dat, ind, topbot = 3){
       panel.background = element_blank()
     ) + 
     facet_wrap(~ndays, ncol = 2) + 
-    scale_fill_distiller(palette = 'YlOrRd', direction = direc, limits = c(0, 100)) + 
+    scale_fill_distiller(palette = 'YlOrRd', direction = direc, limits = NULL, trans = trans) + 
     scale_x_discrete(position = 'top', expand = c(0, 0), labels = parse(text = levels(toplo2$var))) + 
     scale_y_reverse(expand = c(0, 0)) + 
     coord_cartesian(clip = 'off') + 
@@ -216,18 +210,30 @@ priorcomp <- function(dat, ind, topbot = 3){
   
 }
 
-# comparison of fwoxy and ebase results for selected prior at time step of ndays
-optex <- function(apagrd, fwdatcmp, asdin, rsdin, bsdin, ndaysin, subttl, ylbs = TRUE){
-  
+# comparison of fwoxy and ebase results for ranked model by prior at opt of ndays
+optex <- function(apagrd, fwdatcmp, apasumdat, rnkmetsum, ndays, met, subttl, ylbs = TRUE){
+
+  # find the prior comparison
+  rnkfnd <- meansum_fun(apasumdat, met, parms = T) %>% 
+    filter(rnkmetsum == !!rnkmetsum) %>% 
+    filter(ndays == !!ndays)
+
   res <- apagrd %>% 
     filter(
-      asd == asdin & rsd == rsdin & bsd == bsdin & ndays == ndaysin
+      amean == rnkfnd$amean & asd == rnkfnd$asd & 
+      rmean == rnkfnd$rmean & rsd == rnkfnd$rsd & 
+      bmean == rnkfnd$bmean & bsd == rnkfnd$bsd & 
+      ndays == rnkfnd$ndays
     ) %>% 
     pull(out) %>% 
     .[[1]] %>% 
     .[[1]]
+  
   cmp <- inner_join(fwdatcmp, res, by = c('Date', 'DateTimeStamp')) %>%
-    select(-converge, -dDO, -DO_obs.y, -rsq, -matches('lo$|hi$')) %>%
+    mutate(
+      a.y = a.y * H, # fwoxy is m-2, ebase is m-3
+    ) %>% 
+    select(-H, -converge, -dDO, -DO_obs.y, -rsq, -matches('lo$|hi$')) %>%
     rename(
       DO_mod.x = DO_obs.x,
       DO_mod.y = DO_mod
@@ -243,7 +249,7 @@ optex <- function(apagrd, fwdatcmp, asdin, rsdin, bsdin, ndaysin, subttl, ylbs =
     pivot_wider(names_from = 'mod', values_from = 'val')
   
   toplo1 <- cmp %>% 
-    filter(var %in% c('Pg_vol', 'Rt_vol', 'D')) %>% 
+    filter(var %in% c('P', 'R', 'D')) %>% 
     group_by(grp, var) %>% 
     summarise(
       Fwoxy = mean(Fwoxy, na.rm = T), 
@@ -254,8 +260,8 @@ optex <- function(apagrd, fwdatcmp, asdin, rsdin, bsdin, ndaysin, subttl, ylbs =
     pivot_longer(-c(Date, grp, var), names_to = 'model', values_to = 'est') %>% 
     mutate(
       var = factor(var, 
-                   levels = c('Pg_vol', 'Rt_vol', 'D'), 
-                   labels = c('P~(mmol~m^{3}~d^{-1})', 'R~(mmol~m^{3}~d^{-1})', 'D~(mmol~m^{3}~d^{-1})')
+                   levels = c('P', 'R', 'D'), 
+                   labels = c('P~(mmol~m^{2}~d^{-1})', 'R~(mmol~m^{2}~d^{-1})', 'D~(mmol~m^{2}~d^{-1})')
       )
     ) %>% 
     select(-grp)
@@ -331,5 +337,39 @@ optex <- function(apagrd, fwdatcmp, asdin, rsdin, bsdin, ndaysin, subttl, ylbs =
   }
     
   p1 + p2
+  
+}
+
+# get mean summary of r2 or rmse for apasumdat, parms as T/F to return means and sd
+meansum_fun <- function(apasumdat, met, parms = F){
+
+  metsel <- tibble(
+      met = c('r2', 'rmse', 'mape', 'mae'),
+      direc = c(-1, 1, 1, 1)
+    ) %>% 
+    filter(met == !!met)
+
+  out <- apasumdat %>% 
+    mutate(
+      ind = rep(1: (nrow(.) / 2), times = 2)
+    ) %>% 
+    unnest('ests') %>% 
+    rename(met = !!met) %>% 
+    summarise(
+      metsum = mean(met), 
+      .by = c('amean', 'asd', 'rmean', 'rsd', 'bmean', 'bsd', 'ind', 'ndays')
+    ) %>% 
+    mutate(
+      rnkdir = metsel$direc * metsum,
+      rnkmetsum = rank(rnkdir), 
+      .by = 'ndays'
+    ) %>% 
+    select(-rnkdir)
+  
+  if(!parms)
+    out <- out %>% 
+      select(-matches('mean$|sd$'))
+  
+  return(out)
   
 }
