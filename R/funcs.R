@@ -210,6 +210,57 @@ priorcomp <- function(dat, met, topbot = 3){
   
 }
 
+# Fwoxy apa comparison to EBASE for different priors, rmse summary
+priorsumcomp <- function(dat){
+  
+  toplo <- dat %>% 
+    unnest(ests) %>% 
+    select(-ind, -r2, -mape, -mae) %>% 
+    mutate_at(vars(matches('mean$|sd$')), factor, labels = c('L', 'H')) %>% 
+    mutate(
+      ndays = case_when(
+        ndays == 1 ~ paste(ndays, 'day'), 
+        T ~ paste(ndays, 'days')
+      )
+    ) %>% 
+    pivot_longer(cols = matches('mean$|sd$'), names_to = 'prior', values_to = 'val') %>% 
+    summarise(
+      medianrmse = median(rmse), 
+      iqr = IQR(rmse),
+      .by = c('ndays', 'prior', 'val')
+    ) %>% 
+    mutate(
+      param = gsub('mean$|sd$', '', prior),
+      param = factor(param, levels = c('a', 'r', 'b')),
+      prior = gsub('^a|^r|^b', '', prior), 
+      prior = factor(prior, levels = c('mean', 'sd'), labels = c('mu', 'sigma')), 
+      ndays = factor(ndays, levels = c('1 day', '7 days'), labels = c('1~day', '7~days'))
+    )
+  
+  p <- ggplot(toplo, aes(x = param, group = val)) + 
+    geom_point(aes(y = medianrmse, fill = val, size = iqr), pch = 21) + #, position = position_dodge(width = wd)) +
+    facet_grid(prior~ndays, labeller = label_parsed) + 
+    scale_fill_brewer(palette = 'Blues') + 
+    scale_size(range = c(1, 8), breaks = c(20, 60, 100, 140), labels = c('20', '60', '100', '140')) + 
+    guides(fill = guide_legend(override.aes = list(size = 5))) +
+    theme_bw() + 
+    theme(
+      axis.text.x = element_text(size = 14, face = 'italic'), 
+      strip.text.y = element_text(size = 14, face = 'italic'), 
+      strip.text.x = element_text(size = 12),
+      strip.background = element_blank()
+    ) +
+    labs(
+      x = NULL, 
+      y = 'Median RMSE', 
+      fill = NULL, 
+      size = 'IQR'
+    )
+  
+  return(p)
+  
+}
+
 # comparison of fwoxy and ebase results for ranked model by prior at opt of ndays
 optex <- function(apagrd, fwdatcmp, apasumdat, rnkmetsum, ndays, met, subttl, ylbs = TRUE){
 

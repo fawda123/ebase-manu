@@ -74,7 +74,19 @@ load(file = fl)
 
 p1 <- priorcomp(apasumdat, met = 'rmse')
 
-png(here('figs/apasumdat.png'), height = 6, width = 6, family = 'serif', units = 'in', res = 500)
+png(here('figs/priorcomp.png'), height = 6, width = 6, family = 'serif', units = 'in', res = 500)
+print(p1)
+dev.off()
+
+# Fwoxy apa comparison RMSE sum -------------------------------------------
+
+fl <- paste0(tempdir(), '/apasumdat.RData')
+download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/apasumdat.RData', destfile = fl)
+load(file = fl)
+
+p1 <- priorsumcomp(apasumdat)
+
+png(here('figs/priorsumcomp.png'), height = 6, width = 5, family = 'serif', units = 'in', res = 500)
 print(p1)
 dev.off()
 
