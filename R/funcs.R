@@ -89,11 +89,11 @@ apacmp_plo <- function(dat, xlb = 'EBASE', ylb = 'Odum', dotyp = 'observed', add
 priorcomp <- function(dat, met, topbot = 3){
 
   metsel <- tibble(
-      met = c('r2', 'rmse', 'mape', 'mae'),
-      lbspr = c('italic(R)^2', 'RMSE', 'MAPE', 'mae'), 
-      direc = c(-1, 1, 1 ,1),
-      limts = list(c(0, 100), NULL, NULL, NULL),
-      trans = c('identity', 'log10', 'log10', 'log10')
+      met = c('r2', 'rmse', 'mape', 'mae', 'cfd'),
+      lbspr = c('italic(R)^2', 'RMSE', 'MAPE', 'mae', 'Coef.~of~Det.'), 
+      direc = c(-1, 1, 1, 1, -1),
+      limts = list(c(0, 100), NULL, NULL, NULL, c(0, 1)),
+      trans = c('identity', 'log10', 'log10', 'log10', 'identity')
     ) %>% 
     filter(met == !!met)
  
@@ -211,11 +211,12 @@ priorcomp <- function(dat, met, topbot = 3){
 }
 
 # Fwoxy apa comparison to EBASE for different priors, rmse summary
-priorsumcomp <- function(dat){
-  
+priorsumcomp <- function(dat, met = 'r2'){
+
   toplo <- dat %>% 
     unnest(ests) %>% 
-    select(-ind, -r2, -mape, -mae) %>% 
+    select(amean, asd, rmean, rsd, bmean, bsd, ndays, ind, var, !!met) %>% 
+    rename(met = !!met) %>% 
     mutate_at(vars(matches('mean$|sd$')), factor, labels = c('L', 'H')) %>% 
     mutate(
       ndays = case_when(
@@ -225,8 +226,8 @@ priorsumcomp <- function(dat){
     ) %>% 
     pivot_longer(cols = matches('mean$|sd$'), names_to = 'prior', values_to = 'val') %>% 
     summarise(
-      medianrmse = median(rmse), 
-      iqr = IQR(rmse),
+      medv = median(met), 
+      iqr = IQR(met),
       .by = c('ndays', 'prior', 'val')
     ) %>% 
     mutate(
@@ -237,8 +238,15 @@ priorsumcomp <- function(dat){
       ndays = factor(ndays, levels = c('1 day', '7 days'), labels = c('1~day', '7~days'))
     )
   
+  metsel <- tibble(
+    met = c('r2', 'rmse', 'mape', 'mae', 'cfd'),
+    lbspr = c('italic(R)^2', 'RMSE', 'MAPE', 'mae', 'Coef.~of~Det.')
+  ) %>% 
+    filter(met == !!met)
+  ylab <- parse(text = paste0('Median~', metsel$lbspr))
+  
   p <- ggplot(toplo, aes(x = param, group = val)) + 
-    geom_point(aes(y = medianrmse, fill = val, size = iqr), pch = 21) + #, position = position_dodge(width = wd)) +
+    geom_point(aes(y = medv, fill = val, size = iqr), pch = 21) + #, position = position_dodge(width = wd)) +
     facet_grid(prior~ndays, labeller = label_parsed) + 
     scale_fill_brewer(palette = 'Blues') + 
     scale_size(range = c(1, 8), breaks = c(20, 60, 100, 140), labels = c('20', '60', '100', '140')) + 
@@ -252,7 +260,7 @@ priorsumcomp <- function(dat){
     ) +
     labs(
       x = NULL, 
-      y = 'Median RMSE', 
+      y = ylab, 
       fill = NULL, 
       size = 'IQR'
     )
@@ -395,8 +403,8 @@ optex <- function(apagrd, fwdatcmp, apasumdat, rnkmetsum, ndays, met, subttl, yl
 meansum_fun <- function(apasumdat, met, parms = F){
 
   metsel <- tibble(
-      met = c('r2', 'rmse', 'mape', 'mae'),
-      direc = c(-1, 1, 1, 1)
+      met = c('r2', 'rmse', 'mape', 'mae', 'cfd'),
+      direc = c(-1, 1, 1, 1, -1)
     ) %>% 
     filter(met == !!met)
 
