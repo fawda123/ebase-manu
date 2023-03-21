@@ -26,7 +26,7 @@ author:
  
 institute:
   - TBEP: Tampa Bay Estuary Program, St. Petersburg, Florida 33701 USA
-  - PSU: Pennsylvania State University, University Park, Pennsylvania 16802 USA
+  - PSU: The Pennsylvania State University, University Park, Pennsylvania 16802 USA
 
 filters: 
   - templates/scholarly-metadata.lua

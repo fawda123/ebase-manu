@@ -89,8 +89,8 @@ apacmp_plo <- function(dat, xlb = 'EBASE', ylb = 'Odum', dotyp = 'observed', add
 priorcomp <- function(dat, met, topbot = 3){
 
   metsel <- tibble(
-      met = c('r2', 'rmse', 'mape', 'mae', 'cfd'),
-      lbspr = c('italic(R)^2', 'RMSE', 'MAPE', 'mae', 'Coef.~of~Det.'), 
+      met = c('r2', 'rmse', 'mape', 'mae', 'nse'),
+      lbspr = c('italic(R)^2', 'RMSE', 'MAPE', 'mae', 'NSE'), 
       direc = c(-1, 1, 1, 1, -1),
       limts = list(c(0, 100), NULL, NULL, NULL, c(0, 1)),
       trans = c('identity', 'log10', 'log10', 'log10', 'identity')
@@ -117,7 +117,7 @@ priorcomp <- function(dat, met, topbot = 3){
     )
   
   # ave r2 summary
-  optest <- meansum_fun(dat, met) %>% 
+  optest <- metsum_fun(dat, met) %>% 
     mutate(
       ndays = case_when(
         ndays == 1 ~ paste(ndays, 'day'), 
@@ -158,6 +158,9 @@ priorcomp <- function(dat, met, topbot = 3){
     ) %>% 
     left_join(optest, by = c('ind', 'ndays'), multiple= 'all')
 
+  if(met == 'nse')
+    toplo2$val <- pmax(toplo2$val, 0)
+
   p1 <- ggplot(toplo1, aes(y = ind, x = var, fill = val)) + 
     geom_tile(color = 'black') + 
     theme(
@@ -193,7 +196,7 @@ priorcomp <- function(dat, met, topbot = 3){
       panel.background = element_blank()
     ) + 
     facet_wrap(~ndays, ncol = 2) + 
-    scale_fill_distiller(palette = 'YlOrRd', direction = direc, limits = NULL, trans = trans) + 
+    scale_fill_distiller(palette = 'YlOrRd', direction = direc, limits = limts, trans = trans) + 
     scale_x_discrete(position = 'top', expand = c(0, 0), labels = parse(text = levels(toplo2$var))) + 
     scale_y_reverse(expand = c(0, 0)) + 
     coord_cartesian(clip = 'off') + 
@@ -226,8 +229,8 @@ priorsumcomp <- function(dat, met = 'r2'){
     ) %>% 
     pivot_longer(cols = matches('mean$|sd$'), names_to = 'prior', values_to = 'val') %>% 
     summarise(
-      medv = median(met), 
-      iqr = IQR(met),
+      medv = median(met, na.rm = T), 
+      iqr = IQR(met, na.rm = T),
       .by = c('ndays', 'prior', 'val')
     ) %>% 
     mutate(
@@ -239,7 +242,7 @@ priorsumcomp <- function(dat, met = 'r2'){
     )
   
   metsel <- tibble(
-    met = c('r2', 'rmse', 'mape', 'mae', 'cfd'),
+    met = c('r2', 'rmse', 'mape', 'mae', 'nse'),
     lbspr = c('italic(R)^2', 'RMSE', 'MAPE', 'mae', 'Coef.~of~Det.')
   ) %>% 
     filter(met == !!met)
@@ -273,7 +276,7 @@ priorsumcomp <- function(dat, met = 'r2'){
 optex <- function(apagrd, fwdatcmp, apasumdat, rnkmetsum, ndays, met, subttl, ylbs = TRUE){
 
   # find the prior comparison
-  rnkfnd <- meansum_fun(apasumdat, met, parms = T) %>% 
+  rnkfnd <- metsum_fun(apasumdat, met, parms = T) %>% 
     filter(rnkmetsum == !!rnkmetsum) %>% 
     filter(ndays == !!ndays)
 
@@ -400,10 +403,10 @@ optex <- function(apagrd, fwdatcmp, apasumdat, rnkmetsum, ndays, met, subttl, yl
 }
 
 # get mean summary of r2 or rmse for apasumdat, parms as T/F to return means and sd
-meansum_fun <- function(apasumdat, met, parms = F){
+metsum_fun <- function(apasumdat, met, parms = F){
 
   metsel <- tibble(
-      met = c('r2', 'rmse', 'mape', 'mae', 'cfd'),
+      met = c('r2', 'rmse', 'mape', 'mae', 'nse'),
       direc = c(-1, 1, 1, 1, -1)
     ) %>% 
     filter(met == !!met)
@@ -415,7 +418,7 @@ meansum_fun <- function(apasumdat, met, parms = F){
     unnest('ests') %>% 
     rename(met = !!met) %>% 
     summarise(
-      metsum = mean(met), 
+      metsum = median(met, na.rm = T), 
       .by = c('amean', 'asd', 'rmean', 'rsd', 'bmean', 'bsd', 'ind', 'ndays')
     ) %>% 
     mutate(

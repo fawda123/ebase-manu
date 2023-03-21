@@ -72,19 +72,19 @@ fl <- paste0(tempdir(), '/apasumdat.RData')
 download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/apasumdat.RData', destfile = fl)
 load(file = fl)
 
-p1 <- priorcomp(apasumdat, met = 'r2')
+p1 <- priorcomp(apasumdat, met = 'nse')
 
 png(here('figs/priorcomp.png'), height = 6, width = 6, family = 'serif', units = 'in', res = 500)
 print(p1)
 dev.off()
 
-# Fwoxy apa comparison RMSE sum -------------------------------------------
+# Fwoxy apa comparison met sum --------------------------------------------
 
 fl <- paste0(tempdir(), '/apasumdat.RData')
 download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/apasumdat.RData', destfile = fl)
 load(file = fl)
 
-p1 <- priorsumcomp(apasumdat, met = 'r2')
+p1 <- priorsumcomp(apasumdat, met = 'nse')
 
 png(here('figs/priorsumcomp.png'), height = 6, width = 5, family = 'serif', units = 'in', res = 500)
 print(p1)
@@ -128,10 +128,10 @@ fwdatcmp <- fwdat %>%
   ) %>% 
   select(Date, DateTimeStamp, DO_obs, a, b, P, R, D)
 
-p1 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 1, ndays = 1, met = 'rmse', subttl = '(a) Best priors, 1 day')
-p2 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 64, ndays = 1, met = 'rmse', subttl = '(b) Worst priors, 1 day', ylbs = F)
-p3 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 1, ndays = 7, met = 'rmse', subttl = '(c) Best priors, 7 day', ylbs = F)
-p4 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 64, ndays = 7, met = 'rmse', subttl = '(d) Worst priors, 7 day', ylbs = F)
+p1 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 1, ndays = 1, met = 'cfd', subttl = '(a) Best priors, 1 day')
+p2 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 64, ndays = 1, met = 'cfd', subttl = '(b) Worst priors, 1 day', ylbs = F)
+p3 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 1, ndays = 7, met = 'cfd', subttl = '(c) Best priors, 7 day', ylbs = F)
+p4 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 64, ndays = 7, met = 'cfd', subttl = '(d) Worst priors, 7 day', ylbs = F)
 
 p <- ((p1 + plot_layout(ncol = 1)) | (p2 + plot_layout(ncol = 1)) | (p3 + plot_layout(ncol = 1)) | (p4 + plot_layout(ncol = 1)))  + plot_layout(ncol = 4, guides = 'collect') & 
   theme(
