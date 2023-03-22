@@ -204,7 +204,7 @@ priorcomp <- function(dat, met, topbot = 3){
     labs(
       y = NULL, 
       fill = parse(text = leglb),
-      x = 'Parameter from EBASE vs simulated,\nby optimization period'
+      x = 'Parameter from EBASE vs synthetic,\nby optimization period'
     )
   
   out <- p1 + p2 + plot_layout(ncol = 2, widths = c(0.45, 1))
@@ -304,7 +304,7 @@ optex <- function(apagrd, fwdatcmp, apasumdat, rnkmetsum, ndays, met, subttl, yl
     separate(var, c('var', 'mod'), sep = '\\.') %>%
     mutate(
       mod = case_when(
-        mod == 'x' ~ 'Fwoxy',
+        mod == 'x' ~ 'Synthetic',
         mod == 'y' ~ 'EBASE'
       )
     ) %>%
