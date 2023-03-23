@@ -92,7 +92,7 @@ priorcomp <- function(dat, met, topbot = 3){
       met = c('r2', 'rmse', 'mape', 'mae', 'nse'),
       lbspr = c('italic(R)^2', 'RMSE', 'MAPE', 'mae', 'NSE'), 
       direc = c(-1, 1, 1, 1, -1),
-      limts = list(c(0, 100), NULL, NULL, NULL, c(0, 1)),
+      limts = list(c(0, 100), NULL, NULL, NULL, NULL),
       trans = c('identity', 'log10', 'log10', 'log10', 'identity')
     ) %>% 
     filter(met == !!met)
@@ -158,9 +158,6 @@ priorcomp <- function(dat, met, topbot = 3){
     ) %>% 
     left_join(optest, by = c('ind', 'ndays'), multiple= 'all')
 
-  if(met == 'nse')
-    toplo2$val <- pmax(toplo2$val, 0)
-
   p1 <- ggplot(toplo1, aes(y = ind, x = var, fill = val)) + 
     geom_tile(color = 'black') + 
     theme(
@@ -180,7 +177,7 @@ priorcomp <- function(dat, met, topbot = 3){
       y = NULL, 
       x = 'Prior parameters'
     )
-
+browser()
   p2 <- ggplot(toplo2, aes(y = ind, x = var, fill = val)) + 
     geom_tile(color = 'black') + 
     geom_text(aes(y = ind, x = 5.6, label = rnkmetsum), size = 2.35, hjust = 0, color = toplo2$cols, fontface = toplo2$fnts) + 
@@ -196,7 +193,7 @@ priorcomp <- function(dat, met, topbot = 3){
       panel.background = element_blank()
     ) + 
     facet_wrap(~ndays, ncol = 2) + 
-    scale_fill_distiller(palette = 'YlOrRd', direction = direc, limits = limts, trans = trans) + 
+    # scale_fill_distiller(palette = 'YlOrRd', direction = direc, limits = limts, trans = trans) + 
     scale_x_discrete(position = 'top', expand = c(0, 0), labels = parse(text = levels(toplo2$var))) + 
     scale_y_reverse(expand = c(0, 0)) + 
     coord_cartesian(clip = 'off') + 
@@ -207,6 +204,15 @@ priorcomp <- function(dat, met, topbot = 3){
       x = 'Parameter from EBASE vs synthetic,\nby optimization period'
     )
   
+  # special color palette for nse
+  if(met != 'nse')
+    p2 <- p2 + 
+      scale_fill_distiller(palette = 'YlOrRd', direction = direc, limits = limts) 
+    
+  if(met == 'nse')
+    p2 <- p2 + 
+      scale_fill_gradient2(low = 'red', mid = 'white', high = 'green', midpoint = 1, trans= 'exp')
+    
   out <- p1 + p2 + plot_layout(ncol = 2, widths = c(0.45, 1))
   
   return(out)
