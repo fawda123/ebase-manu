@@ -45,9 +45,13 @@ library(here)
 library(officer)
 library(officedown)
 library(flextable)
+library(dplyr)
+
+source(here('R/funcs.R'))
 
 load(file = here('tabs/ebaseiotab.RData'))
 load(file = here('tabs/apacmptab.RData'))
+load(file = here('data/apasumdat.RData'))
 ```
 
 ```{=tex}
@@ -147,12 +151,56 @@ $$ {#eq-nse}
 where $Y_i$ is the estimate from EBASE or the synthetic times series for the optimization period $i$, evaluated for each metabolic parameter, each unique combination of priors, and each optimization period. The value $n$ is the number of optimization periods in the one-year time series, i.e., $n=365$ for one day, $n \approx 52$ for seven days, and $n \approx 12$ for 30 days. All metabolic estimates were averaged within the number of days for each optimization period prior to calculating NSE values, if appropriate. The NSE value is conceptually similar to the coefficient of determination, but varies from $-\infty$ to 1.  Values in the positive range from 0 to 1 are desirable with 1 being a perfect fit, whereas values in the negative range indicate the mean of the synthetic data is a better predictor than EBASE. 
 
 <!-- edit -->
+```{r}
+# percent negative nse not do
+nseall <- apasumdat %>% 
+  tidyr::unnest('ests') %>% 
+  filter(var != 'DO_mod') %>% 
+  na.omit %>% 
+  pull(nse)
+perneg <- (sum(nseall < 0) / length(nseall) * 100) %>% 
+  round() %>% 
+  as.character() %>% 
+  paste0('%')
 
-Several conclusions can be made from the results in @fig-priorcomp based on the patterns of the NSE values. Overall, the model was able to estimate the $a$ parameter with reasonable precision regardless of any of the prior distributions, whereas most of the variation was observed in the $r$ (respiration, R) and $b$ parameters. Changing the variance of the $a$ parameter had little effect on any of the comparisons. Smaller variance of the prior distribution for the $r$ parameter generally contributed to lower $R^2$ for all parameters, although the precision was worse for the seven day optimization period (e.g., the $a$ parameter). Conversely, larger variance of the prior distribution for the $b$ parameter generally contributed to lower $R^2$ only for the gas exchange estimate (D), although this effect was minimized with the seven day optimization period.
+# gasex nse
+prmall <- apasumdat %>% 
+  tidyr::unnest('ests') %>% 
+  filter(var != 'DO_mod') %>% 
+  na.omit %>% 
+  summarise(
+    nse = round(median(nse), 2),
+    .by = var
+  ) %>% 
+  tibble::deframe()
 
-The results suggest that the default prior distributions used in EBASE may be appropriate in some cases, but increasing the prior variance for $a$ and $r$ and decreasing the variance for $b$ will likely produce more optimal solutions. The actual model results for the best performing combination of prior distributions for the one day and seven day optimization are shown in @fig-optex (all results are averaged at the time-step of the optimization period for comparability). The best performing models were those with the highest mean $R^2$ values across all parameter estimates in @fig-priorcomp. For both models, the metabolic parameters were estimated with high precision, and in some cases with nearly perfect precision (i.e., dissolved oxygen and gas exchange, D). Estimates for the fixed $b$ parameter were most variable, but not biased as the mean for both models was close to 0.251 $\left(\text{cm}/\text{hr}\right)/\left(\text{m}^2/\text{s}^2\right)$.
+# optimization nse
+optnse <- apasumdat %>% 
+  tidyr::unnest('ests') %>% 
+  na.omit() %>% 
+  filter(var != 'DO_mod') %>% 
+  summarise(
+    nse = round(median(nse), 2), 
+    .by = ndays
+  ) %>% 
+  tibble::deframe()
 
-<!-- edit -->
+# best mods by opt
+optmod <- metsum_fun(apasumdat, 'nse', parms = T) %>% 
+  filter(rnkmetsum %in% 1) %>% 
+  summarise(
+    metsum = round(median(metsum), 2),
+    .by  = 'ndays'
+  ) %>% 
+  tibble::deframe()
+```
+
+Several conclusions can be made from the results in @fig-priorcomp following the patterns of the NSE values. Overall, most models regardless of optimization period or priors were able to reproduce the dissolved oxygen time series.  The only models where the NSE values were less than zero for dissolved oxygen were those where $\rho$ of the $r$ parameter was low.  However, substantial variation in NSE values was observed among all other parameters.  Not considering dissolved oxygen, gas exchange ($D$) was estimated with the highest NSE, with a median value across all optimization periods and priors slightly larger than zero (median NSE = `r prmall[['D']]`).  Conversely, the $a$ parameter was reproduced the most poorly, with a median value across all optimization periods and priors less than zero (median NSE = `r prmall[['a']]`). By optimization period, median NSE values across all parameters decreased slightly as the number of days used for model optimization increased (1 day = `r optnse[['1']]`, 7 days = `r optnse[['7']]`, 30 days = `r optnse[['30']]`).  The top three ranked models were identical for the seven and thirty day models and similar for models using the one day optimization period.  Median NSE values across parameters for the top model in each optimization period were also similar (1 day = `r optmod[['1']]`, 7 days = `r optmod[['7']]`, 30 days = `r optmod[['30']]`). For the seven day and thirty day optimization periods, the NSE values for all parameters were greater than zero for the top models, where two of the parameters in the top model for the one day optimization period has NSE < 0. Most parameters regardless of optimization period or priors had NSE < 0 (`r perneg`). As such, the prior combinations that produced the highest NSE values across all parameters were those where the $\rho$ values were high for each prior distribution, regardless of the values for $\mu$, i.e., those with sufficient flexibility to search a larger parameter space regardless of $\mu$ produced metabolic parameter estimates most similar to the known values from the synthetic time series.  
+
+@fig-priorsumcomp provides an alternative summary of how the prior distributions influenced the ability of EBASE to reproduce the synthetic parameters.  Median NSE values across all models and each optimization period for the different subsets of the prior combinations are shown.  For example, the bottom left panel with the x-axis value for the $a$ parameter shows the median NSE values for all models using a one-day optimization period where the $\rho$ value for the $a$ prior distribution was low or high.  The size of the points indicate the inter-quartile range of NSE values for each subset.  As such, each set of points denoted by the x-axis parameters in each panel include median NSE values for all models by optimization period, but subset by the low/high $\mu$ or $\rho$ values. Although most most of the median value are less than zero, indicating a poor ability of EBASE to reproduce the parameters, patterns emerge as to which characteristics of the prior lead to robust estimates.  For example, large differences in the median NSE values are observed for the low and high values of $\rho$ for the $a$ and $r$ parameters, with positive median NSE values and smaller IQR values using a high value.  A similar, but smaller effect is seen for the $\rho$ value of the prior for the $b$ parameter.  A conclusion similar to that for @fig-priorcomp is that large standard deviations in the prior distributions lead to more accurate estimates of metabolic parameters.  Conversely, model results are less senstive to low or high values for $\mu$ as the spread between median NSE values is less than those for $\rho$.  This suggests that EBASE model sensitivity is most influenced by $\rho$ of the prior distributions, i.e., larger values produce more accurate and less variable estimates regardless of $\mu$. 
+
+The actual model results for the best and worst performing combinations of prior distributions for the one day, seven day, and thirty day optimization periods are shown in @fig-optex (all results are averaged at the time-step of the optimization period for comparability). The best performing models were those with the highest median NSE values across all parameter estimates in @fig-priorcomp. The best performing models for each optimization period (@fig-optex a, c, e) showed similar results where the parameters estimates were similar to the synthetic time series, although more variation in the EBASE results were of course observed with the one day optimization period.  However, the $b$ parameter was estimated with high variability for the one and seven day optimization periods (@fig-optex a, c, bottom row) and with a large positive bias for the 30 day optimization period (@fig-optex e, bottom row).  These results were not unexpected because it was impossible to evaluate NSE estimates using a fixed value in the synthetic results and the accuracy was not considered in identifying the best performing model.  Results using EBASE default priors (medium values for $\mu$, high values for $\rho$) showed that the $b$ parameter can be estimated with reasonable accuracy, although still with considerable variability.  Finally, the worst performing model for each optimization period (@fig-optex b, d, f) demonstrates the negative NSE values that were obtained (i.e., EBASE values much lower or higher than the synthetic values).  The worst performing models were caused by constraining EBASE to a small parameter space using low or high values for $\mu$ combined with low values for $\rho$. 
+
 ### EBASE comparison with real observations
 
 Metabolic estimates from EBASE were further compared to those from existing methods to benchmark and evaluate potential differences from alternative model formulations used by each approach. The observed one year continuous time series described above for water quality and weather data from Apalachicola Bay was used to compare metabolic estimates from EBASE, BASE, and the Odum open-water method [@Odum56]. The Odum method used an approach described in @Murrell18 created for estuarine application that uses a gas-exchange approach described in @Thebault08. For better comparison with the EBASE methods, the gas exchange parmaterization in the Odum method was modified to use the @Wanninkhof14 approach [as available in the WtRegDO R package, @Beck21]. The input data were provided to each method after converting the units as required (e.g., BASE requires PAR as $\mu$mol/m$^{2}$/s). Water column depth at Cat Point is approximately 1.8 m and all daily metabolic estimates returned by each method were converted to volumetric rates by dividing by the depth (i.e., $\text{mmol}/\text{m}^3/\text{d}$). Each comparison also evaluated metabolic estimates using the observed dissolved oxygen time series and a detided time series using weighted regression [@Beck15; available from @Beck21]. The latter comparison provided an assessment of metabolic rates that are expected to be minimally influenced by tidal advection. All metabolic estimates were obtained using the default settings for each of the three methods, with an exception that the prior distribution for the reaeration coefficient ($K$) in BASE was informed by results from the Odum output. Initial assessments indicated that unstable and inaccurate results for the time series are obtained from BASE using an uninformed prior distribution for $K$. All other prior distributions for BASE and EBASE were set as the software default. A one day model optimization period was used for EBASE for comparability with BASE.
@@ -180,11 +228,11 @@ As noted in the previous paragraph, metabolic estimates between the methods were
 
 {{< pagebreak >}}
 
-![Synthetic time series for one year of continuous data at Apalachicola Bay. Synthetic input to EBASE was the (a) dissolved oxygen time series, with results compared to the (b) synthetic $a$ parameter and (c) synthetic metabolic estimates for production (P), respiration (R), and gas exchange (D). The $a$ parameter is shown as an areal value for comparison with the metabolic results.](figs/synapa.png){#fig-synapa}
+![Synthetic time series for one year of continuous data at Apalachicola Bay. Synthetic input to EBASE was the (a) dissolved oxygen time series, with results compared to the (b) synthetic $a$ parameter and (c) synthetic metabolic estimates for production (P), respiration (R), and gas exchange (D). The $a$ parameter is shown as an areal value for comparison with the metabolic results.  The $b$ parameter is also fixed at 0.251 $\left(\text{cm}/\text{hr}\right)/\left(\text{m}^2/\text{s}^2\right)$ and is not shown.](figs/synapa.png){#fig-synapa}
 
 {{< pagebreak >}}
 
-![Comparison of EBASE results to a synthetic time series created with known metabolic parameters. Results are compared for unique combination of prior distributions, where the means and standard deviations are evaluated from low (L) to high (H) for a one day, seven day, and thirty day model optimization period. The metabolic results for dissolved oxygen (DO), production (P), respiration (R), gas exchange (D), and the $a$ parameter are evaluated based on Nash-Sutcliffe Efficiency (NSE) values between the EBASE results and synthetic values. NSE values from zero to one (green) indicate EBASE has recovered the synthetic parameters with values closer to 1 being a better approximation, whereas negative values indicate the mean of the synthetic data is a better predictor than EBASE.  The color scale for NSE is also exponentially transformed to minimize the influence of large negative values on the visual display. The $b$ parameter is a fixed constant and was not evaluated.  Rankings of each combination as the median NSE value across all parameters in a row are shown on the right, with the top three as black/bold and bottom three as black/italic.](figs/priorcomp.png){#fig-priorcomp}
+![Comparison of EBASE results to a synthetic time series created with known metabolic parameters. Results are compared for unique combinations of prior distributions and optimization period. The means and standard deviations are evaluated as low (L) or high (H) values (see text for details) and the optimization period is one day, seven days, or thirty days. The metabolic results for dissolved oxygen (DO), production (P), respiration (R), gas exchange (D), and the $a$ parameter are evaluated based on Nash-Sutcliffe Efficiency (NSE) values between the EBASE results and synthetic values. NSE values from zero to one (green) indicate EBASE has recovered the synthetic parameters with values closer to 1 being a better approximation, whereas negative values indicate the mean of the synthetic data is a better predictor than EBASE.  The color scale for NSE is also exponentially transformed to minimize the influence of large negative values on the visual display. The $b$ parameter is a fixed constant and was not evaluated.  Rankings of each combination as the median NSE value across all parameters in a row are shown on the right, with the top three as black/bold and bottom three as black/italic.](figs/priorcomp.png){#fig-priorcomp}
 
 {{< pagebreak >}}
 

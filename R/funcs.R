@@ -396,6 +396,7 @@ optex <- function(apagrd, fwdatcmp, apasumdat, rnkmetsum, ndays, met, subttl, yl
       strip.background = element_blank(), 
       legend.position = 'top', 
       legend.title = element_blank(), 
+      axis.text.x = element_text(size = 8),
       strip.text = element_text(size = rel(0.7))
     ) + 
     labs(
@@ -429,7 +430,7 @@ metsum_fun <- function(apasumdat, met, parms = F){
     mutate(
       ind = rep(1: (nrow(.) / 3), times = 3)
     ) %>% 
-    unnest('ests') %>% 
+    tidyr::unnest('ests') %>% 
     rename(met = !!met) %>% 
     summarise(
       metsum = median(met, na.rm = T), 

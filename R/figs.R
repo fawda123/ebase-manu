@@ -143,12 +143,11 @@ p6 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 64, ndays = 30, met = 'nse'
 
 p <- ((p1 + plot_layout(ncol = 1)) | (p2 + plot_layout(ncol = 1)) | (p3 + plot_layout(ncol = 1)) | (p4 + plot_layout(ncol = 1))| (p5 + plot_layout(ncol = 1)) | (p6 + plot_layout(ncol = 1)))  + plot_layout(ncol = 6, guides = 'collect') & 
   theme(
-    legend.position = 'top', 
-    axis.text.x = element_text(size = 8)
+    legend.position = 'top'
   ) & 
   scale_x_date(date_labels = '%b')
 
-png(here('figs/optex.png'), height = 7.5, width = 9, family = 'serif', units = 'in', res = 500)
+png(here('figs/optex.png'), height = 8.7, width = 9, family = 'serif', units = 'in', res = 500)
 print(p)
 dev.off()
 
