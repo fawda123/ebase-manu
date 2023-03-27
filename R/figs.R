@@ -86,7 +86,7 @@ load(file = fl)
 
 p1 <- priorsumcomp(apasumdat, met = 'nse')
 
-png(here('figs/priorsumcomp.png'), height = 6, width = 5, family = 'serif', units = 'in', res = 500)
+png(here('figs/priorsumcomp.png'), height = 5, width = 6, family = 'serif', units = 'in', res = 500)
 print(p1)
 dev.off()
 
@@ -134,21 +134,21 @@ fwdatcmp <- fwdat %>%
   ) %>% 
   select(Date, DateTimeStamp, DO_obs, a, b, P, R, D)
 
-p1 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 1, ndays = 1, met = 'nse', subttl = '(a) Best priors, 1 day')
-p2 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 64, ndays = 1, met = 'nse', subttl = '(b) Worst priors, 1 day', ylbs = F)
-p3 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 1, ndays = 7, met = 'nse', subttl = '(c) Best priors, 7 day', ylbs = F)
-p4 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 64, ndays = 7, met = 'nse', subttl = '(d) Worst priors, 7 day', ylbs = F)
-p5 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 1, ndays = 30, met = 'nse', subttl = '(e) Best priors, 30 day', ylbs = F)
-p6 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 64, ndays = 30, met = 'nse', subttl = '(f) Worst priors, 30 day', ylbs = F)
+p1 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 1, ndays = 1, met = 'nse', subttl = '(a) Best, 1 day')
+p2 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 64, ndays = 1, met = 'nse', subttl = '(b) Worst, 1 day', ylbs = F)
+p3 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 1, ndays = 7, met = 'nse', subttl = '(c) Best, 7 day', ylbs = F)
+p4 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 64, ndays = 7, met = 'nse', subttl = '(d) Worst, 7 day', ylbs = F)
+p5 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 1, ndays = 30, met = 'nse', subttl = '(e) Best, 30 day', ylbs = F)
+p6 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 64, ndays = 30, met = 'nse', subttl = '(f) Worst, 30 day', ylbs = F)
 
-p <- ((p1 + plot_layout(ncol = 1)) | (p2 + plot_layout(ncol = 1)) | (p3 + plot_layout(ncol = 1)) | (p4 + plot_layout(ncol = 1)))  + plot_layout(ncol = 4, guides = 'collect') & 
+p <- ((p1 + plot_layout(ncol = 1)) | (p2 + plot_layout(ncol = 1)) | (p3 + plot_layout(ncol = 1)) | (p4 + plot_layout(ncol = 1))| (p5 + plot_layout(ncol = 1)) | (p6 + plot_layout(ncol = 1)))  + plot_layout(ncol = 6, guides = 'collect') & 
   theme(
     legend.position = 'top', 
     axis.text.x = element_text(size = 8)
   ) & 
   scale_x_date(date_labels = '%b')
 
-png(here('figs/optex.png'), height = 8.75, width = 8, family = 'serif', units = 'in', res = 500)
+png(here('figs/optex.png'), height = 7.5, width = 9, family = 'serif', units = 'in', res = 500)
 print(p)
 dev.off()
 
