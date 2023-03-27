@@ -109,20 +109,21 @@ priorcomp <- function(dat, met, topbot = 3){
     filter(!var %in% 'b') %>% 
     pivot_wider(names_from = 'var', values_from = !!toshw) %>% 
     mutate(
-      ind = rep(1: (nrow(.) / 2), times = 2), 
+      ind = rep(1: (nrow(.) / 3), times = 3), 
       ndays = case_when(
         ndays == 1 ~ paste(ndays, 'day'), 
         T ~ paste(ndays, 'days')
       )
     )
   
-  # ave r2 summary
+  # ave summary
   optest <- metsum_fun(dat, met) %>% 
     mutate(
       ndays = case_when(
         ndays == 1 ~ paste(ndays, 'day'), 
         T ~ paste(ndays, 'days')
-      )
+      ), 
+      ndays = factor(ndays, levels = unique(ndays))
     )
   
   topn <- sort(unique(optest$rnkmetsum))[1:topbot]
@@ -154,7 +155,8 @@ priorcomp <- function(dat, met, topbot = 3){
       var = factor(var, 
                    levels = c('DO_mod', 'P', 'R', 'D', 'a'), 
                    labels = c('DO', 'P', 'R', 'D', 'italic(a)')
-      )
+      ), 
+      ndays = factor(ndays, levels = unique(ndays))
     ) %>% 
     left_join(optest, by = c('ind', 'ndays'), multiple= 'all')
 
@@ -177,7 +179,13 @@ priorcomp <- function(dat, met, topbot = 3){
       y = NULL, 
       x = 'Prior parameters'
     )
-browser()
+
+  # if(met == 'nse')
+  #   toplo2 <- toplo2 %>% 
+  #     mutate(
+  #       val = pmax(val, -2)
+  #     )
+  
   p2 <- ggplot(toplo2, aes(y = ind, x = var, fill = val)) + 
     geom_tile(color = 'black') + 
     geom_text(aes(y = ind, x = 5.6, label = rnkmetsum), size = 2.35, hjust = 0, color = toplo2$cols, fontface = toplo2$fnts) + 
@@ -192,8 +200,7 @@ browser()
       panel.grid = element_blank(), 
       panel.background = element_blank()
     ) + 
-    facet_wrap(~ndays, ncol = 2) + 
-    # scale_fill_distiller(palette = 'YlOrRd', direction = direc, limits = limts, trans = trans) + 
+    facet_wrap(~ndays, ncol = 3) + 
     scale_x_discrete(position = 'top', expand = c(0, 0), labels = parse(text = levels(toplo2$var))) + 
     scale_y_reverse(expand = c(0, 0)) + 
     coord_cartesian(clip = 'off') + 
@@ -211,9 +218,10 @@ browser()
     
   if(met == 'nse')
     p2 <- p2 + 
-      scale_fill_gradient2(low = 'red', mid = 'white', high = 'green', midpoint = 1, trans= 'exp')
+      scale_fill_gradient2(low = 'red', mid = 'white', high = 'green', midpoint = 1, trans = 'exp' ,
+                           breaks = c(-448, -1, 0, 0.5, 0.9))
     
-  out <- p1 + p2 + plot_layout(ncol = 2, widths = c(0.45, 1))
+  out <- p1 + p2 + plot_layout(ncol = 2, widths = c(0.45, 1.2))
   
   return(out)
   
@@ -299,7 +307,7 @@ optex <- function(apagrd, fwdatcmp, apasumdat, rnkmetsum, ndays, met, subttl, yl
   
   cmp <- inner_join(fwdatcmp, res, by = c('Date', 'DateTimeStamp')) %>%
     mutate(
-      a.y = a.y * H, # fwoxy is m-2, ebase is m-3
+      a.x = a.x / H, # fwoxy is m-2, ebase is m-3
     ) %>% 
     select(-H, -converge, -dDO, -DO_obs.y, -rsq, -matches('lo$|hi$')) %>%
     rename(
@@ -320,7 +328,7 @@ optex <- function(apagrd, fwdatcmp, apasumdat, rnkmetsum, ndays, met, subttl, yl
     filter(var %in% c('P', 'R', 'D')) %>% 
     group_by(grp, var) %>% 
     summarise(
-      Fwoxy = mean(Fwoxy, na.rm = T), 
+      Synthetic = mean(Synthetic, na.rm = T), 
       EBASE = mean(EBASE, na.rm = T),
       Date  = min(Date),
       .groups = 'drop'
@@ -364,7 +372,7 @@ optex <- function(apagrd, fwdatcmp, apasumdat, rnkmetsum, ndays, met, subttl, yl
     filter(var %in% c('DO_mod', 'a', 'b')) %>% 
     group_by(grp, var) %>%
     summarise(
-      Fwoxy = mean(Fwoxy, na.rm = T),
+      Synthetic = mean(Synthetic, na.rm = T),
       EBASE = mean(EBASE, na.rm = T),
       Date = min(Date),
       .groups = 'drop'
@@ -419,7 +427,7 @@ metsum_fun <- function(apasumdat, met, parms = F){
 
   out <- apasumdat %>% 
     mutate(
-      ind = rep(1: (nrow(.) / 2), times = 2)
+      ind = rep(1: (nrow(.) / 3), times = 3)
     ) %>% 
     unnest('ests') %>% 
     rename(met = !!met) %>% 

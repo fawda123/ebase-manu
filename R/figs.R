@@ -105,8 +105,14 @@ load(file = fl7a)
 fl7b <- paste0(tempdir(), '/apagrd7b.RData')
 download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/apagrd7b.RData', destfile = fl7b)
 load(file = fl7b)
+fl30a <- paste0(tempdir(), '/apagrd30a.RData')
+download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/apagrd30a.RData', destfile = fl30a)
+load(file = fl30a)
+fl30b <- paste0(tempdir(), '/apagrd30b.RData')
+download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/apagrd30b.RData', destfile = fl30b)
+load(file = fl30b)
 
-apagrd <- bind_rows(apagrd1a, apagrd1b, apagrd7a, apagrd7b)
+apagrd <- bind_rows(apagrd1a, apagrd1b, apagrd7a, apagrd7b, apagrd30a, apagrd30b)
 
 # summary ests
 fl <- paste0(tempdir(), '/apasumdat.RData')
@@ -128,10 +134,12 @@ fwdatcmp <- fwdat %>%
   ) %>% 
   select(Date, DateTimeStamp, DO_obs, a, b, P, R, D)
 
-p1 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 1, ndays = 1, met = 'cfd', subttl = '(a) Best priors, 1 day')
-p2 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 64, ndays = 1, met = 'cfd', subttl = '(b) Worst priors, 1 day', ylbs = F)
-p3 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 1, ndays = 7, met = 'cfd', subttl = '(c) Best priors, 7 day', ylbs = F)
-p4 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 64, ndays = 7, met = 'cfd', subttl = '(d) Worst priors, 7 day', ylbs = F)
+p1 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 1, ndays = 1, met = 'nse', subttl = '(a) Best priors, 1 day')
+p2 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 64, ndays = 1, met = 'nse', subttl = '(b) Worst priors, 1 day', ylbs = F)
+p3 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 1, ndays = 7, met = 'nse', subttl = '(c) Best priors, 7 day', ylbs = F)
+p4 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 64, ndays = 7, met = 'nse', subttl = '(d) Worst priors, 7 day', ylbs = F)
+p5 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 1, ndays = 30, met = 'nse', subttl = '(e) Best priors, 30 day', ylbs = F)
+p6 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 64, ndays = 30, met = 'nse', subttl = '(f) Worst priors, 30 day', ylbs = F)
 
 p <- ((p1 + plot_layout(ncol = 1)) | (p2 + plot_layout(ncol = 1)) | (p3 + plot_layout(ncol = 1)) | (p4 + plot_layout(ncol = 1)))  + plot_layout(ncol = 4, guides = 'collect') & 
   theme(
