@@ -286,24 +286,8 @@ priorsumcomp <- function(dat, met = 'r2'){
   
 }
 
-# comparison of fwoxy and ebase results for ranked model by prior at opt of ndays
-optex <- function(apagrd, fwdatcmp, apasumdat, rnkmetsum, ndays, met, subttl, ylbs = TRUE){
-
-  # find the prior comparison
-  rnkfnd <- metsum_fun(apasumdat, met, parms = T) %>% 
-    filter(rnkmetsum == !!rnkmetsum) %>% 
-    filter(ndays == !!ndays)
-
-  res <- apagrd %>% 
-    filter(
-      amean == rnkfnd$amean & asd == rnkfnd$asd & 
-      rmean == rnkfnd$rmean & rsd == rnkfnd$rsd & 
-      bmean == rnkfnd$bmean & bsd == rnkfnd$bsd & 
-      ndays == rnkfnd$ndays
-    ) %>% 
-    pull(out) %>% 
-    .[[1]] %>% 
-    .[[1]]
+# plot for comparing Fwoxy and EBASE, used in optext and defex
+cmpplo <- function(res, fwdatcmp, subttl, ylbs = TRUE){
   
   cmp <- inner_join(fwdatcmp, res, by = c('Date', 'DateTimeStamp')) %>%
     mutate(
@@ -412,8 +396,50 @@ optex <- function(apagrd, fwdatcmp, apasumdat, rnkmetsum, ndays, met, subttl, yl
       theme(strip.text = element_blank())
     
   }
-    
+  
   p1 + p2
+  
+}
+
+# comparison of fwoxy and ebase results for ranked model by prior at opt of ndays
+optex <- function(apagrd, fwdatcmp, apasumdat, rnkmetsum, ndays, met, subttl, ylbs = TRUE){
+
+  # find the prior comparison
+  rnkfnd <- metsum_fun(apasumdat, met, parms = T) %>% 
+    filter(rnkmetsum == !!rnkmetsum) %>% 
+    filter(ndays == !!ndays)
+
+  res <- apagrd %>% 
+    filter(
+      amean == rnkfnd$amean & asd == rnkfnd$asd & 
+      rmean == rnkfnd$rmean & rsd == rnkfnd$rsd & 
+      bmean == rnkfnd$bmean & bsd == rnkfnd$bsd & 
+      ndays == rnkfnd$ndays
+    ) %>% 
+    pull(out) %>% 
+    .[[1]] %>% 
+    .[[1]]
+  
+  out <- cmpplo(res, fwdatcmp, subttl, ylbs)
+  
+  return(out)
+  
+}
+
+# comparison of fwoxy and ebase results using default EBASE priors
+defex <- function(ebasedefault, fwdatcmp, ndays, subttl, ylbs = TRUE){
+  
+  res <- ebasedefault %>% 
+    filter(
+      ndays == !!ndays
+    ) %>% 
+    pull(out) %>% 
+    .[[1]] %>% 
+    .[[1]]
+  
+  out <- cmpplo(res, fwdatcmp, subttl, ylbs)
+  
+  return(out)
   
 }
 

@@ -71,13 +71,7 @@ load(file = url('https://github.com/fawda123/BASEmetab_script/raw/master/data/ap
 tosum <- apacmp %>% 
   mutate(
     typ = ifelse(typ == 'BASEmetab', 'BASE', typ),
-    val = case_when(
-      var == 'Rt_vol' ~ -1 * val, 
-      T ~ val
-    ), 
-    var = factor(var, 
-                 levels = c('NEM', 'Pg_vol', 'Rt_vol', 'D'), 
-                 labels = c('NEM', 'P', 'R', 'D')
+    var = factor(var, levels = c('NEM', 'P', 'R', 'D'), 
     )
   ) %>% 
   pivot_wider(names_from = 'typ', values_from = 'val')
@@ -93,7 +87,8 @@ grd <- crossing(
     slo = NA, 
     slolo = NA,
     slohi = NA,
-    rse = NA
+    rse = NA,
+    rmse = NA
   )
 
 for(i in 1:nrow(grd)){
@@ -120,7 +115,7 @@ for(i in 1:nrow(grd)){
   # get summaries
   corv <- cor.test(tocmp$xval, tocmp$yval)
   corv <- paste0(round(corv$estimate, 2), p_ast(corv$p.value))
-
+ 
   lmmod <- lm(yval ~ xval, data = tocmp)
   lmmodsum <- summary(lmmod)
   tval <- (abs(lmmodsum$coefficients[2, 1] - 1)) / (lmmodsum$coefficients[2, 2]) 
@@ -130,6 +125,7 @@ for(i in 1:nrow(grd)){
   slolo <- confint(lmmod)[2, 1]
   slohi <- confint(lmmod)[2, 2]
   rse <- round(sigma(lmmod), 2)
+  rmse <- round(modelr::rmse(lmmod, tocmp), 2)
   
   # append to output
   grd[i, 'corv'] <- corv
@@ -138,17 +134,19 @@ for(i in 1:nrow(grd)){
   grd[i, 'slolo'] <- slolo
   grd[i, 'slohi'] <- slohi
   grd[i, 'rse'] <- rse
+  grd[i, 'rmse'] <- rmse
   
 }
 
 totab <- grd %>% 
-  select(dotyp, comp, var, corv, int, slo, rse) %>% 
+  select(dotyp, comp, var, corv, int, slo, rmse) %>% 
   mutate(
     dotyp = factor(dotyp, levels = c('observed', 'detided'), labels = c('Observed', 'Detided')), 
     comp = factor(comp, levels = c('Odum v EBASE', 'BASE v EBASE')), 
     var = factor(var, levels = c('NEM', 'P', 'R', 'D'))
   ) %>% 
   arrange(dotyp, comp, var) %>%
+  filter(comp != 'BASE v EBASE') %>%  # remove comparison to BASE
   group_by(dotyp) %>% 
   mutate(
     comp = ifelse(duplicated(comp), '', as.character(comp))
@@ -159,8 +157,10 @@ totab <- grd %>%
     Estimate = var, 
     `Corr.` = corv,
     Intercept = int, 
-    Slope = slo
+    Slope = slo,
+    RMSE = rmse
   ) %>% 
+  select(-Comparison) %>% 
   flextable::as_grouped_data(groups = c('Dissolved Oxygen'))
 
 apacmptab <- totab %>%
@@ -169,9 +169,10 @@ apacmptab <- totab %>%
   font(part = 'all', fontname = 'Times New Roman') %>% 
   padding(padding = 1, part = 'all') %>% 
   width(width = 6.5 / ncol_keys(.)) %>% 
-  flextable::compose(part = 'header', j = 'rse', value = as_paragraph(as_equation("\\sigma"))) %>% 
+  flextable::compose(part = 'header', j = 'RMSE', value = as_paragraph(as_equation("\\text{RMSE}~(\\text{mmol}~\\text{O}_2/\\text{m}^2/\\text{d})"))) %>% 
+  flextable::compose(part = 'header', j = 'Intercept', value = as_paragraph(as_equation("\\text{Intercept}~(\\text{mmol}~\\text{O}_2/\\text{m}^2/\\text{d})"))) %>% 
   flextable::compose(part = 'header', j = 'Corr.', value = as_paragraph(as_equation("\\rho"))) %>% 
-  flextable::align(align = 'center', j = 4:7, part = 'all') %>% 
+  flextable::align(align = 'center', j = 3:6, part = 'all') %>% 
   flextable::add_footer_lines(value = '* p < 0.05, ** p < 0.005') %>% 
   font(part = 'footer', fontname = 'Times New Roman') %>% 
   flextable::align(align = 'right', part = 'footer')
