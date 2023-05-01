@@ -347,7 +347,7 @@ cmpplo <- function(res, fwdatcmp, subttl, ylbs = TRUE){
       subtitle = subttl
     )
   
-  labs <- c('DO~(mmol~m^{3}~d^{-1})',
+  labs <- c('O[2]~(mmol~m^{-3})',
             'italic(a)~(mmol~m^{-3}~d^{-1})/(W~m^{-2})', 
             'italic(b)~(cm~hr^{-1})/(m^{2}~s^{-2})'
   )
@@ -474,5 +474,80 @@ metsum_fun <- function(apasumdat, met, parms = F){
       select(-matches('mean$|sd$'))
   
   return(out)
+  
+}
+
+# compare synthetic and synthetic + noise
+syncomp_plo <- function(resobs, resnos){
+  
+  res <- list(
+    'Synthetic' = resobs,
+    'Synthetic + noise' = resnos
+  ) %>% 
+    enframe(name = 'dotyp') %>% 
+    unnest('value') %>% 
+    select(-matches('hi$|lo$|converge|rsq|^Date$|dDO|^H$')) %>% 
+    pivot_longer(-c('dotyp', 'DateTimeStamp', 'grp')) %>% 
+    summarise(
+      value = mean(value, na.rm = T),
+      DateTimeStamp = min(DateTimeStamp),
+      .by = c('dotyp', 'grp', 'name')
+    ) %>% 
+    filter(!name == 'DO_obs') %>% 
+    mutate(
+      name = factor(name, 
+                    levels = c('DO_mod', 'a', 'b', 'P', 'R', 'D'), 
+                    labels = c('O[2]~(mmol~m^{-3})', 'italic(a)~(mmol~m^{-3}~d^{-1})/(W~m^{-2})', 'italic(b)~(cm~hr^{-1})/(m^{2}~s^{-2})', 'P~(mmol~m^{2}~d^{-1})', 'R~(mmol~m^{2}~d^{-1})', 'D~(mmol~m^{2}~d^{-1})')
+      )
+    ) %>% 
+    pivot_wider(names_from = dotyp, values_from = value)
+  
+  vrs <- levels(res$name)
+  
+  for(i in seq_along(vrs)){
+    
+    vr <- vrs[i]
+
+    ylab <- NULL
+    xlab <- NULL
+    if(i %in% c(1, 4))
+      ylab <- 'Synthetic + noise'
+    if(i %in% 4:6)
+      xlab <- 'Synthetic'
+    
+    toplo <- res %>% filter(name == vr)
+    
+    lims <- lims <- range(toplo[, c('Synthetic', 'Synthetic + noise')], na.rm = T)
+    
+    thm <- theme_minimal() + 
+      theme(
+        strip.background = element_blank(), 
+        legend.position = 'top', 
+        panel.grid.minor = element_blank(), 
+        axis.text = element_text(size = 6)
+      )
+    
+    ptmp <- ggplot(toplo, aes(x = Synthetic, y = `Synthetic + noise`)) + 
+      geom_point() + 
+      facet_wrap(~name, labeller = label_parsed) + 
+      geom_abline(intercept = 0, slope = 1) +
+      geom_smooth(formula = y ~ x ,method = 'lm', se = F, colour = 'tomato1', linewidth = 0.7) +
+      coord_cartesian(
+        xlim = lims, 
+        ylim = lims
+      ) + 
+      labs(
+        x = xlab, 
+        y = ylab
+      ) +
+      thm
+    
+    assign(paste0('p', i), ptmp)
+    
+  }
+  
+  p <- p1 + p2 + p3 + p4 + p5 + p6 + plot_layout(ncol = 3)
+  
+  return(p)
   
 }

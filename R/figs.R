@@ -23,6 +23,25 @@ fwdatcmp <- fwdat %>%
   ) %>% 
   select(Date, DateTimeStamp, DO_obs, a, b, P, R, D)
 
+# fwoxy for input to ebase
+fwdatinp <- fwdat %>% 
+  mutate(
+    datet = dmy_hms(datet, tz = 'America/Jamaica')
+  ) %>% 
+  select(
+    DateTimeStamp = datet,
+    DO_obs = `oxy,mmol/m3`, 
+    Temp = `temp,degC`, 
+    Sal = `salt,ppt`, 
+    PAR = `par,W/m2`, 
+    WSpd = `wspd2,m2/s2`, 
+    H = `ht,m`
+  ) %>% 
+  mutate(
+    DO_obs = DO_obs / 1000 * 32, # to mg/L
+    WSpd = sqrt(WSpd)
+  )
+
 # prior distribution plot ---------------------------------------------------------------------
 
 p <- prior_plot(n = 2e6)
@@ -142,16 +161,96 @@ dev.off()
 # fl <- paste0(tempdir(), '/ebasedefault.RData')
 # download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/ebasedefault.RData', destfile = fl)
 # load(file = fl)
-# 
+
 # p1 <- defex(ebasedefault, fwdatcmp, ndays = 1, subttl = '(a) 1 day')
 # p2 <- defex(ebasedefault, fwdatcmp, ndays = 7, subttl = '(b) 7 day', ylbs = F)
 # p3 <- defex(ebasedefault, fwdatcmp, ndays = 30, subttl = '(c) 30 day', ylbs = F)
 # 
-# p <- ((p1 + plot_layout(ncol = 1)) | (p2 + plot_layout(ncol = 1)) | (p3 + plot_layout(ncol = 1)))  + plot_layout(ncol = 3, guides = 'collect') & 
+# p <- ((p1 + plot_layout(ncol = 1)) | (p2 + plot_layout(ncol = 1)) | (p3 + plot_layout(ncol = 1)))  + plot_layout(ncol = 3, guides = 'collect') &
 #   theme(
 #     legend.position = 'top'
-#   ) & 
+#   ) &
 #   scale_x_date(date_labels = '%b')
+
+# synthetic with noise ------------------------------------------------------------------------
+
+# load apadb data run through wtreg
+fl <- paste0(tempdir(), '/apadbdtd.RData')
+download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/apadbdtd.RData', destfile = fl)
+load(file = fl)
+
+nosdat <- apadbdtd %>% 
+  mutate(
+    tidnoise = DO_prd - DO_nrm, 
+    obsnoise = DO_obs - DO_prd
+  ) %>% 
+  select(DateTimeStamp, DO_act = DO_obs, DO_prd, DO_nrm, tidnoise, obsnoise)
+
+# add tidal noise to fwdatinp - need to figure out values less than zero
+tomod <- fwdatinp %>% 
+  left_join(nosdat, by = 'DateTimeStamp') %>% 
+  mutate(
+    DO_nos = pmax(0, DO_obs + tidnoise + obsnoise)
+  )
+
+toplo <- tomod %>% 
+  filter(month(DateTimeStamp) == 6) 
+toplo1 <- toplo %>% 
+  select(DateTimeStamp, DO_obs, DO_nos) %>% 
+  pivot_longer(-DateTimeStamp) %>% 
+  mutate(
+    name = case_when(
+      name == 'DO_obs' ~ 'Synthetic', 
+      name == 'DO_nos' ~ 'Synethic + noise'
+    ), 
+    value = value / 32 * 1000
+  )
+toplo2 <- toplo %>% 
+  select(DateTimeStamp, tidnoise, obsnoise) %>%
+  pivot_longer(-DateTimeStamp) %>% 
+  mutate(
+    name = case_when(
+      name == 'obsnoise' ~ 'Instrument', 
+      name == 'tidnoise' ~ 'Tidal'
+    ),
+    value = value / 32 * 1000
+  )
+
+p1 <- ggplot(toplo1, aes(x = DateTimeStamp, y = value, color = name)) + 
+  geom_line() + 
+  labs(
+    color = NULL, 
+    title = '(a) Time series'
+  )
+p2 <- ggplot(toplo2, aes(x = DateTimeStamp, y = value, color = name)) + 
+  geom_line() + 
+  scale_color_manual(values = c('darkgrey', 'black')) +
+  labs(
+    color = NULL,
+    title = '(b) Noise'
+  )
+
+p <- p1 + p2 + plot_layout(ncol = 1) & scale_x_datetime(expand = c(0,0)) & theme_minimal() & labs(x = NULL, y = expression(paste(O [2], ' (mmol ', m^-3, ')'))) & theme(panel.grid.minor = element_blank(), legend.position = 'top')
+
+png(here('figs/synapanos.png'), height = 6, width = 8, family = 'serif', units = 'in', res = 500)
+print(p)
+dev.off()
+
+# synthetic with noise results ----------------------------------------------------------------
+
+# ebase results on observed and noisy observed
+fl <- paste0(tempdir(), '/resobs.RData')
+download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/resobs.RData', destfile = fl)
+load(file = fl)
+fl <- paste0(tempdir(), '/resnos.RData')
+download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/resnos.RData', destfile = fl)
+load(file = fl)
+
+p <- syncomp_plo(resobs, resnos) 
+  
+png(here('figs/synapanoscmp.png'), height = 4.75, width = 6, family = 'serif', units = 'in', res = 500)
+print(p)
+dev.off()
 
 # actual apa comparison -----------------------------------------------------------------------
 
