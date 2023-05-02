@@ -70,7 +70,6 @@ load(file = url('https://github.com/fawda123/BASEmetab_script/raw/master/data/ap
 
 tosum <- apacmp %>% 
   mutate(
-    typ = ifelse(typ == 'BASEmetab', 'BASE', typ),
     var = factor(var, levels = c('NEM', 'P', 'R', 'D'), 
     )
   ) %>% 
@@ -79,7 +78,7 @@ tosum <- apacmp %>%
 grd <- crossing(
   dotyp = unique(tosum$dotyp), 
   var = levels(tosum$var), 
-  comp = c('Odum v EBASE', 'BASE v EBASE')
+  comp = c('Odum v EBASE')
   ) %>% 
   mutate(
     corv = NA, 
@@ -142,11 +141,10 @@ totab <- grd %>%
   select(dotyp, comp, var, corv, int, slo, rmse) %>% 
   mutate(
     dotyp = factor(dotyp, levels = c('observed', 'detided'), labels = c('Observed', 'Detided')), 
-    comp = factor(comp, levels = c('Odum v EBASE', 'BASE v EBASE')), 
+    comp = factor(comp, levels = c('Odum v EBASE')), 
     var = factor(var, levels = c('NEM', 'P', 'R', 'D'))
   ) %>% 
   arrange(dotyp, comp, var) %>%
-  filter(comp != 'BASE v EBASE') %>%  # remove comparison to BASE
   group_by(dotyp) %>% 
   mutate(
     comp = ifelse(duplicated(comp), '', as.character(comp))
@@ -160,7 +158,7 @@ totab <- grd %>%
     Slope = slo,
     RMSE = rmse
   ) %>% 
-  select(-Comparison) %>% 
+  select(-Comparison, -Intercept, -Slope) %>% 
   flextable::as_grouped_data(groups = c('Dissolved Oxygen'))
 
 apacmptab <- totab %>%
@@ -170,9 +168,9 @@ apacmptab <- totab %>%
   padding(padding = 1, part = 'all') %>% 
   width(width = 6.5 / ncol_keys(.)) %>% 
   flextable::compose(part = 'header', j = 'RMSE', value = as_paragraph(as_equation("\\text{RMSE}~(\\text{mmol}~\\text{O}_2/\\text{m}^2/\\text{d})"))) %>% 
-  flextable::compose(part = 'header', j = 'Intercept', value = as_paragraph(as_equation("\\text{Intercept}~(\\text{mmol}~\\text{O}_2/\\text{m}^2/\\text{d})"))) %>% 
+  # flextable::compose(part = 'header', j = 'Intercept', value = as_paragraph(as_equation("\\text{Intercept}~(\\text{mmol}~\\text{O}_2/\\text{m}^2/\\text{d})"))) %>% 
   flextable::compose(part = 'header', j = 'Corr.', value = as_paragraph(as_equation("\\rho"))) %>% 
-  flextable::align(align = 'center', j = 3:6, part = 'all') %>% 
+  flextable::align(align = 'center', j = 3:ncol_keys(.), part = 'all') %>% 
   flextable::add_footer_lines(value = '* p < 0.05, ** p < 0.005') %>% 
   font(part = 'footer', fontname = 'Times New Roman') %>% 
   flextable::align(align = 'right', part = 'footer')
