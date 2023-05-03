@@ -241,6 +241,7 @@ priorsumcomp <- function(dat, met = 'r2'){
         T ~ paste(ndays, 'days')
       )
     ) %>% 
+    filter(!var %in% 'DO_mod') %>% 
     pivot_longer(cols = matches('mean$|sd$'), names_to = 'prior', values_to = 'val') %>% 
     summarise(
       medv = median(met, na.rm = T), 
@@ -248,11 +249,13 @@ priorsumcomp <- function(dat, met = 'r2'){
       .by = c('ndays', 'prior', 'val')
     ) %>% 
     mutate(
-      param = gsub('mean$|sd$', '', prior),
-      param = factor(param, levels = c('a', 'r', 'b')),
-      prior = gsub('^a|^r|^b', '', prior), 
-      prior = factor(prior, levels = c('mean', 'sd'), labels = c('mu', 'sigma')), 
-      ndays = factor(ndays, levels = c('1 day', '7 days', '30 days'), labels = c('1~day', '7~days', '30~days'))
+           grandmed = median(medv),
+           medv = medv - grandmed,
+           param = gsub('mean$|sd$', '', prior),
+           param = factor(param, levels = c('a', 'r', 'b')),
+           prior = gsub('^a|^r|^b', '', prior), 
+           prior = factor(prior, levels = c('mean', 'sd'), labels = c('mu', 'sigma')), 
+           ndays = factor(ndays, levels = c('1 day', '7 days', '30 days'), labels = c('1~day', '7~days', '30~days'))
     )
   
   metsel <- tibble(
@@ -260,20 +263,26 @@ priorsumcomp <- function(dat, met = 'r2'){
     lbspr = c('italic(R)^2', 'RMSE', 'MAPE', 'mae', 'NSE')
   ) %>% 
     filter(met == !!met)
-  ylab <- parse(text = paste0('Median~', metsel$lbspr))
-
+  ylab <- parse(text = paste0('Median~', metsel$lbspr,'~-Grand~Median'))
+  
+  wd <- 0.3
+  
   p <- ggplot(toplo, aes(x = param, group = val)) + 
-    geom_point(aes(y = medv, fill = val, size = iqr), pch = 21) + #, position = position_dodge(width = wd)) +
+    geom_linerange(aes(ymin = 0, ymax = medv, x = param), position = position_dodge(width = wd), linetype = 'dashed') +
+    geom_hline(yintercept = 0) + 
+    geom_point(aes(y = medv, fill = val, size = iqr), pch = 21, position = position_dodge(width = wd)) +
     facet_grid(prior~ndays, labeller = label_parsed) + 
     scale_fill_brewer(palette = 'Blues') + 
-    scale_size(range = c(1, 8)) + 
+    scale_size(range = c(1, 10)) + 
     guides(fill = guide_legend(override.aes = list(size = 5))) +
     theme_bw() + 
     theme(
       axis.text.x = element_text(size = 14, face = 'italic'), 
       strip.text.y = element_text(size = 14, face = 'italic'), 
       strip.text.x = element_text(size = 12),
-      strip.background = element_blank()
+      strip.background = element_blank(), 
+      panel.grid.minor = element_blank(), 
+      panel.grid.major.x = element_blank()
     ) +
     labs(
       x = NULL, 
@@ -281,6 +290,7 @@ priorsumcomp <- function(dat, met = 'r2'){
       fill = 'Prior\nvalue', 
       size = 'IQR'
     )
+  
   
   return(p)
   
