@@ -138,39 +138,11 @@ fl <- paste0(tempdir(), '/apasumdat.RData')
 download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/apasumdat.RData', destfile = fl)
 load(file = fl)
 
-p1 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 1, ndays = 1, met = 'nse', subttl = '(a) Best, 1 day')
-p2 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 64, ndays = 1, met = 'nse', subttl = '(b) Worst, 1 day', ylbs = F)
-p3 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 1, ndays = 7, met = 'nse', subttl = '(c) Best, 7 day', ylbs = F)
-p4 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 64, ndays = 7, met = 'nse', subttl = '(d) Worst, 7 day', ylbs = F)
-p5 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 1, ndays = 30, met = 'nse', subttl = '(e) Best, 30 day', ylbs = F)
-p6 <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = 64, ndays = 30, met = 'nse', subttl = '(f) Worst, 30 day', ylbs = F)
-
-p <- ((p1 + plot_layout(ncol = 1)) | (p2 + plot_layout(ncol = 1)) | (p3 + plot_layout(ncol = 1)) | (p4 + plot_layout(ncol = 1))| (p5 + plot_layout(ncol = 1)) | (p6 + plot_layout(ncol = 1)))  + plot_layout(ncol = 6, guides = 'collect') & 
-  theme(
-    legend.position = 'top'
-  ) & 
-  scale_x_date(date_labels = '%b')
+p <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = c(1, 64), met = 'nse')
 
 png(here('figs/optex.png'), height = 8.7, width = 9, family = 'serif', units = 'in', res = 500)
 print(p)
 dev.off()
-
-# # Fwoxy apa EBASE defaults ------------------------------------------------
-# 
-# # grid ests
-# fl <- paste0(tempdir(), '/ebasedefault.RData')
-# download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/ebasedefault.RData', destfile = fl)
-# load(file = fl)
-
-# p1 <- defex(ebasedefault, fwdatcmp, ndays = 1, subttl = '(a) 1 day')
-# p2 <- defex(ebasedefault, fwdatcmp, ndays = 7, subttl = '(b) 7 day', ylbs = F)
-# p3 <- defex(ebasedefault, fwdatcmp, ndays = 30, subttl = '(c) 30 day', ylbs = F)
-# 
-# p <- ((p1 + plot_layout(ncol = 1)) | (p2 + plot_layout(ncol = 1)) | (p3 + plot_layout(ncol = 1)))  + plot_layout(ncol = 3, guides = 'collect') &
-#   theme(
-#     legend.position = 'top'
-#   ) &
-#   scale_x_date(date_labels = '%b')
 
 # synthetic with noise ------------------------------------------------------------------------
 

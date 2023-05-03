@@ -402,44 +402,93 @@ cmpplo <- function(res, fwdatcmp, subttl, ylbs = TRUE){
 }
 
 # comparison of fwoxy and ebase results for ranked model by prior at opt of ndays
-optex <- function(apagrd, fwdatcmp, apasumdat, rnkmetsum, ndays, met, subttl, ylbs = TRUE){
+optex <- function(apagrd, fwdatcmp, apasumdat, rnkmetsum, met){
 
   # find the prior comparison
-  rnkfnd <- metsum_fun(apasumdat, met, parms = T) %>% 
-    filter(rnkmetsum == !!rnkmetsum) %>% 
-    filter(ndays == !!ndays)
-
+  rnkfnd <- metsum_fun(apasumdat, met = met, parms = T) %>% 
+    filter(rnkmetsum %in% !!rnkmetsum) %>% 
+    select(-ind, -metsum)
+  
   res <- apagrd %>% 
-    filter(
-      amean == rnkfnd$amean & asd == rnkfnd$asd & 
-      rmean == rnkfnd$rmean & rsd == rnkfnd$rsd & 
-      bmean == rnkfnd$bmean & bsd == rnkfnd$bsd & 
-      ndays == rnkfnd$ndays
+    inner_join(rnkfnd, by = c("amean", "asd", "rmean", "rsd", "bmean", "bsd", "ndays")) %>% 
+    arrange(ndays, rnkmetsum) %>% 
+    mutate(
+      subfig = paste0('(', letters[1:nrow(.)], ')'), 
+      subfig = case_when(
+        rnkmetsum == 1 ~ paste(subfig, 'Best', ndays, 'day', sep = '~'), 
+        rnkmetsum == 64 ~ paste(subfig, 'Worst', ndays, 'day', sep = '~') 
+      ), 
+      subfig = factor(subfig)
     ) %>% 
-    pull(out) %>% 
-    .[[1]] %>% 
-    .[[1]]
+    select(subfig, out) %>% 
+    unnest(out) %>% 
+    unnest(out)
   
-  out <- cmpplo(res, fwdatcmp, subttl, ylbs)
-  
-  return(out)
-  
-}
-
-# comparison of fwoxy and ebase results using default EBASE priors
-defex <- function(ebasedefault, fwdatcmp, ndays, subttl, ylbs = TRUE){
-  
-  res <- ebasedefault %>% 
-    filter(
-      ndays == !!ndays
+  cmp <- inner_join(fwdatcmp, res, by = c('Date', 'DateTimeStamp')) %>%
+    mutate(
+      a.x = a.x / H, # fwoxy is m-2, ebase is m-3
     ) %>% 
-    pull(out) %>% 
-    .[[1]] %>% 
-    .[[1]]
+    select(-H, -converge, -dDO, -DO_obs.y, -rsq, -matches('lo$|hi$')) %>%
+    rename(
+      DO_mod.x = DO_obs.x,
+      DO_mod.y = DO_mod
+    ) %>%
+    pivot_longer(!all_of(c('subfig', 'DateTimeStamp', 'Date', 'grp')), names_to = 'var', values_to = 'val') %>%
+    separate(var, c('var', 'mod'), sep = '\\.') %>%
+    mutate(
+      mod = case_when(
+        mod == 'x' ~ 'Synthetic',
+        mod == 'y' ~ 'EBASE'
+      )
+    ) %>%
+    pivot_wider(names_from = 'mod', values_from = 'val')
   
-  out <- cmpplo(res, fwdatcmp, subttl, ylbs)
+  toplo <- cmp %>% 
+    summarise(
+      Synthetic = mean(Synthetic, na.rm = T),
+      EBASE = mean(EBASE, na.rm = T),
+      Date = min(Date),
+      .by = c('subfig', 'grp', 'var')
+    ) %>% 
+    pivot_longer(-c(subfig, Date, grp, var), names_to = 'model', values_to = 'est') %>% 
+    mutate(
+      var = factor(var, 
+                   levels = c('P', 'R', 'D', 'DO_mod', 'a', 'b'), 
+                   labels = c('P~(mmol~m^{2}~d^{-1})', 
+                              'R~(mmol~m^{2}~d^{-1})', 
+                              'D~(mmol~m^{2}~d^{-1})',
+                              'O[2]~(mmol~m^{-3})',
+                              'italic(a)~(mmol~m^{-3}~d^{-1})/(W~m^{-2})', 
+                              'italic(b)~(cm~hr^{-1})/(m^{2}~s^{-2})'))
+    ) %>% 
+    select(-grp)
   
-  return(out)
+  brks <- seq.Date(min(toplo$Date), max(toplo$Date), by = '3 months')
+  
+  p <- ggplot(toplo, aes(x = Date, y = est, group = model, color = model)) + 
+    geom_line(alpha = 1) +
+    # geom_point() +
+    facet_grid(var ~ subfig, switch = 'y', scales = 'free_y', labeller = label_parsed) + 
+    scale_x_date(date_labels = '%b', breaks = brks) + 
+    theme_minimal() + 
+    theme(
+      strip.placement = 'outside', 
+      strip.background = element_blank(), 
+      legend.position = 'top', 
+      legend.title = element_blank(), 
+      legend.text = element_text(size = 14),
+      axis.text.x = element_text(size = 12),
+      strip.text.y = element_text(size = rel(0.85)), 
+      strip.text.x = element_text(size = rel(1.4)), 
+      panel.grid.minor = element_blank(), 
+      panel.background = element_rect(fill = 'gray97', color = NA)
+    ) + 
+    labs(
+      x = NULL, 
+      y = NULL
+    )
+  
+  return(p)
   
 }
 
