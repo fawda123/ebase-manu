@@ -36,7 +36,7 @@ ebaseiotab <- flextable(totab) %>%
   flextable::compose(i = 11, j = 3, value = as_paragraph(as_equation('C_{sat}', props = eqsz))) %>% 
   flextable::compose(i = 13, j = 3, value = as_paragraph(as_equation('C_{mod}', props = eqsz))) %>% 
   flextable::compose(i = 14, j = 3, value = as_paragraph(as_equation('P,\\,aPAR', props = eqsz))) %>% 
-  flextable::compose(i = 15, j = 3, value = as_paragraph(as_equation('R,\\,r', props = eqsz))) %>% 
+  flextable::compose(i = 15, j = 3, value = as_paragraph(as_equation('R', props = eqsz))) %>% 
   flextable::compose(i = 16, j = 3, value = as_paragraph(as_equation('D,\\,\\frac{1}{H}\\left[-bU_{10}^2\\left(\\frac{s_c}{600} \\right)^{-0.5} \\left(C_{Sat} - C_d\\right )\\right]', props = eqsz))) %>% 
   flextable::compose(i = 17, j = 3, value = as_paragraph(as_equation('a', props = eqsz))) %>% 
   flextable::compose(i = 18, j = 3, value = as_paragraph(as_equation('b', props = eqsz))) %>% 

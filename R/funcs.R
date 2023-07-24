@@ -144,7 +144,7 @@ priorcomp <- function(dat, met, topbot = 3){
     mutate(
       var = factor(var, 
                    levels = c('amean', 'asd', 'rmean', 'rsd', 'bmean', 'bsd'), 
-                   labels = c('italic(a)~mu', 'italic(a)~sigma', 'italic(r)~mu', 'italic(r)~sigma', 'italic(b)~mu', 'italic(b)~sigma')), 
+                   labels = c('italic(a)~mu', 'italic(a)~sigma', 'italic(R)~mu', 'italic(R)~sigma', 'italic(b)~mu', 'italic(b)~sigma')), 
       fac = ''
     )
   
@@ -252,7 +252,7 @@ priorsumcomp <- function(dat, met = 'r2'){
            grandmed = median(medv),
            medv = medv - grandmed,
            param = gsub('mean$|sd$', '', prior),
-           param = factor(param, levels = c('a', 'r', 'b')),
+           param = factor(param, levels = c('a', 'r', 'b'), labels = c('a', 'R', 'b')),
            prior = gsub('^a|^r|^b', '', prior), 
            prior = factor(prior, levels = c('mean', 'sd'), labels = c('mu', 'sigma')), 
            ndays = factor(ndays, levels = c('1 day', '7 days', '30 days'), labels = c('1~day', '7~days', '30~days'))

@@ -44,7 +44,7 @@ fwdatinp <- fwdat %>%
 
 # prior distribution plot ---------------------------------------------------------------------
 
-p <- prior_plot(n = 2e6)
+p <- prior_plot(n = 3e6)
 
 png(here('figs/priorplot.png'), height = 3, width = 8, family = 'serif', units = 'in', res = 500)
 print(p)
@@ -146,12 +146,12 @@ dev.off()
 
 # synthetic with noise ------------------------------------------------------------------------
 
-# load apadb data run through wtreg
-fl <- paste0(tempdir(), '/apadbdtd.RData')
-download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/apadbdtd.RData', destfile = fl)
+# load apacp data run through wtreg
+fl <- paste0(tempdir(), '/apacpdtd.RData')
+download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/apacpdtd.RData', destfile = fl)
 load(file = fl)
 
-nosdat <- apadbdtd %>% 
+nosdat <- apacpdtd %>% 
   mutate(
     tidnoise = DO_prd - DO_nrm, 
     obsnoise = DO_obs - DO_prd
