@@ -1,0 +1,43 @@
+region,station,pmean,pse,rmean,rse,nemmean,nemse
+Caribbean and Gulf of Mexico,Jobos Bay 10,4.2,0.3,6.8,0.5,-2.6,0.4
+Caribbean and Gulf of Mexico,Jobos Bay 09,5.7,0.4,10,0.6,-4.3,0.4
+Caribbean and Gulf of Mexico,Rookery Bay Blackwater River,3.9,0.4,11.5,0.4,-7.6,0.3
+Caribbean and Gulf of Mexico,Rookery Bay Upper Henderson,5.6,0.3,11.6,0.4,-5.9,0.3
+Caribbean and Gulf of Mexico,Apalachicola Bottom,3.1,0.2,5.6,0.4,-1.6,0.2
+Caribbean and Gulf of Mexico,Apalachicola Surface,2.8,0.2,4.4,0.3,-2.5,0.3
+Caribbean and Gulf of Mexico,Weeks Bay Fish River,7.7,0.9,7.4,1,-2.2,0.3
+Caribbean and Gulf of Mexico,Weeks Bay Weeks Bay,6.9,1.3,7,1.2,-2,0.3
+Southeast,Sapelo Flume Dock,18.4,1.5,22.1,1.7,-3.7,0.3
+Southeast,Sapelo Marsh Landing,9.2,0.8,11.1,1,-1.9,0.3
+Southeast,ACE Big Bay Creek,12.4,0.7,17.9,0.9,-5.4,0.7
+Southeast,ACE St. Pierre,12,0.6,14.7,0.8,-2.6,0.3
+Southeast,North Inlet-Winyah Bay Oyster Landing,7,0.3,7.9,0.4,-2.2,0.3
+Southeast,North Inlet-Winyah Bay Thousand Acre Creek,4.7,0.3,5.6,0.3,-3,0.2
+Southeast,North Carolina Masonboro Inlet,5.5,0.3,7.7,0.5,-0.9,0.2
+Southeast,North Carolina Zeke’s Island,3.5,0.3,6.4,0.4,-0.9,0.2
+Mid-Atlantic,Chesapeake Bay Virginia Goodwin Island,5.2,0.4,4.7,0.5,0.5,0.2
+Mid-Atlantic,Chesapeake Bay Virginia Taskinas Creek,8.9,0.6,8.5,0.7,-2.1,0.2
+Mid-Atlantic,Chesapeake Bay Maryland Jug Bay,6.8,0.5,12.3,0.6,-5.6,0.4
+Mid-Atlantic,Chesapeake Bay Maryland Patuxent Park,8.2,1.6,10.2,1.4,-2,0.4
+Mid-Atlantic,Delaware Bay Blackwater Landing,11.2,1,13.9,1.2,-2.7,0.2
+Mid-Atlantic,Delaware Bay Scotton Landing,9.4,0.9,11,1.1,-1.6,0.4
+Mid-Atlantic,Mullica River Buoy 126,5.8,0.6,5.9,0.6,-0.03,0.2
+Mid-Atlantic,Mullica River Lower Bank,2.7,0.3,4.8,0.5,-2.1,0.3
+Northeast,Old Woman Creek State Route 2,2.3,0.2,6.4,0.3,-4.1,0.3
+Northeast,Old Woman Creek State Route 6,2.7,0.2,6.3,0.4,-3.6,0.3
+Northeast,Hudson River Tivoli South,3,0.3,4.6,0.4,-1.6,0.2
+Northeast,Narragansett Bay Potters Cove,8.2,0.6,9.9,0.8,-1.7,0.3
+Northeast,Narragansett Bay T-wharf,8,1,9.4,1.2,-1.3,0.4
+Northeast,Waquoit Bay Central Basin,6.6,0.3,8.8,0.4,0.3,0.2
+Northeast,Waquoit Bay Metoxit Point,5.6,0.4,7.2,0.5,-0.1,0.4
+Northeast,Great Bay Great Bay Buoy,7.6,0.6,7.8,0.6,-0.2,0.2
+Northeast,Great Bay Squamscott River,6.5,0.6,7.1,0.7,-0.6,0.3
+Northeast,Wells Head of Tide,3.3,0.4,6.9,0.8,-3.6,0.5
+Northeast,Wells Inlet,5.1,0.5,4.9,0.5,0.9,0.3
+Pacific,Padilla Bay Bay View,11.4,1.1,11.7,1,-0.4,0.2
+Pacific,South Slough Stengstacken Arm,14.4,1.4,16.5,1.4,-2.1,0.2
+Pacific,South Slough Winchester Arm,10,0.9,11.3,1,-1.3,0.2
+Pacific,Elkhorn Slough Azevedo Pond,11,0.5,13.3,0.5,-2.2,0.2
+Pacific,Elkhorn Slough South Marsh,3,0.2,4.4,0.2,-1.4,0.2
+Pacific,Tijuana River Oneonta Slough,15.1,0.9,19.1,1,-4,0.3
+Pacific,Tijuana River Tidal Linkage,28.1,2.4,32.3,2.3,-4.1,0.4
