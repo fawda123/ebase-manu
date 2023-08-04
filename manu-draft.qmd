@@ -57,9 +57,8 @@ load(file = here('data/misdat.RData'))
 
 ```{=tex}
 \newcommand{\auni}{\left(\text{mmol}/\text{m}^2/\text{d}\right)/\left(\text{W}/\text{m}^2\right)}
-\newcommand{\runi}{\text{mmol}/\text{m}^3/\text{d}}
+\newcommand{\runi}{\text{mmol}/\text{m}^2/\text{d}}
 \newcommand{\buni}{\left(\text{cm}/\text{hr}\right)/\left(\text{m}^2/\text{s}^2\right)}
-\newcommand{\area}{\text{mmol}/\text{m}^2/\text{d}}
 ```
 ## Abstract {.unnumbered}
 
@@ -137,7 +136,7 @@ For ease of application, an R package was developed to implement the EBASE metho
 
 ```{r}
 wqmis <- misdat$Temp # same percentages across all wq parms
-mtmis <- misdat$totpar # same percentages across all met parms
+mtmis <- misdat$PAR # same percentages across all met parms
 ```
 
 A preliminary assessment of the ability of EBASE to produce reasonable parameter estimates for $a$, $R$, and $b$ (@eq-ebase) was conducted using a synthetic time series with actual data as inputs. These assessments evaluated if 1) EBASE estimates similar values for the known parameters in the synthetic time series, and 2) how the estimated values change with different model configurations. The synthetic time series used inputs from one year of continuous data from Apalachicola Bay, Florida. The input data were observations from the year 2021 at the Cat Point water quality monitoring station (29.7021$^{\circ}$ N, --84.8802$^{\circ}$ W) and included 15-minute observations of water temperature and salinity. Continuous meteorological observations from the nearby East Bay station (29.7694$^{\circ}$ N, --84.8815$^{\circ}$ W, \~10 km north of Cat Point) were combined with the water quality data at the same time step and included air temperature, wind speed, and PAR. Missing observations in the water quality and meteorological data (`r wqmis`% and `r mtmis`% of all observations in each dataset, respectively) were filled using autoregressive modelling of the actual parameters versus time to create a complete dataset from January 1st to December 31st. A synthetic oxygen time series was then generated using the inputs from Apalachicola Bay ([@fig-synapa]a) and @eq-ebase as a forward calculating model with user-defined values for $a$, $R$, and $b$. All metabolic rates for production, respiration, and gas exchange ([@fig-synapa]b and c) were also estimated with the synthetic time series. The only parameter that could not be created as a continuous time series was $b$, which was set to 0.251 $\left(\text{cm}/\text{hr}\right)/\left(\text{m}^2/\text{s}^2\right)$ [@Wanninkhof14]. Accordingly, the synthetic dissolved oxygen time series and the observed water quality and meteorological data were used with EBASE to determine if reasonable estimates for the known parameters and metabolic rates were recovered.

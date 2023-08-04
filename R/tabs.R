@@ -17,9 +17,9 @@ totab <- tibble(
   `Model notation` =  c('C_d', '-', '-', 'PAR', '-', 'H', 
                         'U102', 'Schmidt number', 'C_sat', 
                         'C_mod', 'P', 'R',  'D', 'a', 'b'),
-  Units = c('mg/L', 'C', 'psu', 'W/m2/s', 'm/s', 'm', 
+  Units = c('mg/L', 'C', 'psu', 'W/m2', 'm/s', 'm', 
             'm2', 'unitless', 'mmol/m3',
-            'mmol/m3', 'mmol O2 m2/d', 'mmol O2 m2/d', 'mmol O2 m2/d', '(mmol/m3/d)/(W/m2)', '(cm/hr)/(m2/s2)')
+            'mmol/m3', 'mmol O2 m2/d', 'mmol O2 m2/d', 'mmol O2 m2/d', '(mmol/m2/d)/(W/m2)', '(cm/hr)/(m2/s2)')
 ) %>% 
   flextable::as_grouped_data(groups = 'Type')
 
