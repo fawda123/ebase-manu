@@ -93,7 +93,7 @@ load(file = fl)
 
 p1 <- priorcomp(apasumdat, met = 'nse')
 
-png(here('figs/priorcomp.png'), height = 6, width = 6, family = 'serif', units = 'in', res = 500)
+png(here('figs/priorcomp.png'), height = 4, width = 6, family = 'serif', units = 'in', res = 500)
 print(p1)
 dev.off()
 
@@ -105,40 +105,31 @@ load(file = fl)
 
 p1 <- priorsumcomp(apasumdat, met = 'nse')
 
-png(here('figs/priorsumcomp.png'), height = 5, width = 6, family = 'serif', units = 'in', res = 500)
+png(here('figs/priorsumcomp.png'), height = 4, width = 5, family = 'serif', units = 'in', res = 500)
 print(p1)
 dev.off()
 
 # best/worst fwoxy apa comp -------------------------------------------------------------------
 
 # grid ests
-fl1a <- paste0(tempdir(), '/apagrd1a.RData')
-download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/apagrd1a.RData', destfile = fl1a)
-load(file = fl1a)
-fl1b <- paste0(tempdir(), '/apagrd1b.RData')
-download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/apagrd1b.RData', destfile = fl1b)
-load(file = fl1b)
-fl7a <- paste0(tempdir(), '/apagrd7a.RData')
-download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/apagrd7a.RData', destfile = fl7a)
-load(file = fl7a)
-fl7b <- paste0(tempdir(), '/apagrd7b.RData')
-download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/apagrd7b.RData', destfile = fl7b)
-load(file = fl7b)
-fl30a <- paste0(tempdir(), '/apagrd30a.RData')
-download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/apagrd30a.RData', destfile = fl30a)
-load(file = fl30a)
-fl30b <- paste0(tempdir(), '/apagrd30b.RData')
-download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/apagrd30b.RData', destfile = fl30b)
-load(file = fl30b)
+fl1 <- paste0(tempdir(), '/apagrd1.RData')
+download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/apagrd1.RData', destfile = fl1)
+load(file = fl1)
+fl7 <- paste0(tempdir(), '/apagrd7.RData')
+download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/apagrd7.RData', destfile = fl7)
+load(file = fl7)
+fl30 <- paste0(tempdir(), '/apagrd30.RData')
+download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/apagrd30.RData', destfile = fl30)
+load(file = fl30)
 
-apagrd <- bind_rows(apagrd1a, apagrd1b, apagrd7a, apagrd7b, apagrd30a, apagrd30b)
+apagrd <- bind_rows(apagrd1, apagrd7, apagrd30)
 
 # summary ests
 fl <- paste0(tempdir(), '/apasumdat.RData')
 download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/apasumdat.RData', destfile = fl)
 load(file = fl)
 
-p <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = c(1, 64), met = 'nse')
+p <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = c(1, 16), met = 'nse')
 
 png(here('figs/optex.png'), height = 8.7, width = 9, family = 'serif', units = 'in', res = 500)
 print(p)

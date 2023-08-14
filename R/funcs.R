@@ -105,7 +105,7 @@ priorcomp <- function(dat, met, topbot = 3){
   
   toplo <- dat %>% 
     unnest('ests') %>% 
-    select(ndays, amean, asd, rmean, rsd, bmean, bsd, var, matches(toshw)) %>%
+    select(ndays, amean, asd, rmean, rsd, var, matches(toshw)) %>%
     filter(!var %in% 'b') %>% 
     pivot_wider(names_from = 'var', values_from = !!toshw) %>% 
     mutate(
@@ -137,19 +137,19 @@ priorcomp <- function(dat, met, topbot = 3){
     )
   
   toplo1 <- toplo %>% 
-    select(ind, amean, asd, rmean, rsd, bmean, bsd) %>% 
+    select(ind, amean, asd, rmean, rsd) %>% 
     unique() %>% 
     mutate_at(vars(-matches('ind')), factor, labels = c('L', 'H')) %>% 
     pivot_longer(-c('ind'), names_to = 'var', values_to = 'val') %>% 
     mutate(
       var = factor(var, 
-                   levels = c('amean', 'asd', 'rmean', 'rsd', 'bmean', 'bsd'), 
-                   labels = c('italic(a)~mu', 'italic(a)~sigma', 'italic(R)~mu', 'italic(R)~sigma', 'italic(b)~mu', 'italic(b)~sigma')), 
+                   levels = c('amean', 'asd', 'rmean', 'rsd'), 
+                   labels = c('italic(a)~mu', 'italic(a)~sigma', 'italic(R)~mu', 'italic(R)~sigma')), 
       fac = ''
     )
   
   toplo2 <- toplo %>% 
-    select(-amean, -asd, -rmean, -rsd, -bmean, -bsd) %>%
+    select(-amean, -asd, -rmean, -rsd) %>%
     pivot_longer(-c(ind, ndays), names_to = 'var', values_to = 'val') %>% 
     mutate(
       var = factor(var, 
@@ -219,9 +219,9 @@ priorcomp <- function(dat, met, topbot = 3){
   if(met == 'nse')
     p2 <- p2 + 
       scale_fill_gradient2(low = 'red', mid = 'white', high = 'green', midpoint = 1, trans = 'exp' ,
-                           breaks = c(-448, -1, 0, 0.5, 0.9))
+                           breaks = c(-500, -1, 0, 0.5, 0.9))
     
-  out <- p1 + p2 + plot_layout(ncol = 2, widths = c(0.45, 1.2))
+  out <- p1 + p2 + plot_layout(ncol = 2, widths = c(0.35, 1.2))
   
   return(out)
   
@@ -232,7 +232,7 @@ priorsumcomp <- function(dat, met = 'r2'){
 
   toplo <- dat %>% 
     unnest(ests) %>% 
-    select(amean, asd, rmean, rsd, bmean, bsd, ndays, ind, var, !!met) %>% 
+    select(amean, asd, rmean, rsd, ndays, ind, var, !!met) %>% 
     rename(met = !!met) %>% 
     mutate_at(vars(matches('mean$|sd$')), factor, labels = c('L', 'H')) %>% 
     mutate(
@@ -252,7 +252,7 @@ priorsumcomp <- function(dat, met = 'r2'){
            grandmed = median(medv),
            medv = medv - grandmed,
            param = gsub('mean$|sd$', '', prior),
-           param = factor(param, levels = c('a', 'r', 'b'), labels = c('a', 'R', 'b')),
+           param = factor(param, levels = c('a', 'r'), labels = c('a', 'R')),
            prior = gsub('^a|^r|^b', '', prior), 
            prior = factor(prior, levels = c('mean', 'sd'), labels = c('mu', 'sigma')), 
            ndays = factor(ndays, levels = c('1 day', '7 days', '30 days'), labels = c('1~day', '7~days', '30~days'))
@@ -290,7 +290,6 @@ priorsumcomp <- function(dat, met = 'r2'){
       fill = 'Prior\nvalue', 
       size = 'IQR'
     )
-  
   
   return(p)
   
@@ -420,13 +419,13 @@ optex <- function(apagrd, fwdatcmp, apasumdat, rnkmetsum, met){
     select(-ind, -metsum)
   
   res <- apagrd %>% 
-    inner_join(rnkfnd, by = c("amean", "asd", "rmean", "rsd", "bmean", "bsd", "ndays")) %>% 
+    inner_join(rnkfnd, by = c("amean", "asd", "rmean", "rsd", "ndays")) %>% 
     arrange(ndays, rnkmetsum) %>% 
     mutate(
       subfig = paste0('(', letters[1:nrow(.)], ')'), 
       subfig = case_when(
-        rnkmetsum == 1 ~ paste(subfig, 'Best', ndays, 'day', sep = '~'), 
-        rnkmetsum == 64 ~ paste(subfig, 'Worst', ndays, 'day', sep = '~') 
+        rnkmetsum == !!rnkmetsum[1] ~ paste(subfig, 'Best', ndays, 'day', sep = '~'), 
+        rnkmetsum == !!rnkmetsum[2] ~ paste(subfig, 'Worst', ndays, 'day', sep = '~') 
       ), 
       subfig = factor(subfig)
     ) %>% 
@@ -435,9 +434,6 @@ optex <- function(apagrd, fwdatcmp, apasumdat, rnkmetsum, met){
     unnest(out)
   
   cmp <- inner_join(fwdatcmp, res, by = c('Date', 'DateTimeStamp')) %>%
-    mutate(
-      a.x = a.x / H, # fwoxy is m-2, ebase is m-3
-    ) %>% 
     select(-H, -converge, -dDO, -DO_obs.y, -rsq, -matches('lo$|hi$')) %>%
     rename(
       DO_mod.x = DO_obs.x,
@@ -519,7 +515,7 @@ metsum_fun <- function(apasumdat, met, parms = F){
     rename(met = !!met) %>% 
     summarise(
       metsum = median(met, na.rm = T), 
-      .by = c('amean', 'asd', 'rmean', 'rsd', 'bmean', 'bsd', 'ind', 'ndays')
+      .by = c('amean', 'asd', 'rmean', 'rsd', 'ind', 'ndays')
     ) %>% 
     mutate(
       rnkdir = metsel$direc * metsum,
@@ -556,7 +552,7 @@ syncomp_plo <- function(resobs, resnos){
     mutate(
       name = factor(name, 
                     levels = c('DO_mod', 'a', 'b', 'P', 'R', 'D'), 
-                    labels = c('O[2]~(mmol~m^{-3})', 'italic(a)~(mmol~m^{-3}~d^{-1})/(W~m^{-2})', 'italic(b)~(cm~hr^{-1})/(m^{2}~s^{-2})', 'P~(mmol~m^{2}~d^{-1})', 'R~(mmol~m^{2}~d^{-1})', 'D~(mmol~m^{2}~d^{-1})')
+                    labels = c('O[2]~(mmol~m^{-3})', 'italic(a)~(mmol~m^{-2}~d^{-1})/(W~m^{-2})', 'italic(b)~(cm~hr^{-1})/(m^{2}~s^{-2})', 'P~(mmol~m^{2}~d^{-1})', 'R~(mmol~m^{2}~d^{-1})', 'D~(mmol~m^{2}~d^{-1})')
       )
     ) %>% 
     pivot_wider(names_from = dotyp, values_from = value)
