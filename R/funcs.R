@@ -153,8 +153,8 @@ priorcomp <- function(dat, met, topbot = 3){
     pivot_longer(-c(ind, ndays), names_to = 'var', values_to = 'val') %>% 
     mutate(
       var = factor(var, 
-                   levels = c('DO_mod', 'P', 'R', 'D', 'a'), 
-                   labels = c('DO', 'P', 'R', 'D', 'italic(a)')
+                   levels = c('DO_mod', 'D', 'P', 'R', 'a'), 
+                   labels = c('DO', 'D', 'P', 'R', 'italic(a)')
       ), 
       ndays = factor(ndays, levels = unique(ndays))
     ) %>% 

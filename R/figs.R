@@ -47,8 +47,9 @@ fwdatinp <- fwdat %>%
 # prior distribution plot ---------------------------------------------------------------------
 
 p <- prior_plot(n = 3e6)
+p <- p + theme(axis.text = element_text(size = 10))
 
-png(here('figs/priorplot.png'), height = 3, width = 8, family = 'serif', units = 'in', res = 500)
+png(here('figs/priorplot.png'), height = 2.5, width = 6.5, family = 'serif', units = 'in', res = 500)
 print(p)
 dev.off()
 
@@ -75,15 +76,16 @@ p2 <- ggplot(fwdatcmp, aes(x = DateTimeStamp, y = a)) +
   )
 
 p3 <- ebase_plot(fwdatcmp, instantaneous = F) +
-  ggplot2::scale_color_discrete(
-    breaks = c('P', 'R', 'D')
-  ) +
   scale_x_date(breaks = "1 month", labels = date_format("%b")) +
   labs(title = '(c) Synthetic metabolic estimates')
 
-p <- p1 + p2 + p3 + plot_layout(ncol = 1) & theme(panel.grid.minor = element_blank())
+p <- p1 + p2 + p3 + plot_layout(ncol = 1) & 
+  theme(
+    panel.grid.minor = element_blank(),
+    axis.text = element_text(size = 10)
+    )
 
-png(here('figs/synapa.png'), height = 8, width = 8, family = 'serif', units = 'in', res = 500)
+png(here('figs/synapa.png'), height = 7, width = 7, family = 'serif', units = 'in', res = 500)
 print(p)
 dev.off()
 
