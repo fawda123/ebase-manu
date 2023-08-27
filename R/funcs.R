@@ -249,8 +249,11 @@ priorsumcomp <- function(dat, met = 'r2'){
       .by = c('ndays', 'prior', 'val')
     ) %>% 
     mutate(
-           grandmed = median(medv),
-           medv = medv - grandmed,
+      grandmed = median(medv), 
+      .by = c('ndays', 'val')
+    ) %>% 
+    mutate(
+           medv = 100 * (medv - grandmed) / ((grandmed + medv) / 2),
            param = gsub('mean$|sd$', '', prior),
            param = factor(param, levels = c('a', 'r'), labels = c('a', 'R')),
            prior = gsub('^a|^r|^b', '', prior), 
@@ -263,7 +266,7 @@ priorsumcomp <- function(dat, met = 'r2'){
     lbspr = c('italic(R)^2', 'RMSE', 'MAPE', 'mae', 'NSE')
   ) %>% 
     filter(met == !!met)
-  ylab <- parse(text = paste0('Median~', metsel$lbspr,'~-Grand~Median'))
+  ylab <- parse(text = paste0('`%`', '~change~', metsel$lbspr))
   
   wd <- 0.3
   
@@ -411,8 +414,13 @@ cmpplo <- function(res, fwdatcmp, subttl, ylbs = TRUE){
 }
 
 # comparison of fwoxy and ebase results for ranked model by prior at opt of ndays
-optex <- function(apagrd, fwdatcmp, apasumdat, rnkmetsum, met){
+optex <- function(apagrd, fwdatcmp, apasumdat, rnkmetsum, met, lims = NULL){
 
+  if(!is.null(lims))
+    lims <- lapply(lims, function(x) tibble(min = x[1], max = x[2])) %>% 
+      tibble::enframe(name = 'var') %>% 
+      unnest('value')
+  
   # find the prior comparison
   rnkfnd <- metsum_fun(apasumdat, met = met, parms = T) %>% 
     filter(rnkmetsum %in% !!rnkmetsum) %>% 
@@ -448,15 +456,16 @@ optex <- function(apagrd, fwdatcmp, apasumdat, rnkmetsum, met){
       )
     ) %>%
     pivot_wider(names_from = 'mod', values_from = 'val')
-  
+
   toplo <- cmp %>% 
+    left_join(lims, by = 'var') %>% 
     summarise(
       Synthetic = mean(Synthetic, na.rm = T),
       EBASE = mean(EBASE, na.rm = T),
       Date = min(Date),
-      .by = c('subfig', 'grp', 'var')
+      .by = c('subfig', 'grp', 'var', 'min', 'max')
     ) %>% 
-    pivot_longer(-c(subfig, Date, grp, var), names_to = 'model', values_to = 'est') %>% 
+    pivot_longer(-c(subfig, Date, grp, var, min, max), names_to = 'model', values_to = 'est') %>% 
     mutate(
       var = factor(var, 
                    levels = c('P', 'R', 'D', 'DO_mod', 'a', 'b'), 
@@ -471,29 +480,57 @@ optex <- function(apagrd, fwdatcmp, apasumdat, rnkmetsum, met){
   
   brks <- seq.Date(min(toplo$Date), max(toplo$Date), by = '3 months')
   
-  p <- ggplot(toplo, aes(x = Date, y = est, group = model, color = model)) + 
-    geom_line(alpha = 1) +
-    # geom_point() +
-    facet_grid(var ~ subfig, switch = 'y', scales = 'free_y', labeller = label_parsed) + 
-    scale_x_date(date_labels = '%b', breaks = brks) + 
-    theme_minimal() + 
-    theme(
-      strip.placement = 'outside', 
-      strip.background = element_blank(), 
-      legend.position = 'top', 
-      legend.title = element_blank(), 
-      legend.text = element_text(size = 14),
-      axis.text.x = element_text(size = 12),
-      strip.text.y = element_text(size = rel(0.85)), 
-      strip.text.x = element_text(size = rel(1.4)), 
-      panel.grid.minor = element_blank(), 
-      panel.background = element_rect(fill = 'gray97', color = NA)
-    ) + 
-    labs(
-      x = NULL, 
-      y = NULL
+  pout <- toplo %>% 
+    group_nest(var) %>% 
+    mutate(
+      p = purrr::pmap(list(var, data), function(var, data){
+
+        p <- ggplot(data, aes(x = Date, y = est, group = model, color = model)) + 
+          geom_line(alpha = 1) +
+          facet_grid(~ subfig, scales = 'free_y', labeller = label_parsed) +
+          scale_x_date(date_labels = '%b', breaks = brks) + 
+          theme_minimal() +
+          theme(
+            strip.placement = 'outside', 
+            strip.background = element_blank(), 
+            legend.position = 'top', 
+            legend.title = element_blank(), 
+            legend.text = element_text(size = 14),
+            axis.text.x = element_text(size = 12),
+            axis.title.y = element_text(size = 8.5),
+            axis.text.y = element_text(size = 10),
+            strip.text.x = element_text(size = rel(1.4)), 
+            panel.grid.minor = element_blank(), 
+            panel.background = element_rect(fill = 'gray97', color = NA),
+            plot.margin = unit(c(0,0,0,0), "cm")
+          ) + 
+          labs(
+            x = NULL, 
+            y = parse(text = as.character(var))
+          )
+
+        if(!grepl('P', var))
+          p <- p + 
+            theme(strip.text.x = element_blank())
+        
+        if(!grepl('b', var))
+          p <- p +
+            theme(axis.text.x = element_blank())
+        
+        minv <- unique(data$min)
+        maxv <- unique(data$max)
+        if(any(!is.na(c(minv, maxv))))
+          p <- p + coord_cartesian(ylim = c(minv, maxv))
+        
+        return(p)
+        
+      })
     )
-  
+
+  p <- pout$p[[1]] + pout$p[[2]] + pout$p[[3]] + pout$p[[4]] + pout$p[[5]] + pout$p[[6]] + 
+    plot_layout(ncol = 1, guides = 'collect') & 
+    theme(legend.position = 'top')
+    
   return(p)
   
 }

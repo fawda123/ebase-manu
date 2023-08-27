@@ -133,7 +133,14 @@ fl <- paste0(tempdir(), '/apasumdat.RData')
 download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/apasumdat.RData', destfile = fl)
 load(file = fl)
 
-p <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = c(1, 16), met = 'nse')
+# row y axis limits
+lims <- list(
+  P = c(0, 600), 
+  R = c(0, 600), 
+  a = c(0, 11)
+)
+
+p <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = c(1, 16), met = 'nse', lims = lims)
 
 png(here('figs/optex.png'), height = 8.7, width = 9, family = 'serif', units = 'in', res = 500)
 print(p)
