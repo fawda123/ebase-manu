@@ -220,9 +220,9 @@ fl <- paste0(tempdir(), '/resnos.RData')
 download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/resnos.RData', destfile = fl)
 load(file = fl)
 
-p <- syncomp_plo(resobs, resnos) 
+p <- syncomp_plo(resobs, resnos, fwdatcmp) 
   
-png(here('figs/synapanoscmp.png'), height = 4.75, width = 6, family = 'serif', units = 'in', res = 500)
+png(here('figs/synapanoscmp.png'), height = 5, width = 6.5, family = 'serif', units = 'in', res = 500)
 print(p)
 dev.off()
 

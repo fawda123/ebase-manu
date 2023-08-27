@@ -570,75 +570,124 @@ metsum_fun <- function(apasumdat, met, parms = F){
 }
 
 # compare synthetic and synthetic + noise
-syncomp_plo <- function(resobs, resnos){
+syncomp_plo <- function(resobs, resnos, fwdatcmp){
   
-  res <- list(
-    'Synthetic' = resobs,
-    'Synthetic + noise' = resnos
+  toplo1 <- list(
+    'Synthetic' = fwdatcmp,
+    'EBASE recovered' = resobs,
+    'EBASE recovered (+ noise)' = resnos
   ) %>% 
-    enframe(name = 'dotyp') %>% 
+    enframe() %>% 
     unnest('value') %>% 
-    select(-matches('hi$|lo$|converge|rsq|^Date$|dDO|^H$')) %>% 
-    pivot_longer(-c('dotyp', 'DateTimeStamp', 'grp')) %>% 
-    summarise(
-      value = mean(value, na.rm = T),
-      DateTimeStamp = min(DateTimeStamp),
-      .by = c('dotyp', 'grp', 'name')
-    ) %>% 
-    filter(!name == 'DO_obs') %>% 
+    select(matches('name|Date|DateTimeStamp|grp|^a$|^R$')) %>% 
+    pivot_longer(names_to = 'var', values_to = 'val', a:R) %>% 
+    group_nest(name, var) %>% 
     mutate(
-      name = factor(name, 
-                    levels = c('DO_mod', 'a', 'b', 'P', 'R', 'D'), 
-                    labels = c('O[2]~(mmol~m^{-3})', 'italic(a)~(mmol~m^{-2}~d^{-1})/(W~m^{-2})', 'italic(b)~(cm~hr^{-1})/(m^{2}~s^{-2})', 'P~(mmol~m^{2}~d^{-1})', 'R~(mmol~m^{2}~d^{-1})', 'D~(mmol~m^{2}~d^{-1})')
-      )
+      data = purrr::pmap(list(name, data), function(name, data){
+        
+        if(name == 'Synthetic')
+          return(data)
+        
+        out <- data %>% 
+          group_by(grp) %>% 
+          reframe(
+            val = unique(val, na.rm = T), 
+            DateTimeStamp = min(DateTimeStamp)
+          ) %>% 
+          na.omit()
+        
+        return(out)
+        
+      })
     ) %>% 
-    pivot_wider(names_from = dotyp, values_from = value)
+    unnest('data') %>% 
+    mutate(
+      var = factor(var, 
+                   levels = c('a', 'R'), 
+                   labels = c('italic(a)~(mmol~m^{-3}~d^{-1})/(W~m^{-2})',
+                              'R~(mmol~m^{2}~d^{-1})'
+                   )
+      ), 
+      name = factor(name, levels = c('Synthetic', 'EBASE recovered', 'EBASE recovered (+ noise)'))
+    )
   
-  vrs <- levels(res$name)
+  p1 <- ggplot(toplo1, aes(x = DateTimeStamp, y = val, color = name)) + 
+    geom_line(linewidth = 0.8) +
+    facet_wrap(~var, scales = 'free', ncol = 1, strip.position = 'left', labeller = label_parsed) + 
+    theme_minimal(base_size = 12) + 
+    theme(
+      strip.placement = 'outside', 
+      legend.position = 'top', 
+      panel.grid.minor = element_blank()
+    ) + 
+    labs(
+      y = NULL,
+      x = NULL,
+      color = NULL
+    )
   
-  for(i in seq_along(vrs)){
-    
-    vr <- vrs[i]
-
-    ylab <- NULL
-    xlab <- NULL
-    if(i %in% c(1, 4))
-      ylab <- 'Synthetic + noise'
-    if(i %in% 4:6)
-      xlab <- 'Synthetic'
-    
-    toplo <- res %>% filter(name == vr)
-    
-    lims <- lims <- range(toplo[, c('Synthetic', 'Synthetic + noise')], na.rm = T)
-    
-    thm <- theme_minimal() + 
-      theme(
-        strip.background = element_blank(), 
-        legend.position = 'top', 
-        panel.grid.minor = element_blank(), 
-        axis.text = element_text(size = 6)
-      )
-    
-    ptmp <- ggplot(toplo, aes(x = Synthetic, y = `Synthetic + noise`)) + 
-      geom_point() + 
-      facet_wrap(~name, labeller = label_parsed) + 
-      geom_abline(intercept = 0, slope = 1) +
-      geom_smooth(formula = y ~ x ,method = 'lm', se = F, colour = 'tomato1', linewidth = 0.7) +
-      coord_cartesian(
-        xlim = lims, 
-        ylim = lims
-      ) + 
-      labs(
-        x = xlab, 
-        y = ylab
-      ) +
-      thm
-    
-    assign(paste0('p', i), ptmp)
-    
-  }
+  unidt <- res %>% 
+    filter(name == 'EBASE recovered') %>% 
+    pull(DateTimeStamp) %>% 
+    unique() %>% 
+    as.Date()
   
-  p <- p1 + p2 + p3 + p4 + p5 + p6 + plot_layout(ncol = 3)
+  toplo2 <- toplo1 %>% 
+    select(-Date) %>% 
+    mutate(DateTimeStamp = as.Date(DateTimeStamp)) %>% 
+    filter(DateTimeStamp %in% unidt) %>% 
+    group_by(name, var, DateTimeStamp) %>% 
+    reframe(
+      val = mean(val)
+    ) %>% 
+    pivot_wider(names_from = 'name', values_from = 'val') %>% 
+    pivot_longer(names_to = 'EBASE', values_to = 'val', matches('EBASE'))
+  
+  toplo2a <- toplo2 %>% 
+    filter(grepl('a', var))
+  maxva <- max(c(toplo2a$Synthetic, toplo2a$val)) 
+  p2a <- ggplot(toplo2a, aes(x = Synthetic, y = val, color = EBASE)) + 
+    geom_point(show.legend = F, size = 1) +
+    geom_smooth(method = 'lm', se = F, formula = y~x, show.legend = F) +
+    scale_color_manual(values = c("#00BA38", "#619CFF")) +
+    geom_abline(intercept = 0, slope = 1) +
+    coord_cartesian(
+      xlim = c(0, maxva), 
+      ylim = c(0, maxva)
+    ) +
+    theme(legend.position = 'none') +
+    facet_wrap(~var, scales = 'free', labeller = label_parsed, strip.position = 'top') + 
+    labs(
+      color = NULL,
+      y = 'EBASE'
+    )
+  
+  toplo2b <- toplo2 %>% 
+    filter(grepl('R', var))
+  maxvb <- max(c(toplo2b$Synthetic, toplo2b$val)) 
+  p2b <- ggplot(toplo2b, aes(x = Synthetic, y = val, color = EBASE)) + 
+    geom_point(show.legend = F, size = 1) +
+    geom_smooth(method = 'lm', se = F, formula = y~x, show.legend = F) +
+    scale_color_manual(values = c("#00BA38", "#619CFF")) +
+    geom_abline(intercept = 0, slope = 1) +
+    coord_cartesian(
+      xlim = c(0, maxvb), 
+      ylim = c(0, maxvb)
+    ) +
+    theme(legend.position = 'none') +
+    facet_wrap(~var, scales = 'free', labeller = label_parsed, strip.position = 'top') + 
+    labs(
+      color = NULL,
+      y = 'EBASE'
+    )
+  
+  p <- p1 + (p2a + p2b + plot_layout(ncol = 1, guides = 'collect') & 
+               theme_minimal() + 
+               theme(
+                 strip.background = element_blank(), 
+                 panel.grid.minor = element_blank(), 
+                 strip.placement = 'outside', 
+               )) + plot_layout(ncol = 2, guides = 'collect', widths = c(1, 0.5)) & theme(legend.position = 'bottom')
   
   return(p)
   
