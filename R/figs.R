@@ -222,7 +222,7 @@ load(file = fl)
 
 p <- syncomp_plo(resobs, resnos, fwdatcmp) 
   
-png(here('figs/synapanoscmp.png'), height = 5, width = 6.5, family = 'serif', units = 'in', res = 500)
+png(here('figs/synapanoscmp.png'), height = 5.5, width = 7, family = 'serif', units = 'in', res = 500)
 print(p)
 dev.off()
 

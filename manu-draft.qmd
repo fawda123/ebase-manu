@@ -273,7 +273,7 @@ We thank Jason Garwood and Ethan Borque of the Apalachicola National Estuarine R
 
 {{< pagebreak >}}
 
-![Comparisons of modelled dissolved oxygen and metabolic parameters from EBASE for a synthetic time series and a synthetic time series with instrument and tidal noise. Black lines show the 1:1 comparison and the red lines show the linear regression fit. See @fig-synapanos for an example of the dissolved oxygen for both input time series.](figs/synapanoscmp.png){#fig-synapanoscmp fig-align="center"}
+![Comparisons of EBASE to recover parameters $a$ (top) and $R$ (bottom) from a synthetic time series and a synthetic time series with residual and tidal noise included. The left plots show the time series and the right plots show a 1:1 comparison for each result. See @fig-synapanos for an example of the dissolved oxygen for both input time series.](figs/synapanoscmp.png){#fig-synapanoscmp fig-align="center"}
 
 {{< pagebreak >}}
 

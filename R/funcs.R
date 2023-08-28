@@ -645,15 +645,15 @@ syncomp_plo <- function(resobs, resnos, fwdatcmp){
   
   toplo2a <- toplo2 %>% 
     filter(grepl('a', var))
-  maxva <- max(c(toplo2a$Synthetic, toplo2a$val)) 
+  rnga <- range(c(toplo2a$Synthetic, toplo2a$val)) 
   p2a <- ggplot(toplo2a, aes(x = Synthetic, y = val, color = EBASE)) + 
     geom_point(show.legend = F, size = 1) +
     geom_smooth(method = 'lm', se = F, formula = y~x, show.legend = F) +
     scale_color_manual(values = c("#00BA38", "#619CFF")) +
     geom_abline(intercept = 0, slope = 1) +
     coord_cartesian(
-      xlim = c(0, maxva), 
-      ylim = c(0, maxva)
+      xlim = c(rnga[1], rnga[2]), 
+      ylim = c(rnga[1], rnga[2])
     ) +
     theme(legend.position = 'none') +
     facet_wrap(~var, scales = 'free', labeller = label_parsed, strip.position = 'top') + 
@@ -664,15 +664,15 @@ syncomp_plo <- function(resobs, resnos, fwdatcmp){
   
   toplo2b <- toplo2 %>% 
     filter(grepl('R', var))
-  maxvb <- max(c(toplo2b$Synthetic, toplo2b$val)) 
+  rngb <- range(c(toplo2b$Synthetic, toplo2b$val)) 
   p2b <- ggplot(toplo2b, aes(x = Synthetic, y = val, color = EBASE)) + 
     geom_point(show.legend = F, size = 1) +
     geom_smooth(method = 'lm', se = F, formula = y~x, show.legend = F) +
     scale_color_manual(values = c("#00BA38", "#619CFF")) +
     geom_abline(intercept = 0, slope = 1) +
     coord_cartesian(
-      xlim = c(0, maxvb), 
-      ylim = c(0, maxvb)
+      xlim = c(rngb[1], rngb[2]), 
+      ylim = c(rngb[1], rngb[2])
     ) +
     theme(legend.position = 'none') +
     facet_wrap(~var, scales = 'free', labeller = label_parsed, strip.position = 'top') + 
@@ -687,7 +687,7 @@ syncomp_plo <- function(resobs, resnos, fwdatcmp){
                  strip.background = element_blank(), 
                  panel.grid.minor = element_blank(), 
                  strip.placement = 'outside', 
-               )) + plot_layout(ncol = 2, guides = 'collect', widths = c(1, 0.5)) & theme(legend.position = 'bottom')
+               )) + plot_layout(ncol = 2, guides = 'collect', widths = c(1, 0.4)) & theme(legend.position = 'bottom')
   
   return(p)
   
