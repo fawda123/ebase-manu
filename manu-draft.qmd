@@ -287,7 +287,7 @@ We thank Jason Garwood and Ethan Borque of the Apalachicola National Estuarine R
 
 ```{r}
 #| label: tbl-ebaseiotab
-#| tbl-cap: "EBASE model parameters showing the required input, parameters derived from the model input, and model output.  The model notation for production, respiration, and gas exchange shows both the simple parameter name and the full model component used to estimate the parameter."
+#| tbl-cap: "EBASE model parameters showing the required input, parameters derived from the model input, and model output. The model notation for production, respiration, and gas exchange shows both the simple parameter name and the full model component used to estimate the parameter."
 ebaseiotab
 ```
 
@@ -295,7 +295,7 @@ ebaseiotab
 
 ```{r}
 #| label: tbl-apacmptab
-#| tbl-cap: "Summary statistics of daily metabolic estimates comparing the EBASE and Odum methods for net ecosystem metabolism (NEM), gross primary production (P), respiration (R), and gas exchange (D). Separate comparisons are made for estimates based on observed and detided dissolved oxygen. Summary statistics include Pearson correlation coefficients and root mean square error (RMSE) of a linear fit between the same metabolic estimates obtained from each method."
+#| tbl-cap: "Summary statistics of daily metabolic estimates comparing the EBASE and Odum methods for gross primary production ($P$), ecosystem respiration ($R$), and net ecosystem metabolism ($NEM$) using the observed (left values) and detided (right values) dissolved oxygen time series as input to each model. Summary statistics include Pearson correlation coefficients and root mean square difference (RMSD) between the metabolic estimates obtained from each method.  P-values for correlation coefficients all less than 0.005."
 apacmptab
 ```
 
