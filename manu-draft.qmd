@@ -277,7 +277,7 @@ We thank Jason Garwood and Ethan Borque of the Apalachicola National Estuarine R
 
 {{< pagebreak >}}
 
-![Comparisons of daily metabolic estimates from the EBASE and Odum methods for one year of continuous monitoring data at Apalachicola Bay. Results for net ecosystem metabolism (NEM), gross primary production (P), ecosystem respiration (R), and gas exchange (D) are compared using the (a) observed and (b) detided dissolved oxygen time series as input to each model. All values are areal as mmol O$_2$ m$^2$ d$^{-1}$. Black lines show the 1:1 comparison and the red lines show the linear regression fit.](figs/apacmpfig.png){#fig-apacmpfig fig-align="center"}
+![Comparisons of daily metabolic estimates from the EBASE and Odum methods for one year of continuous monitoring data at Apalachicola Bay. Results for (a) gross primary production ($P$), (b) ecosystem respiration ($R$), and (c) net ecosystem metabolism ($NEM$) are compared using the observed and detided dissolved oxygen time series as input to each model. All values are areal as mmol O$_2$ m$^2$ d$^{-1}$. Black lines show the 1:1 comparison and the red lines show the linear regression fit.](figs/apacmpfig.png){#fig-apacmpfig fig-align="center"}
 
 {{< pagebreak >}}
 

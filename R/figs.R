@@ -230,31 +230,8 @@ dev.off()
 
 load(file = url('https://github.com/fawda123/BASEmetab_script/raw/master/data/apacmp.RData'))
 
-toplo <- apacmp %>% 
-  filter(typ != 'BASEmetab') %>% 
-  mutate(
-    val = case_when(
-      var == 'Rt_vol' ~ -1 * val, 
-      T ~ val
-    ), 
-    var = factor(var, 
-                 levels = c('NEM', 'P', 'R', 'D')
-    ), 
-    seas = case_when(
-      month(Date) %in% c(1:5, 10:12) ~ 'dry', 
-      T ~ 'wet'
-    )
-  ) %>% 
-  pivot_wider(names_from = 'typ', values_from = 'val')
+p <- apacmp_plo(apacmp)
 
-p1a <- apacmp_plo(toplo, xlb = NULL, ylb = 'Odum', dotyp = 'observed', addtitle = T)
-p2a <- apacmp_plo(toplo, xlb = 'EBASE', ylb = 'Odum', dotyp = 'detided', addtitle = T)
-
-p <- p1a[[1]] + p1a[[2]] + p1a[[3]] + p1a[[4]] + 
-  p2a[[1]] + p2a[[2]] + p2a[[3]] + p2a[[4]] + 
-  plot_layout(ncol = 4, guides = 'collect') & 
-  theme(legend.position = 'bottom')
-
-png(here('figs/apacmpfig.png'), height = 4.75, width = 8, family = 'serif', units = 'in', res = 500)
+png(here('figs/apacmpfig.png'), height = 7, width = 3.5, family = 'serif', units = 'in', res = 500)
 print(p)
 dev.off()

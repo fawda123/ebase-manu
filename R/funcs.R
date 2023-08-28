@@ -11,80 +11,6 @@ p_ast <- function(x){
   
 }
 
-# capitalization function
-simpleCap <- function(x) {
-  s <- strsplit(x, " ")[[1]]
-  paste(toupper(substring(s, 1,1)), substring(s, 2),
-        sep="", collapse=" ")
-}
-
-# create subplots for apalachicola obs v dtd metab comparisons
-apacmp_plo <- function(dat, xlb = 'EBASE', ylb = 'Odum', dotyp = 'observed', addtitle = T, alph = 0.5, col = 'black'){
-
-  thm <- theme_minimal() + 
-    theme(
-      strip.background = element_blank(), 
-      legend.position = 'top', 
-      panel.grid.minor = element_blank(), 
-      axis.text = element_text(size = 6)
-    )
-  
-  names(dat)[names(dat) == ylb] <- 'yval'
-  
-  subfigs <- list(
-    observed = '(a)', 
-    detided = '(b)'
-  )
-  
-  dat <- dat %>% 
-    filter(dotyp == !!dotyp) %>% 
-    select(var, seas, yval, EBASE) %>% 
-    na.omit()
-  
-  vars <- levels(dat$var)
-  for(vr in vars){
-    
-    toplotmp <- dat %>% 
-      filter(var == vr)
-    ind <- which(vr == vars)
-  
-    if(ind != 1)
-      ylb <- NULL
-    
-    ttl <- NULL
-    if(addtitle & ind == 1){
-      subfig <- subfigs[[dotyp]]
-      ttl <- paste(subfig, simpleCap(dotyp), 'dissolved oxygen')
-    }
-    
-    lims <- range(toplotmp[, c('yval', 'EBASE')], na.rm = T)
-    
-    ptmp <- ggplot(toplotmp, aes(x = EBASE, y = yval)) + 
-      geom_point(color = col, alpha = alph, stroke = 0, size = 2) + 
-      geom_abline(intercept = 0, slope = 1) +
-      geom_smooth(formula = y ~ x ,method = 'lm', se = F, colour = 'tomato1', size = 0.7) +
-      facet_wrap(~var, ncol = 1) +
-      scale_colour_manual(values = cols) + 
-      scale_x_continuous(limits = lims) + 
-      scale_y_continuous(limits = lims) + 
-      thm + 
-      labs(
-        colour = 'Season', 
-        y = ylb, 
-        title = ttl, 
-        x = xlb
-      )
-    
-    assign(paste0('p', ind), ptmp)
-    
-  }
-  
-  out <- list(p1, p2, p3, p4)
-  
-  return(out)
-  
-}
-
 # Fwoxy apa comparison to EBASE for different priors sd only
 priorcomp <- function(dat, met, topbot = 3){
 
@@ -690,5 +616,71 @@ syncomp_plo <- function(resobs, resnos, fwdatcmp){
                )) + plot_layout(ncol = 2, guides = 'collect', widths = c(1, 0.4)) & theme(legend.position = 'bottom')
   
   return(p)
+  
+}
+
+# create subplots for apalachicola obs v dtd metab comparisons
+apacmp_plo <- function(dat, alph = 0.5, col = 'black'){
+  
+  toplo <- dat %>% 
+    filter(var != 'D') %>% 
+    mutate(
+      var = factor(var, 
+                   levels = c('P', 'R', 'NEM')
+      ), 
+      dotyp = factor(dotyp, 
+                     levels = c('observed', 'detided'), 
+                     labels = c('Observed', 'Detided'))
+    ) %>% 
+    pivot_wider(names_from = 'typ', values_from = 'val') %>% 
+    na.omit()
+  
+  thm <- theme_minimal() + 
+    theme(
+      strip.background = element_blank(), 
+      legend.position = 'top', 
+      panel.grid.minor = element_blank(),
+      strip.text = element_text(size = 10)
+    )
+  
+  subfigs <- list(
+    P = '(a) P', 
+    R = '(b) R', 
+    NEM = '(c) NEM'
+  )
+  
+  lvs <- levels(toplo$var)
+  
+  for(vr in seq_along(lvs)){
+    
+    var <- lvs[vr]
+    
+    toplotmp <- toplo %>% 
+      filter(var == !!var)
+    
+    lims <- range(toplotmp[, c('Odum', 'EBASE')], na.rm = T)
+    
+    ttl <- subfigs[[var]]
+    
+    ptmp <- ggplot(toplotmp, aes(x = EBASE, y = Odum)) + 
+      geom_point(color = col, alpha = alph, stroke = 0, size = 1.5) + 
+      geom_abline(intercept = 0, slope = 1) +
+      geom_smooth(formula = y ~ x ,method = 'lm', se = F, colour = 'tomato1', linewidth = 0.7) +
+      facet_wrap(~dotyp, ncol = 2) +
+      scale_colour_manual(values = cols) + 
+      scale_x_continuous(limits = lims) + 
+      scale_y_continuous(limits = lims) + 
+      thm + 
+      labs(
+        title = ttl
+      )
+    
+    assign(paste0('p', vr), ptmp)
+    
+  }
+  
+  out <- p1 + p2 + p3 + plot_layout(ncol = 1)
+  
+  return(out)
   
 }
