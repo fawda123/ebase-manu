@@ -184,7 +184,7 @@ toplo2 <- toplo %>%
   pivot_longer(-DateTimeStamp) %>% 
   mutate(
     name = case_when(
-      name == 'obsnoise' ~ 'Instrument', 
+      name == 'obsnoise' ~ 'Residual', 
       name == 'tidnoise' ~ 'Tidal'
     ),
     value = value / 32 * 1000
