@@ -156,6 +156,14 @@ priorcomp <- function(dat, met, topbot = 3){
 # Fwoxy apa comparison to EBASE for different priors, rmse summary
 priorsumcomp <- function(dat, met = 'r2'){
 
+  
+  metsel <- tibble(
+    met = c('r2', 'rmse', 'mape', 'mae', 'nse'),
+    lbspr = c('italic(R)^2', 'RMSE', 'MAPE', 'mae', 'NSE')
+  ) %>% 
+    filter(met == !!met)
+  ylab <- parse(text = paste0('`%`', '~change~', metsel$lbspr))
+  
   toplo <- dat %>% 
     unnest(ests) %>% 
     select(amean, asd, rmean, rsd, ndays, ind, var, !!met) %>% 
@@ -175,50 +183,62 @@ priorsumcomp <- function(dat, met = 'r2'){
       .by = c('ndays', 'prior', 'val')
     ) %>% 
     mutate(
-      grandmed = median(medv), 
-      .by = c('ndays', 'val')
-    ) %>% 
-    mutate(
-           medv = 100 * (medv - grandmed) / ((grandmed + medv) / 2),
-           param = gsub('mean$|sd$', '', prior),
-           param = factor(param, levels = c('a', 'r'), labels = c('a', 'R')),
-           prior = gsub('^a|^r|^b', '', prior), 
-           prior = factor(prior, levels = c('mean', 'sd'), labels = c('mu', 'sigma')), 
-           ndays = factor(ndays, levels = c('1 day', '7 days', '30 days'), labels = c('1~day', '7~days', '30~days'))
+      upr = medv + (iqr / 2), 
+      lwr = medv - (iqr / 2),
+      param = gsub('mean$|sd$', '', prior),
+      param = factor(param, levels = c('a', 'r'), labels = c('a', 'R')),
+      prior = gsub('^a|^r|^b', '', prior), 
+      prior = factor(prior, levels = c('mean', 'sd'), labels = c('mu', 'sigma')), 
+      ndays = factor(ndays, levels = c('1 day', '7 days', '30 days'), labels = c('1~day', '7~days', '30~days'))
     )
   
-  metsel <- tibble(
-    met = c('r2', 'rmse', 'mape', 'mae', 'nse'),
-    lbspr = c('italic(R)^2', 'RMSE', 'MAPE', 'mae', 'NSE')
-  ) %>% 
-    filter(met == !!met)
-  ylab <- parse(text = paste0('`%`', '~change~', metsel$lbspr))
+  ylab <- toupper(metsel$met)
   
-  wd <- 0.3
+  wd <- 0.9
   
-  p <- ggplot(toplo, aes(x = param, group = val)) + 
-    geom_linerange(aes(ymin = 0, ymax = medv, x = param), position = position_dodge(width = wd), linetype = 'dashed') +
-    geom_hline(yintercept = 0) + 
-    geom_point(aes(y = medv, fill = val, size = iqr), pch = 21, position = position_dodge(width = wd)) +
-    facet_grid(prior~ndays, labeller = label_parsed) + 
-    scale_fill_brewer(palette = 'Blues') + 
-    scale_size(range = c(1, 10)) + 
-    guides(fill = guide_legend(override.aes = list(size = 5))) +
-    theme_bw() + 
-    theme(
-      axis.text.x = element_text(size = 14, face = 'italic'), 
-      strip.text.y = element_text(size = 14, face = 'italic'), 
-      strip.text.x = element_text(size = 12),
-      strip.background = element_blank(), 
-      panel.grid.minor = element_blank(), 
-      panel.grid.major.x = element_blank()
-    ) +
-    labs(
-      x = NULL, 
-      y = ylab, 
-      fill = 'Prior\nvalue', 
-      size = 'IQR'
-    )
+  lvs <- levels(toplo$ndays)
+  for(i in seq_along(lvs)){
+    
+    toploi <- toplo %>% 
+      filter(ndays %in% lvs[i])
+    
+    ylb <- NULL
+    if(i == 1)
+      ylb <- ylab
+    
+    # yrng <- max(abs(range(toploi[, c('upr', 'lwr')])))
+    
+    p <- ggplot(toploi, aes(x = param, group = val, fill = val)) + 
+      geom_errorbar(aes(ymin = lwr, ymax = upr, color = val), position = position_dodge(width = wd), width = 0, linewidth = 1) +
+      geom_col(aes(y = medv, color = val), position = position_dodge(width = wd), color = 'grey') +
+      facet_grid(prior~ndays, labeller = label_parsed) + 
+      scale_fill_brewer(palette = 'Blues') +
+      scale_color_brewer(palette = 'Blues') +
+      # coord_cartesian(ylim = c(-1 * yrng, yrng)) +
+      theme_bw() + 
+      theme(
+        axis.text.x = element_text(size = 14, face = 'italic'), 
+        strip.text.y = element_text(size = 14, face = 'italic'), 
+        strip.text.x = element_text(size = 12),
+        strip.background = element_blank(), 
+        panel.grid.minor = element_blank(), 
+        panel.grid.major.x = element_blank()
+      ) +
+      labs(
+        x = NULL, 
+        y = ylb,
+        color = 'Prior\nvalue',
+        fill = 'Prior\nvalue'
+      ) 
+    
+    if(i != 3)
+      p <- p + theme(strip.text.y = element_blank())
+    
+    assign(paste0('p', i), p)
+    
+  }
+  
+  p <- p1 + p2 + p3 + plot_layout(ncol = length(lvs), guides = 'collect')
   
   return(p)
   
@@ -385,6 +405,7 @@ optex <- function(apagrd, fwdatcmp, apasumdat, rnkmetsum, met, lims = NULL){
 
   toplo <- cmp %>% 
     left_join(lims, by = 'var') %>% 
+    filter(var != 'b') %>% 
     summarise(
       Synthetic = mean(Synthetic, na.rm = T),
       EBASE = mean(EBASE, na.rm = T),
@@ -394,13 +415,13 @@ optex <- function(apagrd, fwdatcmp, apasumdat, rnkmetsum, met, lims = NULL){
     pivot_longer(-c(subfig, Date, grp, var, min, max), names_to = 'model', values_to = 'est') %>% 
     mutate(
       var = factor(var, 
-                   levels = c('P', 'R', 'D', 'DO_mod', 'a', 'b'), 
+                   levels = c('P', 'R', 'D', 'DO_mod', 'a'), 
                    labels = c('P~(mmol~m^{2}~d^{-1})', 
                               'R~(mmol~m^{2}~d^{-1})', 
                               'D~(mmol~m^{2}~d^{-1})',
                               'O[2]~(mmol~m^{-3})',
-                              'italic(a)~(mmol~m^{-3}~d^{-1})/(W~m^{-2})', 
-                              'italic(b)~(cm~hr^{-1})/(m^{2}~s^{-2})'))
+                              'italic(a)~(mmol~m^{-3}~d^{-1})/(W~m^{-2})')
+      )
     ) %>% 
     select(-grp)
   
@@ -439,7 +460,7 @@ optex <- function(apagrd, fwdatcmp, apasumdat, rnkmetsum, met, lims = NULL){
           p <- p + 
             theme(strip.text.x = element_blank())
         
-        if(!grepl('b', var))
+        if(!grepl('a', var))
           p <- p +
             theme(axis.text.x = element_blank())
         
@@ -453,7 +474,7 @@ optex <- function(apagrd, fwdatcmp, apasumdat, rnkmetsum, met, lims = NULL){
       })
     )
 
-  p <- pout$p[[1]] + pout$p[[2]] + pout$p[[3]] + pout$p[[4]] + pout$p[[5]] + pout$p[[6]] + 
+  p <- pout$p[[1]] + pout$p[[2]] + pout$p[[3]] + pout$p[[4]] + pout$p[[5]] + 
     plot_layout(ncol = 1, guides = 'collect') & 
     theme(legend.position = 'top')
     
@@ -552,7 +573,7 @@ syncomp_plo <- function(resobs, resnos, fwdatcmp){
       color = NULL
     )
   
-  unidt <- res %>% 
+  unidt <- toplo1 %>% 
     filter(name == 'EBASE recovered') %>% 
     pull(DateTimeStamp) %>% 
     unique() %>% 
@@ -573,7 +594,7 @@ syncomp_plo <- function(resobs, resnos, fwdatcmp){
     filter(grepl('a', var))
   rnga <- range(c(toplo2a$Synthetic, toplo2a$val)) 
   p2a <- ggplot(toplo2a, aes(x = Synthetic, y = val, color = EBASE)) + 
-    geom_point(show.legend = F, size = 1) +
+    geom_point(show.legend = F, size = 0.5) +
     geom_smooth(method = 'lm', se = F, formula = y~x, show.legend = F) +
     scale_color_manual(values = c("#00BA38", "#619CFF")) +
     geom_abline(intercept = 0, slope = 1) +
@@ -592,7 +613,7 @@ syncomp_plo <- function(resobs, resnos, fwdatcmp){
     filter(grepl('R', var))
   rngb <- range(c(toplo2b$Synthetic, toplo2b$val)) 
   p2b <- ggplot(toplo2b, aes(x = Synthetic, y = val, color = EBASE)) + 
-    geom_point(show.legend = F, size = 1) +
+    geom_point(show.legend = F, size = 0.5) +
     geom_smooth(method = 'lm', se = F, formula = y~x, show.legend = F) +
     scale_color_manual(values = c("#00BA38", "#619CFF")) +
     geom_abline(intercept = 0, slope = 1) +

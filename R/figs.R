@@ -109,7 +109,7 @@ load(file = fl)
 
 p1 <- priorsumcomp(apasumdat, met = 'nse')
 
-png(here('figs/priorsumcomp.png'), height = 4, width = 5, family = 'serif', units = 'in', res = 500)
+png(here('figs/priorsumcomp.png'), height = 4.5, width = 6, family = 'serif', units = 'in', res = 500)
 print(p1)
 dev.off()
 
@@ -142,7 +142,7 @@ lims <- list(
 
 p <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = c(1, 16), met = 'nse', lims = lims)
 
-png(here('figs/optex.png'), height = 8.7, width = 9, family = 'serif', units = 'in', res = 500)
+png(here('figs/optex.png'), height = 8, width = 9, family = 'serif', units = 'in', res = 500)
 print(p)
 dev.off()
 
