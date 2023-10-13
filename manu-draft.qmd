@@ -249,7 +249,7 @@ We thank Jason Garwood and Ethan Borque of the Apalachicola National Estuarine R
 
 ## Figures {.unnumbered}
 
-![The default prior distributions for $a$, $R$, and $b$ used in EBASE. All priors are normal distributions and truncated to positive values. $b$ is also truncated to a maximum of 0.502 $\left(\text{cm}/\text{hr}\right)/\left(\text{m}^2/\text{s}^2\right)$.](figs/priorplot.png){#fig-priorplot fig-align="center"}
+![The default prior distributions for $a$, $R$, and $b$ used in EBASE. All priors are normal distributions and truncated to positive values. $b$ is also truncated to a maximum of 0.502 $\left(\text{cm}/\text{hr}\right)/\left(\text{m}^2/\text{s}^2\right)$. Probabilities have been normalized to the maximum probability.](figs/priorplot.png){#fig-priorplot fig-align="center"}
 
 {{< pagebreak >}}
 
