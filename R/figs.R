@@ -55,29 +55,49 @@ dev.off()
 
 # simulated apa data --------------------------------------------------------------------------
 
-p1 <- ggplot(fwdatcmp, aes(x = DateTimeStamp, y = DO_obs)) + 
+p1 <- ggplot(fwdatcmp, aes(x = DateTimeStamp, y = a)) + 
   geom_line(linewidth = 0.2) + 
   scale_x_datetime(breaks = "1 month", labels = date_format("%b")) +
   theme_minimal() + 
-  labs(
-    x = NULL, 
-    y = expression(paste(O [2], ' (mmol ', m^-3, ')')),
-    title = '(a) Synthetic dissolved oxygen'
-  )
-
-p2 <- ggplot(fwdatcmp, aes(x = DateTimeStamp, y = a)) + 
-  geom_line(linewidth = 0.2) + 
-  scale_x_datetime(breaks = "1 month", labels = date_format("%b")) +
-  theme_minimal() + 
+  coord_cartesian(ylim = c(0, NA)) +
   labs(
     x = NULL, 
     y = expression(paste(italic(a), ' (mmol ', m^-2, d^-1, ') / (W ', m^{-2}, ')')), 
-    title = expression(paste('(b) Synthetic ', italic(a), ' parameter'))
+    title = expression(paste('(a) Synthetic ', italic(a), ' parameter'))
   )
 
-p3 <- ebase_plot(fwdatcmp, instantaneous = F) +
+p2 <- ebase_plot(fwdatcmp, instantaneous = F) +
   scale_x_date(breaks = "1 month", labels = date_format("%b")) +
-  labs(title = '(c) Synthetic metabolic estimates')
+  labs(title = '(b) Synthetic metabolic estimates')
+
+toplo3 <- fwdat %>% 
+  mutate(
+    DateTimeStamp = dmy_hms(datet, tz = 'America/Jamaica')
+  ) %>% 
+  select(
+    DateTimeStamp, 
+    DO_obs = `oxy,mmol/m3`, 
+    DO_sat = `oxysu,mmmol/m3`
+  ) %>% 
+  pivot_longer(DO_obs:DO_sat)
+
+p3 <- ggplot(toplo3, aes(x = DateTimeStamp, y = value, color = name)) + 
+  geom_line(linewidth = 0.2) + 
+  scale_color_manual(
+    values = c('black', 'grey'), 
+    labels = c(expression(italic('C')), expression(italic(C[sat])))
+  ) +
+  scale_x_datetime(breaks = "1 month", labels = date_format("%b")) +
+  theme_minimal() + 
+  theme(
+    legend.position = 'top', 
+    legend.title = element_blank()
+  ) +
+  labs(
+    x = NULL, 
+    y = expression(paste(O [2], ' (mmol ', m^-3, ')')),
+    title = '(c) Synthetic dissolved oxygen'
+  )
 
 p <- p1 + p2 + p3 + plot_layout(ncol = 1) & 
   theme(
