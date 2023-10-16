@@ -1,4 +1,3 @@
-library(flextable)
 library(tidyverse)
 library(lubridate)
 library(here)
@@ -94,15 +93,8 @@ totab <- grd %>%
   ) 
 
 apacmptab <- totab %>%
-  flextable() %>% 
-  fontsize(part = 'all', size = 12) %>% 
-  font(part = 'all', fontname = 'Times New Roman') %>% 
-  padding(padding = 1, part = 'all') %>% 
-  width(width = 6.5 / ncol_keys(.)) %>% 
-  flextable::compose(part = 'header', j = 'RMSD', value = as_paragraph(as_equation("\\text{RMSD}~(\\text{mmol}~\\text{O}_2/\\text{m}^2/\\text{d})"))) %>% 
-  flextable::compose(part = 'header', j = 'Corr.', value = as_paragraph(as_equation("\\rho"))) %>% 
-  flextable::align(align = 'center', j = 2:ncol_keys(.), part = 'all') %>% 
-  font(part = 'footer', fontname = 'Times New Roman') %>% 
-  flextable::align(align = 'right', part = 'footer')
+  knitr::kable(
+    col.names = c('Parameter', '$\\rho$', 'RMSD (mmol O$^2$/m$^2$/d)')
+  )
 
 save(apacmptab, file = here('tabs/apacmptab.RData'))
