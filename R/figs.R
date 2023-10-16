@@ -121,18 +121,6 @@ png(here('figs/priorcomp.png'), height = 4, width = 6, family = 'serif', units =
 print(p1)
 dev.off()
 
-# Fwoxy apa comparison met sum --------------------------------------------
-
-fl <- paste0(tempdir(), '/apasumdat.RData')
-download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/apasumdat.RData', destfile = fl)
-load(file = fl)
-
-p1 <- priorsumcomp(apasumdat, met = 'nse')
-
-png(here('figs/priorsumcomp.png'), height = 4.5, width = 6, family = 'serif', units = 'in', res = 500)
-print(p1)
-dev.off()
-
 # best/worst fwoxy apa comp -------------------------------------------------------------------
 
 # grid ests
