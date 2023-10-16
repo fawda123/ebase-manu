@@ -178,16 +178,6 @@ tomod <- fwdatinp %>%
 toplo <- tomod %>% 
   filter(month(DateTimeStamp) == 6) 
 toplo1 <- toplo %>% 
-  select(DateTimeStamp, DO_obs, DO_nos) %>% 
-  pivot_longer(-DateTimeStamp) %>% 
-  mutate(
-    name = case_when(
-      name == 'DO_obs' ~ 'Synthetic', 
-      name == 'DO_nos' ~ 'Synethic + noise'
-    ), 
-    value = value / 32 * 1000
-  )
-toplo2 <- toplo %>% 
   select(DateTimeStamp, tidnoise, obsnoise) %>%
   pivot_longer(-DateTimeStamp) %>% 
   mutate(
@@ -197,19 +187,30 @@ toplo2 <- toplo %>%
     ),
     value = value / 32 * 1000
   )
+toplo2 <- toplo %>% 
+  select(DateTimeStamp, DO_obs, DO_nos) %>% 
+  pivot_longer(-DateTimeStamp) %>% 
+  mutate(
+    name = case_when(
+      name == 'DO_obs' ~ 'Synthetic', 
+      name == 'DO_nos' ~ 'Synethic + noise'
+    ), 
+    value = value / 32 * 1000
+  )
 
 p1 <- ggplot(toplo1, aes(x = DateTimeStamp, y = value, color = name)) + 
-  geom_line() + 
-  labs(
-    color = NULL, 
-    title = '(a) Time series'
-  )
-p2 <- ggplot(toplo2, aes(x = DateTimeStamp, y = value, color = name)) + 
   geom_line() + 
   scale_color_manual(values = c('darkgrey', 'black')) +
   labs(
     color = NULL,
-    title = '(b) Noise'
+    title = '(1) Noise'
+  )
+
+p2 <- ggplot(toplo2, aes(x = DateTimeStamp, y = value, color = name)) + 
+  geom_line() + 
+  labs(
+    color = NULL, 
+    title = '(b) Time series'
   )
 
 p <- p1 + p2 + plot_layout(ncol = 1) & scale_x_datetime(expand = c(0,0)) & theme_minimal() & labs(x = NULL, y = expression(paste(O [2], ' (mmol ', m^-3, ')'))) & theme(panel.grid.minor = element_blank(), legend.position = 'top')

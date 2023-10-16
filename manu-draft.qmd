@@ -263,15 +263,15 @@ We thank Jason Garwood and Ethan Borque of the Apalachicola National Estuarine R
 
 {{< pagebreak >}}
 
-![A subset of the synthetic time series and the synthetic time series with noise for evaluating the ability of EBASE to recover known metabolic parameters. The original synthetic time series and the same time series with residual and tidal noise is shown in (a) and the estimated residual and tidal noise added to the synthetic time series is shown in (b).](figs/synapanos.png){#fig-synapanos fig-align="center"}
+![A subset of the synthetic time series (Figure [-@fig-synapa]c) and the synthetic time series with noise for evaluating the ability of EBASE to recover known metabolic parameters. The (a) estimated residual and tidal noise added to the (b) synthetic time series are shown.](figs/synapanos.png){#fig-synapanos fig-align="center"}
 
 {{< pagebreak >}}
 
-![Comparisons of EBASE to recover parameters $a$ (top) and $R$ (bottom) from a synthetic time series and a synthetic time series with residual and tidal noise included. The left plots show the time series and the right plots show a 1:1 comparison for each result. See @fig-synapanos for an example of the dissolved oxygen for both input time series.](figs/synapanoscmp.png){#fig-synapanoscmp fig-align="center"}
+![Comparisons of EBASE to recover parameters $a$ (top) and $R$ (bottom) from a synthetic time series and a synthetic time series with residual and tidal noise included. The left plots show the time series and the right plots show a 1:1 comparison for each result. See @fig-synapanos for subsets of both dissolved oxygen time series.](figs/synapanoscmp.png){#fig-synapanoscmp fig-align="center"}
 
 {{< pagebreak >}}
 
-![Comparisons of daily metabolic estimates from the EBASE and Odum methods for one year of continuous monitoring data at Apalachicola Bay. Results for (a) gross primary production ($P$), (b) ecosystem respiration ($R$), and (c) net ecosystem metabolism ($NEM$) are compared using the observed and detided dissolved oxygen time series as input to each model. All values are areal as mmol O$_2$ m$^2$ d$^{-1}$. Black lines show the 1:1 comparison and the red lines show the linear regression fit.](figs/apacmpfig.png){#fig-apacmpfig fig-align="center"}
+![Comparisons of daily metabolic estimates from the EBASE and Odum methods for one year of continuous monitoring data at Apalachicola Bay. Results for (a) gross primary production ($P$), (b) ecosystem respiration ($R$), and (c) net ecosystem metabolism ($NEM$) are compared using the observed and detided dissolved oxygen time series as input to each model. Black lines show the 1:1 comparison and the red lines show the linear regression fit.](figs/apacmpfig.png){#fig-apacmpfig fig-align="center"}
 
 {{< pagebreak >}}
 

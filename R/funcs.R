@@ -420,7 +420,7 @@ optex <- function(apagrd, fwdatcmp, apasumdat, rnkmetsum, met, lims = NULL){
                               'R~(mmol~m^{2}~d^{-1})', 
                               'D~(mmol~m^{2}~d^{-1})',
                               'O[2]~(mmol~m^{-3})',
-                              'italic(a)~(mmol~m^{-3}~d^{-1})/(W~m^{-2})')
+                              'italic(a)~(mmol~d^{-1}~W^{-1})')
       )
     ) %>% 
     select(-grp)
@@ -444,7 +444,7 @@ optex <- function(apagrd, fwdatcmp, apasumdat, rnkmetsum, met, lims = NULL){
             legend.title = element_blank(), 
             legend.text = element_text(size = 14),
             axis.text.x = element_text(size = 12),
-            axis.title.y = element_text(size = 8.5),
+            axis.title.y = element_text(size = 12),
             axis.text.y = element_text(size = 10),
             strip.text.x = element_text(size = rel(1.4)), 
             panel.grid.minor = element_blank(), 
@@ -551,8 +551,8 @@ syncomp_plo <- function(resobs, resnos, fwdatcmp){
     mutate(
       var = factor(var, 
                    levels = c('a', 'R'), 
-                   labels = c('italic(a)~(mmol~m^{-3}~d^{-1})/(W~m^{-2})',
-                              'R~(mmol~m^{2}~d^{-1})'
+                   labels = c('italic(a)~(mmol~m^{-2}~d^{-1})/(W~m^{-2})',
+                              'R~(mmol~m^{-2}~d^{-1})'
                    )
       ), 
       name = factor(name, levels = c('Synthetic', 'EBASE recovered', 'EBASE recovered (+ noise)'))
@@ -665,9 +665,9 @@ apacmp_plo <- function(dat, alph = 0.5, col = 'black'){
     )
   
   subfigs <- list(
-    P = '(a) P', 
-    R = '(b) R', 
-    NEM = '(c) NEM'
+    P = '(a)~P~(mmol~m^{-2}~d^{-1})', 
+    R = '(b)~R~(mmol~m^{-2}~d^{-1})', 
+    NEM = '(c)~NEM~(mmol~m^{-2}~d^{-1})'
   )
   
   lvs <- levels(toplo$var)
@@ -693,7 +693,7 @@ apacmp_plo <- function(dat, alph = 0.5, col = 'black'){
       scale_y_continuous(limits = lims) + 
       thm + 
       labs(
-        title = ttl
+        title = parse(text = ttl)
       )
     
     assign(paste0('p', vr), ptmp)
