@@ -109,6 +109,12 @@ png(here('figs/synapa.png'), height = 7, width = 7, family = 'serif', units = 'i
 print(p)
 dev.off()
 
+# parameter recovery with defaults ------------------------------------------------------------
+
+fl <- paste0(tempdir(), '/apadef.RData')
+download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/apadef.RData', destfile = fl)
+load(file = fl)
+
 # Fwoxy apa comparison ------------------------------------------------------------------------
 
 fl <- paste0(tempdir(), '/apasumdat.RData')

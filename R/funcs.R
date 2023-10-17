@@ -359,6 +359,81 @@ cmpplo <- function(res, fwdatcmp, subttl, ylbs = TRUE){
   
 }
 
+# compare synthetic with default parameters
+defplo <- function(apadef, fwdatcmp){
+  
+  res <- apadef %>% 
+    enframe() %>% 
+    mutate(
+      value = purrr::map(value, credible_prep)
+    ) %>% 
+    unnest('value')
+  
+  toplo <- fwdatcmp %>% 
+    pivot_longer(!all_of(c('Date', 'DateTimeStamp')), names_to = 'var', values_to = 'Synthetic') %>% 
+    filter(var %in% c('a', 'R', 'b')) %>% 
+    summarise(
+      Synthetic = mean(Synthetic, na.rm = T), 
+      .by = c('Date', 'var')
+    ) %>% 
+    inner_join(res, ., by  = c('Date', 'var')) %>% 
+    mutate(
+      var = factor(var, 
+                   levels = c('a', 'R', 'b'), 
+                   labels = c(
+                     'italic(a)~(mmol~d^{-1}~W^{-1})',
+                     'R~(mmol~m^{2}~d^{-1})', 
+                     'b~(cm~hr^{-1})/(m^2~s^{-2})'
+                   )
+      ), 
+      name = factor(name, 
+                    levels = c('opt7', 'opt30'), 
+                    labels = c('(a)~7~day', '(b)~30~day')
+      )
+    ) %>% 
+    reframe(
+      mean = na.omit(mean), 
+      lo = na.omit(lo), 
+      hi = na.omit(hi), 
+      Synthetic = mean(Synthetic, na.rm = T),
+      Date = min(Date),
+      .by = c('grp', 'name', 'var')
+    )
+  
+  brks <- seq.Date(min(toplo$Date), max(toplo$Date), by = '3 months')
+  
+  p <- ggplot(toplo, aes(x = Date)) + 
+    # geom_line(aes(y = mean, color = 'EBASE')) + 
+    geom_point(aes(y = mean, color = 'EBASE'), show.legend = T) + 
+    geom_line(aes(y = Synthetic, color = 'Synthetic')) +
+    geom_errorbar(aes(ymin = lo, ymax = hi, color = 'EBASE'), width = 0, show.legend = F) +
+    facet_grid(var ~ name, scales = 'free_y', labeller = label_parsed, switch = 'y') +
+    scale_x_date(date_labels = '%b', breaks = brks) + 
+    theme_minimal() +
+    theme(
+      strip.placement = 'outside', 
+      strip.background = element_blank(), 
+      legend.position = 'top', 
+      legend.title = element_blank(), 
+      legend.text = element_text(size = 14),
+      axis.text.x = element_text(size = 12),
+      axis.title.y = element_text(size = 12),
+      axis.text.y = element_text(size = 10),
+      strip.text = element_text(size = rel(1.4)), 
+      panel.grid.minor = element_blank(), 
+      panel.background = element_rect(fill = 'gray97', color = NA),
+      plot.margin = unit(c(0,0,0,0), "cm")
+    ) + 
+    guides(color = guide_legend(override.aes = list(linetype = c(NA, 1), shape = c(16, NA)))) +
+    labs(
+      x = NULL, 
+      y = NULL
+    )
+  
+  return(p)
+  
+}
+
 # comparison of fwoxy and ebase results for ranked model by prior at opt of ndays
 optex <- function(apagrd, fwdatcmp, apasumdat, rnkmetsum, met, lims = NULL){
 
