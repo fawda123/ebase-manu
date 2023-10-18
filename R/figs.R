@@ -115,6 +115,12 @@ fl <- paste0(tempdir(), '/apadef.RData')
 download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/apadef.RData', destfile = fl)
 load(file = fl)
 
+p <- defplo(apadef, fwdatcmp)
+
+png(here('figs/defplo.png'), height = 7, width = 7, family = 'serif', units = 'in', res = 500)
+print(p)
+dev.off()
+
 # Fwoxy apa comparison ------------------------------------------------------------------------
 
 fl <- paste0(tempdir(), '/apasumdat.RData')
