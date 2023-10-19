@@ -262,7 +262,7 @@ We thank Jason Garwood and Ethan Borque of the Apalachicola National Estuarine R
 
 {{< pagebreak >}}
 
-![Comparison of EBASE results with default prior distributions to a synthetic time series created with known model parameters ($a$, $R$, and $b$).  Results are compared for EBASE parameters estimated with a (a) 7 day and (b) 30 day optimization period. 95% credible intervals from the posterior distributions of the parameter estimates from EBASE are also shown. The results are averaged at the time step of the model optimization period.](figs/defplo.png){#fig-defplo}
+![Comparison of EBASE results using default prior distributions to a synthetic time series created with known model parameters ($a$, $R$, and $b$).  Results are compared for EBASE parameters estimated with a (a) 7 day and (b) 30 day optimization period. 95% credible intervals from the posterior distributions of the parameter estimates from EBASE are also shown. The results are averaged at the time step of the model optimization period.](figs/defplo.png){#fig-defplo}
 
 {{< pagebreak >}}
 
