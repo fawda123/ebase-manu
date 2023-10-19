@@ -115,6 +115,10 @@ fl <- paste0(tempdir(), '/apadef.RData')
 download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/apadef.RData', destfile = fl)
 load(file = fl)
 
+# final groups have smaller sample size
+apadef <- apadef %>% 
+  lapply(function(x) filter(x, grp != max(grp)))
+
 p <- defplo(apadef, fwdatcmp)
 
 png(here('figs/defplo.png'), height = 7, width = 7, family = 'serif', units = 'in', res = 500)
@@ -159,6 +163,23 @@ lims <- list(
   R = c(0, 600), 
   a = c(0, 11)
 )
+
+# # view incomplete groups in apagrd, the last one
+# lapply(apagrd$out, function(x) table(x[[1]]$grp))
+# remove incomplete groups
+apagrd <- apagrd %>% 
+  mutate(
+    out = purrr::pmap(list(ndays, out), function(ndays, out){
+
+      # filter incomplete groups for 7, 30 day opt
+      if(ndays %in% c(7, 30))
+        out[[1]] <- out[[1]] %>% 
+          filter(grp != max(grp))
+      
+      return(out)
+      
+    })
+  )
 
 p <- optex(apagrd, fwdatcmp, apasumdat, rnkmetsum = c(1, 16), met = 'nse', lims = lims)
 
@@ -240,6 +261,10 @@ load(file = fl)
 fl <- paste0(tempdir(), '/resnos.RData')
 download.file('https://github.com/fawda123/BASEmetab_script/raw/master/data/resnos.RData', destfile = fl)
 load(file = fl)
+
+# remove incomplete groups from resobs, resnos
+resobs <- resobs %>% filter(grp != max(grp))
+resnos <- resnos %>% filter(grp != max(grp))
 
 p <- syncomp_plo(resobs, resnos, fwdatcmp) 
   
