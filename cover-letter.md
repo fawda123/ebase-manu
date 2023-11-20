@@ -29,7 +29,7 @@ developed for freshwater streams. Several parameters of the core
 metabolic model were modified to better represent the dynamics of
 estuaries. EBASE was also benchmarked against the conventional Odum
 open-water method for estimating metabolism using a synthetic time
-series with known results. Our results demonstrated that EBASE can
+series with known parameters. Our results demonstrated that EBASE can
 reproduce the known metabolic rates with reasonable certainty. Lastly,
 the methods are available in an R package that includes options to vary
 the prior distributions for the metabolic parameters and the amount of
@@ -43,7 +43,7 @@ the manuscript. Dr. Arriola was responsible for discussing and testing
 earlier versions of EBASE. All authors have approved the final draft.
 
 We greatly appreciate the opportunity to publish this work in Limnology
-and Oceanography Methods and are confident readers will consider it a
+and Oceanography: Methods and are confident readers will consider it a
 valuable contribution. Please feel free to contact us directly should
 additional information be needed.
 
