@@ -15,7 +15,7 @@ author:
       email: jva5648@psu.edu 
       institute: [PSU]
       correspondence: false
-  - Maria Hermann:
+  - Maria Herrmann:
       email: mxh367@psu.edu
       institute: [PSU]
       correspondence: false
