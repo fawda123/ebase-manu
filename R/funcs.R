@@ -421,7 +421,7 @@ defplo <- function(apadef, fwdatcmp){
       axis.text.y = element_text(size = 10),
       strip.text = element_text(size = rel(1.4)), 
       panel.grid.minor = element_blank(), 
-      panel.background = element_rect(fill = 'gray97', color = NA),
+      # panel.background = element_rect(fill = 'gray97', color = NA),
       plot.margin = unit(c(0,0,0,0), "cm")
     ) + 
     guides(color = guide_legend(override.aes = list(linetype = c(NA, 1), shape = c(16, NA)))) +
@@ -523,7 +523,7 @@ optex <- function(apagrd, fwdatcmp, apasumdat, rnkmetsum, met, lims = NULL){
             axis.text.y = element_text(size = 10),
             strip.text.x = element_text(size = rel(1.4)), 
             panel.grid.minor = element_blank(), 
-            panel.background = element_rect(fill = 'gray97', color = NA),
+            # panel.background = element_rect(fill = 'gray97', color = NA),
             plot.margin = unit(c(0,0,0,0), "cm")
           ) + 
           labs(
@@ -632,10 +632,12 @@ syncomp_plo <- function(resobs, resnos, fwdatcmp){
       ), 
       name = factor(name, levels = c('Synthetic', 'EBASE recovered', 'EBASE recovered (+ noise)'))
     )
-  
+
   p1 <- ggplot(toplo1, aes(x = DateTimeStamp, y = val, color = name)) + 
-    geom_line(linewidth = 0.8) +
+    geom_line(linewidth = 0.5) +
+    geom_point(data = subset(toplo1, name != 'Synthetic')) + 
     facet_wrap(~var, scales = 'free', ncol = 1, strip.position = 'left', labeller = label_parsed) + 
+    guides(colour = guide_legend(override.aes = list(pch = c(NA, 16, 16)))) +
     theme_minimal(base_size = 12) + 
     theme(
       strip.placement = 'outside', 

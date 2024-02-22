@@ -1,8 +1,33 @@
+library(flextable)
 library(tidyverse)
 library(lubridate)
 library(here)
 
 source(file = here('R/funcs.R'))
+
+# EBASE i/o -----------------------------------------------------------------------------------
+
+totab <- tibble(
+  Type = c('Input', 'Input', 'Input', 'Input', 'Input', 'Input',
+           'Input-derived', 'Input-derived', 'Input-derived',
+           'Output', 'Output', 'Output', 'Output', 'Output', 'Output'),
+  Description = c('Dissolved oxygen (observed)', 'Water temperature', 'Salinity', 'Total photosynthetically active radiation', 'Wind speed', 'Water column depth',
+                  'Wind speed at 10 meter height, squared', 'Schmidt number (from water temperature and salinity)', 'Dissolved oxygen at saturation (from water temperature and salinity)',
+                  'Dissolved oxygen (modelled)', 'Production', 'Respiration', 'Gas exchange', 'Light efficiency', 'Sensitivity of gas transfer to wind speed'),
+  `Model notation` =  c('C', '-', '-', 'PAR', '-', 'H', 
+                        'U$_{10}^2$', 'Sc', 'C$_{sat}$', 
+                        'C_mod', 'P', 'R',  'D', 'a', 'b'),
+  Units = c('mmol m$^{-3}$', '$^\\circ$C', 'psu', 'W m$^{-2}$', 'm s$^{-1}$', 'm', 
+            'm$^2$ s$^{-2}$', 'unitless', 'mmol m$^{-3}$',
+            'mmol m$^{-3}$', 'mmol m$^2$ d$^{-1}$', 'mmol m$^2$ d$^{-1}$', 'mmol m$^2$ d$^{-1}$', '(mmol m$^2$ d$^{-1}$)/(W m$^{-2}$)', '(cm hr$^{-1}$)/(m$^2$ s$^{-2}$)')
+  ) |> 
+  mutate(
+    Type = ifelse(duplicated(Type), '', Type)
+  )
+
+ebaseiotab <- knitr::kable(totab)
+
+save(ebaseiotab, file = here('tabs/ebaseiotab.RData'))
 
 # comparison of EBASE to other methods with actual apa data -----------------------------------
 

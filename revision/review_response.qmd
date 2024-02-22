@@ -55,7 +55,7 @@ Line 48-50: Consider adding the underwater eddy covariance method to the list of
 
 Line 80: As written, it seems ‘assumptions’ should be singular, not plural (…can violate an assumption of the method…).
 
-*Response: text goes here*
+*Response: Corrected.*
 
 Line 82: I appreciate that the sign of P and R estimates in the literature has been applied non- uniformly. However, I believe the convention is that P is positive (DO is produced) while R is negative (DO is consumed). Could you change the physically impossible statement to state negative P and positive R? Or add a sentence about why both values are described with a positive sign – this is somewhat described on line 236.
 
@@ -63,7 +63,7 @@ Line 82: I appreciate that the sign of P and R estimates in the literature has b
 
 Line 96: Add the word statistical between ‘Bayesian’ and ‘techniques’ (i.e., Bayesian statistical techniques…)
 
-*Response: text goes here*
+*Response: Added.*
 
 Line 98: These two cited studies – Ciavatta et al. 2008; Tassone and Bukaveckas 2019 - have used Bayesian approaches to estimate estuarine metabolism; what makes them limited? How is the approach described in this manuscript different from these two earlier studies? Have those earlier two studies informed the model selection/development described in this manuscript?
 
@@ -83,7 +83,7 @@ Line 129-131: I normally see water column depth represented as Z not H. Should c
 
 Line 135: Consider making C = Cobs if it represents the observed DO concentration. If that is not what it represents, then will need to be described in text.
 
-*Response: text goes here*
+*Response: Yes, C represents observed dissolved oxygen concentration (as noted on line 132).  We have retained C instead of using Cobs for simplicity in the model equations.  Further, the addition of the model input/output table as requested by another review helps clarify data.*
 
 Line 181: Specifying the model optimization period is an advancement of the BASE model but is not described in text. What does ‘optimization’ mean? What are the implications of using 1 day, 7 days, 30 days, or the entire time series length on the output? If you use 7 days, do you only get weekly estimates of metabolism?
 
@@ -99,11 +99,11 @@ Line 188: With your improvements to the original BASE method, could EBASE be use
 
 Line 248-252: How was the NERRS data accessed? Also be sure to cite the NERRS system-wide monitoring program, see link on NERRS data citation here - https://cdmo.baruch.sc.edu/data/citation.cfm
 
-*Response: text goes here*
+*Response: The NERRS data were accessed through the CDMO, citation was added.*
 
 Line 267: Consider rephrasing – “…has a structure similar to, yet noisier than, that of light efficiency…”.
 
-*Response: text goes here*
+*Response: Rephrased.*
 
 Line 270-271: Wouldn't one expect the opposite? During periods of high productivity, ingassing should occur given the relatively high(er) rates of primary production. Then during periods of low productivity (i.e., outside of the growing season) that outgassing would dominate as respiration of allochthonous material continues to occur while primarily production would be light limited (assuming the example dataset used is in a temperate environment).
 
@@ -131,11 +131,11 @@ Line 581: Maybe I missed it but how many MCMC simulations were used? How would a
 
 Figures 3 & 5: These figures have a gray background while the rest are white. Please make the background color of the figures consistent across figures.
 
-*Response: text goes here*
+*Response: Figures 3 & 5 were changed to white background.*
 
 Figure 7: Consider adding points to the lines in the left column plots. You may need to make the thickness of the lines smaller.
 
-*Response: text goes here*
+*Response: Points were added, line thickness reduced in the left column plots.*
 
 ### Reviewer 2
 
@@ -151,7 +151,7 @@ I enjoyed reading the manuscript. It is technical where it needs to be, but also
 
 Table of model parameters. There are several parameters, most are relatively simple (single letter), and they appear on figures. I think it would be valuable to have a table. This could include, name, acronym, units, and any other relevant information (source/equation/etc.). I can also see organizing this table by inputs and outputs (L146) to help future users identify their input data and expected outputs.
 
-*Response: text goes here*
+*Response: We have added a new table showing model inputs/outputs, parameter names, acronyms, and units.*
 
 Is EBASE only applicable to estuaries? It seems that the main change from BASE is the inclusion of a wider temporal window to estimate model parameters and changes in the b parameterization. Can these modifications also improve upon metabolism estimates in other systems (lakes, streams, etc.)? While I see the goal of improving metabolism in estuaries, there may be wider applicability to rivers, lakes, ocean, or other coastal areas. If so, mentioning what kinds of systems (big lakes, deep lakes, big rivers, complex hydrodynamics, etc.?) would be most appropriate for the model and potential get improved estimates over other metabolism approaches. This may expand the impact of this paper.
 
@@ -189,11 +189,7 @@ L134: “R is constant”. I believe R is allowed to vary across days, but R is 
 
 *Response: text goes here*
 
-L143: what is b? and for what time interval is b constant? This ends up being an output (Figure 3) and it is confusing to say that it is constant. So maybe it is constant within a day? Is this a standard parameter
-
-*Response: text goes here*
-
-for gas exchange? As with the other parameters, providing some type of ‘name’ would be helpful, especially if provided in a table.
+L143: what is b? and for what time interval is b constant? This ends up being an output (Figure 3) and it is confusing to say that it is constant. So maybe it is constant within a day? Is this a standard parameter for gas exchange? As with the other parameters, providing some type of ‘name’ would be helpful, especially if provided in a table.
 
 *Response: text goes here*
 
@@ -219,7 +215,7 @@ L272: I’m curious about the model estimates for kw. The authors show the resul
 
 L301: The units for R are listed as (mmol/m2/d)/(W/m2). Perhaps the denominator is a typo?
 
-*Response: text goes here*
+*Response: Yes, this was a typo, corrected.*
 
 L541: Wondering if it would be helpful to mention somewhere in this paragraph, “it depends on the question/objective of the project”? For example, if we are interested in annual summations and comparisons among systems, it may be fine to use a longer optimization period. But if we are interested in daily rates, timing of events in relation to storms, floods, etc. we may need to use a shorter optimization period. So the researcher’s question should be considered.
 
