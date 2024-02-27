@@ -14,7 +14,7 @@ totab <- tibble(
   Description = c('Dissolved oxygen (observed)', 'Water temperature', 'Salinity', 'Total photosynthetically active radiation', 'Wind speed', 'Water column depth',
                   'Wind speed at 10 meter height, squared', 'Schmidt number (from water temperature and salinity)', 'Dissolved oxygen at saturation (from water temperature and salinity)',
                   'Dissolved oxygen (modelled)', 'Production', 'Respiration', 'Gas exchange', 'Light efficiency', 'Sensitivity of gas transfer to wind speed'),
-  `Model notation` =  c('C', '-', '-', 'PAR', '-', 'H', 
+  `Model notation` =  c('C', '-', '-', 'PAR', '-', 'Z', 
                         'U$_{10}^2$', 'Sc', 'C$_{sat}$', 
                         'C$_{mod}$', 'P', 'R',  'D', 'a', 'b'),
   Units = c('mmol m$^{-3}$', '$^\\circ$C', 'psu', 'W m$^{-2}$', 'm s$^{-1}$', 'm', 
