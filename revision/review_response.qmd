@@ -3,6 +3,7 @@ format:
   docx:
     reference-doc: response_styles.docx
 bibliography: ../refs.bib
+csl: ../limnology-and-oceanography.csl
 
 execute: 
   echo: false
@@ -15,7 +16,7 @@ execute:
 spelling::spell_check_files(here::here('revision/review-response.qmd'))
 ```
 
-*We thank all three reviewers for providing constructive comments that have helped to improve the manuscript. Our responses to each of these comments are provided below.  Note that line number refer to those in the original manuscript.*
+*We thank all three reviewers for providing thorough and constructive comments that have helped to improve the manuscript. Our responses to each of these comments are provided below.  Note that line numbers refer to those in the original manuscript.*
 
 ### Reviewer 1
 
@@ -33,15 +34,15 @@ The authors describe pitfalls in their model, particularly when it comes to esti
 
 Detiding (i.e., removing the influence of tidal cycles on time series data) the DO time series substantially improved model estimates and therefore was recommended as a step prior to applying the model. However, it was not clear how the authors detided their time series (they used Weighted Regression but it is unclear how this method removes tidal influence from the predicted time series – see lines 400-402). Please add additional information on the detiding approach and which variables were detided (i.e., was only DO detided? Wouldn’t all water-related input variables, such as water temperature and salinity, need to be detided?).
 
-*Response: text goes here*
+*Response: The detiding approach used herein is thoroughly described in another L&O paper cited in the main text [@Beck15]. Describing this approach in detail is beyond the scope of the paper, although we have added some text for clarification.  Also, the method has only been applied to dissolved oxygen data, so we have not used it for any of the remaining parameters. Clarification for both points has been added to line 399: "The results of this analysis return a predicted and detided dissolved oxygen time series, where the detided results are simply the predictions at average tidal height [see @Beck15 for details]. This method was only applied to dissolved oxygen since it has not been evaluated with any other parameters."*
 
 How would your results be impacted by using different observed data collection frequencies such as every 5-min, 15-min, 1 hour?
 
-*Response: text goes here*
+*Response: The resolution of "continuous" monitoring data has not been evaluated in this study, although our guess is that more frequent sampling may produce more robust estimates.  However, this may not matter given the time scales at which metabolism changes (i.e., > 1 day).  In our experience, estimates from the Odum open-water method are nearly identical using 15-minute or hourly samples.  Not sure the same would apply for EBASE given the fundamental differences between the approaches. We have added a point in the discussion on line 541 that speaks to this question: "These hypotheses may also consider frequency of continuous monitoring (e.g., 15 minute vs hourly) and how this may influence the results, as this is currently unknown for EBASE."*
 
 In my use of Bayesian models for estimating metabolism, with each model run you can get different metabolism estimates. This is due to the prior distribution space that the model can operate in. Is this something you have noticed with your model? If so, could you add a sentence somewhere explaining that a user should expect different modeled estimates with each model run?
 
-*Response: text goes here*
+*Response: Surprisingly, we have not encountered this issue with EBASE.  Obviously the results depend on the prior distributions, which was the purpose of our sensitivity analysis, although we have not noticed slightly different results for different runs with the same priors.  It is possible these differences are present, but small enough not to notice.  We would hope that a user of this approach would be familiar enough with Bayesian and MCMC methods to expect these minor differences.*
 
 Line 32-36: Estuaries are also significantly influenced by their freshwater end-members, consider adding ‘river’ to ‘…interface between land, river, ocean, and atmosphere’. Similarly consider incorporating rivers into ‘…transported from land to rivers to ocean…’.
 
@@ -91,9 +92,7 @@ Line 181: Specifying the model optimization period is an advancement of the BASE
 
 *Response: This was clarified in the text.*
 
-*Line 181:  "First, users can specify the model optimization period as the amount of time over which the unknown parameters are estimated from the Bayesian prior distributions (i.e., $a$, $R$, and $b$, see below)."*
-
-*Line 184: "Note that only one estimate for each of $a$, $R$, and $b$ is returned for each optimization period as defined by the model, although $P$ and $D$ can vary continuously with each timestep given the dependence on other inputs that can vary across the time series (e.g., $PAR$ and wind)."*
+*Line 181: "First, users can specify the model optimization period as the amount of time over which the unknown parameters are estimated from the Bayesian prior distributions (i.e., $a$, $R$, and $b$).  The optimization period determines how much data are used to estimate each parameter. Only one estimate for each of $a$, $R$, and $b$ is returned for each optimization period as defined by the model, although $P$ and $D$ can vary continuously given the dependence on other inputs that can vary at each time step (e.g., $PAR$ and wind). The optimization period can vary from a minimum of 1 day (defined as midnight to midnight the following day) to a maximum of the entire length of the time series. This differs from the BASE approach where the optimization period is set at 1 day.  Sensitivity of the EBASE method to different optimization periods is described below."*
 
 Line 185: On line 546 it is stated that linear interpolation is used, that should be described here. Furthermore, the threshold discussion on line 547-551 should be mentioned here. Lastly, on line 550-551, a 12 hour threshold should be further discussed. Why 12- hours? Why not 6 considering anything longer than 6 and you would be missing half of a semidiurnal tidal cycle.
 
@@ -107,7 +106,9 @@ Line 185: On line 546 it is stated that linear interpolation is used, that shoul
 
 Line 188: With your improvements to the original BASE method, could EBASE be used to estimate metabolism in non-tidal, lotic ecosystems?
 
-*Response: text goes here*
+*Response: In theory, EBASE could be used in non-tidal, lotic systems, since the primary difference with BASE is the use of a wind- and temperature-based gas exchange parameterization appropriate for open-water systems [@Wanninkhof14].  However, additional comparisons are needed (e.g., Odum vs EBASE in a lake) and our thorough justification for the default prior distributions are based on the estuarine literature.  This is still a valuable poin and we have added text to line 519:*
+
+*"Further, EBASE could be applied to other non-tidal, lotic systems, although additional comparisons with existing methods are needed and the default uninformed prior distributions should be chosen carefully given the justification herein based primarily on estuarine literature [e.g., @caffrey2004]."*
 
 Line 248-252: How was the NERRS data accessed? Also be sure to cite the NERRS system-wide monitoring program, see link on NERRS data citation here - https://cdmo.baruch.sc.edu/data/citation.cfm
 
@@ -119,19 +120,19 @@ Line 267: Consider rephrasing – “…has a structure similar to, yet noisier 
 
 Line 270-271: Wouldn't one expect the opposite? During periods of high productivity, ingassing should occur given the relatively high(er) rates of primary production. Then during periods of low productivity (i.e., outside of the growing season) that outgassing would dominate as respiration of allochthonous material continues to occur while primarily production would be light limited (assuming the example dataset used is in a temperate environment).
 
-*Response: text goes here*
+*Response: Yes, this is correct and can even be seen in Figure 2, e.g., late September to early October shows P > R with negative D (ingassing), then P < R with positive D (outgassing).  We have corrected this error in the text.*
 
 Line 276-278: As pointed to earlier in the manuscript, it is unclear what is meant by the optimization period. Why are the results in Figure 3 averaged by the optimization period? Why not show the daily estimates? I liked seeing the fit of the EBASE estimates on the synthetic time series however, I would like to see the fit of a linear regression of the synthetic (observed) estimates vs. the EBASE (predicted) estimates.
 
-*Response: text goes here*
+*Response: Please see the response to line 181. In particular, our revision notes that only one value each for $a$, $R$, and $b$ is returned for each optimization period. The vertical lines for each point in Figure 3 are credible intervals showing uncertainy around each individual estimate.  The statement in the caption that "the results are averaged at the time step of the model optimization period" is incorrect and removed.  This really only applies to the synthetic results in Figure 5 to show a more clear comparison with the recovered values from EBASE.*
 
 Line 313: This explanation of optimization needs to come much earlier in the text and be expanded upon.
 
-*Response: text goes here*
+*Response: Agreed, please see the response to line 181. This section was also slightly shortened in response to the changes on line 181.*
 
 Line 324-327: I'm not sure if I follow correctly - are you seeking daily metabolic estimates? If so, are the 7 & 30 day optimizations using a forward looking moving window approach that advances by one-day (similar to a rolling average)?
 
-*Response: text goes here*
+*Response: The text was edited for clarity: "Results from optimization periods of 1, 7, and 30 days were compared to the synthetic one-year time series ($b$ was fixed for the sensitivity analysis) based on daily averages for both the synthetic and EBASE results.  For the latter, parameters that are only returned as individual values for each optimization period ($a$, $R$, and $b$) were assigned as daily values for comparability of summary statistics where $n$ is the same across analyses."*
 
 Line 473-477: It is stated that “Bayesian…methods have not been rigorously explored for estimating metabolic rates in estuaries” however, I point back to the two cited studies in the introduction (line 98) that did use Bayesian techniques to estimate estuarine metabolism. Consider rewording this sentence and/or expand on why those earlier studies are not considered rigorous.
 
@@ -139,7 +140,7 @@ Line 473-477: It is stated that “Bayesian…methods have not been rigorously e
 
 Line 581: Maybe I missed it but how many MCMC simulations were used? How would a user change the number of MCMC simulations in the EBASE package? Can you provide a recommendation for the number of simulations to use or at least how many were used in this analysis?
 
-*Response: text goes here*
+*Response: This detail was omitted and we have now included it on line 199 with the description of the MCMC approach (default 10,000 simulations).*
 
 Figures 3 & 5: These figures have a gray background while the rest are white. Please make the background color of the figures consistent across figures.
 
@@ -167,7 +168,7 @@ Table of model parameters. There are several parameters, most are relatively sim
 
 Is EBASE only applicable to estuaries? It seems that the main change from BASE is the inclusion of a wider temporal window to estimate model parameters and changes in the b parameterization. Can these modifications also improve upon metabolism estimates in other systems (lakes, streams, etc.)? While I see the goal of improving metabolism in estuaries, there may be wider applicability to rivers, lakes, ocean, or other coastal areas. If so, mentioning what kinds of systems (big lakes, deep lakes, big rivers, complex hydrodynamics, etc.?) would be most appropriate for the model and potential get improved estimates over other metabolism approaches. This may expand the impact of this paper.
 
-*Response: text goes here*
+*Response: Yes, it is possible with caveats.  Please see our response to reviewer on line 188.  Specifically, additional comparisons are needed and the default uninformed priors based on estuarine literature must be reconsidered.*
 
 Model parameter b.
 
@@ -257,12 +258,14 @@ L159 & L514: The air-water exchange isn’t depth dependent in BASE. The inputs 
 
 L258: typo in “estimatd”
 
-*Response: text goes here*
+*Response: Fixed.*
 
 L269: Should it be “availability” rather than “variability”? of course, a more variable pool of organic matter could also be correct.
 
-*Response: text goes here*
+*Response: Changed to "availability", this seems more correct.*
 
 L352: The “right answer for wrong reasons” is interesting. It could be clearer here that even though DO is estimated accurately, the P and R estimates will be inaccurate in this scenario.-7
 
 *Response: text goes here*
+
+## References
