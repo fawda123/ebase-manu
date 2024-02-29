@@ -158,7 +158,7 @@ The model is written in the programming language R, making it widely available t
 
 I enjoyed reading the manuscript. It is technical where it needs to be, but also provides general context for the problem and the rationale for the technique. I was tripped up during a few of the sections, and I provide some suggestions that might improve the flow of the article. I’m also wondering if this model approach is only applicable to estuaries, or if it could be useful for other aquatic ecosystems? Overall, the authors did a great job. Nice work!
 
-*Response: text goes here*
+*Response: Thank you for providing thoughtful comments on our manuscript.  Please see our responses below.*
 
 #### General comments
 
@@ -168,11 +168,13 @@ Table of model parameters. There are several parameters, most are relatively sim
 
 Is EBASE only applicable to estuaries? It seems that the main change from BASE is the inclusion of a wider temporal window to estimate model parameters and changes in the b parameterization. Can these modifications also improve upon metabolism estimates in other systems (lakes, streams, etc.)? While I see the goal of improving metabolism in estuaries, there may be wider applicability to rivers, lakes, ocean, or other coastal areas. If so, mentioning what kinds of systems (big lakes, deep lakes, big rivers, complex hydrodynamics, etc.?) would be most appropriate for the model and potential get improved estimates over other metabolism approaches. This may expand the impact of this paper.
 
-*Response: Yes, it is possible with caveats.  Please see our response to reviewer on line 188.  Specifically, additional comparisons are needed and the default uninformed priors based on estuarine literature must be reconsidered.*
+*Response: Yes, it is possible with caveats.  Please see our response to reviewer one on line 188.  Specifically, additional comparisons are needed and the default uninformed priors based on estuarine literature must be reconsidered.*
 
 Model parameter b.
 
 I’m less familiar with this term, and the authors could do a little bit more to explain what it is. On L143, they say that it is “fairly well known for open for open-ocean conditions”, but they never actually define the term. Looking at Eq 2, it seems to relate to “gas transfer efficiency” given that it is a coefficient on the wind-speed/viscosity term. That being said, I’m also a little confused on how Eq 3 is integrated into the model framework. Eq. 3 seems to relate more closely with streams as water depth is included as a scaler for kw. So somehow the two models (one more typical for lentic systems, the other more typical for lotic systems) are integrated together. In theory this makes sense in an estuary as both wind and flow likely affect gas transfer.
+
+*Response: Apologies for this confusion.  Eq. 3 is not used in EBASE, rather it is discussed as the gas transfer used in BASE that is inappropriate for estuaries, justifying our use of the gas exchange model in @Wanninkhof14.  Line 166 was revised to make this more clear: "Based on these differences and the lack of availability of other possible drivers of the transfer velocity in coastal systems, Equation 3 is not used herein.  Instead, the well-established wind- and temperature-based parameterization for gas exchange of @Wanninkhof14 was used for EBASE (Equation 2)..."*
 
 Diving into eq 3, higher water levels usually indicate higher flows and thus higher gas transfer velocity (Kw). I’m not exactly sure how temperature plays into this equation, and if it is appropriate for an estuary. It seems to suggest warm periods within a day have higher exchange rates, due to differences in kinetics at the water surface. However warmer temperatures may also reflect increased stratification and less vertical mixing (small lakes). There may be something to clean from changes in temperature that drive changes in turbulence, but simply using warmer = more exchange seems like an oversimplification. Eq 3 also includes a term related to water depth (H). In flowing waters this equation suggests that Kw increases with water level, likely a result of high-water levels = higher velocities = higher turbulence = higher kw. In an estuary, I’m not sure this relationship truly holds as water depth is not as good of a surrogate for velocity. Highest water level may be at slack tide and thus minimal water movements. It could be that change in water depth (assuming the tidal currents are strong relative to the river inputs) would be a better term to reflect instantaneous discharge. Or possibly flow could be included as a possible input parameter. But I realize this term is not typically available.
 
@@ -184,35 +186,39 @@ All told, perhaps the issue with poorly constraining b is related to assumptions
 
 L26: which open-source software? If only one (i.e., R), then can list it here.
 
-*Response: text goes here*
+*Response: Added R in parentheses.*
 
 L40: Organic matter produced in the estuary has other outcomes. Re-respired, consumed and incorporated into biota, exported to the ocean, etc.
 
-*Response: text goes here*
+*Response: Sentence was revised as follows: "...forming particulate organic carbon with multiple fates, e.g., buried in estuarine sediments, incorporated into biota, transferred to the ocean, etc. [@hu2006; @middelburg2007]."*
 
-L83: which computed rates were negative? P, R, or both? L128: mean depth?
+L83: which computed rates were negative? P, R, or both?
 
-*Response: text goes here*
+*Response: Revised as "The computed rates were negative 23% of the time for both P and R..."*
+
+L128: mean depth?
+ 
+*Response: The software can handle a single value (e.g., mean depth) or a vector of tidal height depths equal in length to the input time series. This is expressed in the documentation: https://fawda123.github.io/EBASE/reference/ebase.html.  This is also expressed in the new table showing model inputs/outputs as requested above.*
 
 L133: Thanks for providing the units. I am curious about area and time. I’m assuming that area is surface water area and time is the interval of the dissolved oxygen data. If so, perhaps expand on these so the author knows what the temporal and horizontal spatial scales are.
 
-*Response: text goes here*
+*Response: See the new table for inputs/outputs.*
 
 L134: “R is constant”. I believe R is allowed to vary across days, but R is constant within a day. Please specify.
 
-*Response: text goes here*
+*Response: We have specified that the unknown metabolic parameters ($a$, $R$, and $b$) are constant at the unit of the model optimization period chosen by the user, although P and D vary continuously given their dependence on measured input parameters (e.g., PAR, wind) that can change at each time step.  Please see our response to reviewer 1 on line 181.*
 
 L143: what is b? and for what time interval is b constant? This ends up being an output (Figure 3) and it is confusing to say that it is constant. So maybe it is constant within a day? Is this a standard parameter for gas exchange? As with the other parameters, providing some type of ‘name’ would be helpful, especially if provided in a table.
 
-*Response: text goes here*
+*Response: Please see our response to the previous comment and the new input/output table.  It's an ambiguous parameter, but really just an indication of how sensitive the gas transfer is to wind speed.  The sentence was revised as "The $b$ parameter is fairly well known for open-ocean conditions primarily as an expression of the sensitivity of gas exchange to wind..."*
 
 L164: The equation implies that Kw would increase as water level (H) increases. It seems the authors have this statement inversed or talking about measured reaeration (K). I believe this relates to streams where increasing water levels relate to higher water velocities, and thus higher turbulence and higher gas transfer velocity (kw). See General Comments.
 
-*Response: text goes here*
+*Response: This equation is *
 
 L189: Thanks for putting together the web page. I’m curious if the data in this manuscript are included within the package itself, so it is possible to regenerate the results entirely? I’m also wondering how stable this website is and if any online information that is described in the manuscript will change? I’m not that familiar with these online reference materials, but I’m thinking of a static version (tag) that will stay with the paper so a reader 10 years from now could access the exact same materials that go along with this paper.
 
-*Response: text goes here*
+*Response: It's the exception and not the norm that published software remains the same after a descriptive manuscript is published.  For this reason, we have added a version of EBASE that is appropriate for this paper and included the version number in the text.  ......* EDIT
 
 L210: Thank you for providing the units for these parameters. I am wondering if that authors considered using negative exponents to ensure the division symbols are properly addressed. For example, 300 mmol/m2/d. While I understand this to be mmol m-2 d-1, days could be mistakenly assumed to be in the numerator of the equation. While unlikely in this situation, the subsequent equations (L218) get even more complicated “(mmol/m2/d)/(W/m2)”, so it could be worth ensuring all the units are clear. Further, this unit has m2 twice, so they could be removed from the final unit (mmol d-1 W-1).
 
