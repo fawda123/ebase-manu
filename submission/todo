@@ -2,3 +2,4 @@
 * Proof references
 * Remove figures for separate upload and retain legends on single page
 * Convert png figs to tiff with imagemagick: `magick mogrify -compress lzw -format tiff *.png`
+* Tag ebase version once revisions done (submit to CRAN and mention in text?)

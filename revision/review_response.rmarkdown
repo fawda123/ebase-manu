@@ -24,6 +24,7 @@ library(readr)
 spelling::spell_check_files(here::here('revision/review-response.qmd'))
 ```
 
+
 *We thank all three reviewers for providing thorough and constructive comments that have helped to improve the manuscript. Our responses to each of these comments are provided below. Note that line numbers refer to those in the original manuscript.*
 
 ### Reviewer 1
@@ -240,6 +241,7 @@ L272: I’m curious about the model estimates for kw. The authors show the resul
 
 *Response: Perhaps, although our focus was on the primary metabolic parameters returned by EBASE given the goal of assessing parameter recovery (of which kw is included). For sake of interest, below is a plot of D and kw for the synthetic data (data available here: <https://raw.githubusercontent.com/fawda123/BASEmetab_script/master/data/apafwoxy2.csv>).  Note that kw is directly proportional to wind, whereas D is mostly a function of kw and the difference between C and Csat.*
 
+
 ```{r}
 #| fig-width: 8
 #| fig-height: 4
@@ -279,6 +281,7 @@ ggplot(fwdatcmp, aes(x = Date, y = val, color = var)) +
 ```
 
 
+
 L301: The units for R are listed as (mmol/m2/d)/(W/m2). Perhaps the denominator is a typo?
 
 *Response: Yes, this was a typo, corrected.*
@@ -299,15 +302,15 @@ In particular, the focus on the importance of accurately capturing the physical 
 
 L14: The first use of “unphysical” in the abstract was a little unclear without further detail. Consider a short phrase like “may lead to estimates that are physically impossible” be used to define this first.
 
-*Response: Text was modified as suggested.*
+*Response: text goes here*
 
 L122: The sentence “We also attempt to constrain the gas transfer velocity using this approach but are unable, at least with the data sets used in this study.“ was unclear. Consider replacing “this approach” with a more precise statement (I assume “this approach” is the Bayesian framework, rather than a reference to the previous sentence on the test with the detided inputs?). I’m also not sure if “constrain” is the right word, as the issue was accurately estimating this parameter.
 
-*Response: The sentence was modified to clarify the meaning. We have retained "constrain" given that it's used throughout the paper, but we provide an explicit meaning in parentheses: "We also attempt to constrain (i.e., accurately estimate) the gas transfer velocity using EBASE but are unable...".*
+*Response: text goes here*
 
 L159 & L514: The air-water exchange isn’t depth dependent in BASE. The inputs (and metabolic results) in base are all volumetric and reaeration coefficient (K) is in per day. Depth is not provided to the model but can be used to convert the metabolic estimates afterwards.
 
-*Response: Thank you for pointing out this error.  We have removed this distinction from the text and revised accordingly: *
+*Response: text goes here*
 
 L258: typo in “estimatd”
 
@@ -317,8 +320,9 @@ L269: Should it be “availability” rather than “variability”? of course, 
 
 *Response: Changed to "availability", this seems more correct.*
 
-L352: The “right answer for wrong reasons” is interesting. It could be clearer here that even though DO is estimated accurately, the P and R estimates will be inaccurate in this scenario.
+L352: The “right answer for wrong reasons” is interesting. It could be clearer here that even though DO is estimated accurately, the P and R estimates will be inaccurate in this scenario.-7
 
-*Response: Sentence was revised as follows: "...the potential for the model to produce the right answer (accurate $DO$) for the wrong reasons (inaccurate $P$, $R$, or $D$), since $DO$ is simply a mass balance of $P$, $R$, and $D$ (Equation 1)".*
+*Response: text goes here*
 
 ## References
+
