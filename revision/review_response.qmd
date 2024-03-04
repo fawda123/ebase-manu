@@ -182,9 +182,11 @@ Model parameter b.
 
 I’m less familiar with this term, and the authors could do a little bit more to explain what it is. On L143, they say that it is “fairly well known for open for open-ocean conditions”, but they never actually define the term. Looking at Eq 2, it seems to relate to “gas transfer efficiency” given that it is a coefficient on the wind-speed/viscosity term. That being said, I’m also a little confused on how Eq 3 is integrated into the model framework. Eq. 3 seems to relate more closely with streams as water depth is included as a scaler for kw. So somehow the two models (one more typical for lentic systems, the other more typical for lotic systems) are integrated together. In theory this makes sense in an estuary as both wind and flow likely affect gas transfer.
 
-*Response: Apologies for this confusion. Eq. 3 is not used in EBASE, rather it is discussed as the gas transfer used in BASE that is inappropriate for our application, justifying use of the gas exchange model in @Wanninkhof14. Line 166 was revised to make this more clear: "Based on these differences and the lack of availability of other possible drivers of the transfer velocity in coastal systems, Equation 3 is not used herein. Instead, the well-established wind- and temperature-based parameterization for gas exchange of @Wanninkhof14 was used for EBASE (Equation 2)..."*
+*Response: Apologies for this confusion. Eq. 3 is not used in EBASE, rather it is discussed as the gas transfer used in BASE that is inappropriate for our application, justifying use of the gas exchange model in @Wanninkhof14. Line 166 was revised to make this more clear: "Based on this difference and the lack of availability of other possible drivers of the transfer velocity in coastal systems, Equation 3 is not used herein. Instead, the well-established wind- and temperature-based parameterization for gas exchange of @Wanninkhof14 was used for EBASE (Equation 2)..."*
 
 Diving into eq 3, higher water levels usually indicate higher flows and thus higher gas transfer velocity (Kw). I’m not exactly sure how temperature plays into this equation, and if it is appropriate for an estuary. It seems to suggest warm periods within a day have higher exchange rates, due to differences in kinetics at the water surface. However warmer temperatures may also reflect increased stratification and less vertical mixing (small lakes). There may be something to clean from changes in temperature that drive changes in turbulence, but simply using warmer = more exchange seems like an oversimplification. Eq 3 also includes a term related to water depth (H). In flowing waters this equation suggests that Kw increases with water level, likely a result of high-water levels = higher velocities = higher turbulence = higher kw. In an estuary, I’m not sure this relationship truly holds as water depth is not as good of a surrogate for velocity. Highest water level may be at slack tide and thus minimal water movements. It could be that change in water depth (assuming the tidal currents are strong relative to the river inputs) would be a better term to reflect instantaneous discharge. Or possibly flow could be included as a possible input parameter. But I realize this term is not typically available.
+
+*Response: We have noted an error in our description of Equation 3 that includes the depth-dependency.  As noted by Reviewer 3, @Grace15 do not include a depth-dependency in this equation. We have since removed the dependency and revised the text accordingly, emphasizing the importance of wind for the transfer velocity in open-water systems.  Regarding temperature, we feel justified in its inclusion for gas exchange given the previously noted relationship with the Schmidt number, a known factor to be important in open-water systems.*
 
 All told, perhaps the issue with poorly constraining b is related to assumptions in the equations used to model gas exchange in an estuary. The authors do a good job explaining that the model parameter b was difficult to constrain in the example dataset. This is understandable, and my comments are mainly my mental exploration of ways that might improve that aspect of the model. I’m guessing the authors have thought extensively about this problem, and I’m mainly offering ideas. Perhaps the authors could include some other ideas for why the b parameter is difficult to constrain? Or explore additional datasets to understand when/where it can be estimated more accurately? For example, if the model was applied to an artificial dataset from a stream, lake, or other type of estuary does it perform better? If so, what is different about the system, which might help with tuning the model? Would any of these help understand the parameterization/limitation of the current model, and or identify systems it is most appropriate?
 
@@ -222,7 +224,7 @@ L143: what is b? and for what time interval is b constant? This ends up being an
 
 L164: The equation implies that Kw would increase as water level (H) increases. It seems the authors have this statement inversed or talking about measured reaeration (K). I believe this relates to streams where increasing water levels relate to higher water velocities, and thus higher turbulence and higher gas transfer velocity (kw). See General Comments.
 
-*Response: This equation is*
+*Response: The depth-dependency for kw described in [@Grace15] was incorrect and an error on our part.  We have removed $H$ (now $Z$) from the equation and updated the text accordingly, emphasizing the wind-dependence on the transfer velocity as a key factor influencing our choice to use the method from @Wanninkhof14: "However, open-water systems like estuaries are more susceptible to wind-based influences on gas exchange, particularly for $k_w$ [@Wanninkhof14; @vandam2019]. Based on this difference and the lack of availability of other possible drivers of the transfer velocity in coastal systems, Equation 3 is not used herein. Instead, the well-established wind- and temperature-based parameterization for gas exchange of @Wanninkhof14 was used for EBASE..."*
 
 L189: Thanks for putting together the web page. I’m curious if the data in this manuscript are included within the package itself, so it is possible to regenerate the results entirely? I’m also wondering how stable this website is and if any online information that is described in the manuscript will change? I’m not that familiar with these online reference materials, but I’m thinking of a static version (tag) that will stay with the paper so a reader 10 years from now could access the exact same materials that go along with this paper.
 
@@ -278,7 +280,6 @@ ggplot(fwdatcmp, aes(x = Date, y = val, color = var)) +
   )
 ```
 
-
 L301: The units for R are listed as (mmol/m2/d)/(W/m2). Perhaps the denominator is a typo?
 
 *Response: Yes, this was a typo, corrected.*
@@ -307,7 +308,7 @@ L122: The sentence “We also attempt to constrain the gas transfer velocity usi
 
 L159 & L514: The air-water exchange isn’t depth dependent in BASE. The inputs (and metabolic results) in base are all volumetric and reaeration coefficient (K) is in per day. Depth is not provided to the model but can be used to convert the metabolic estimates afterwards.
 
-*Response: Thank you for pointing out this error.  We have removed this distinction from the text and revised accordingly: *
+*Response: Thank you for pointing out this error.  We have removed this from the text and revised accordingly.  Please see our response to reviewer 2 for line 164.*
 
 L258: typo in “estimatd”
 
