@@ -30,15 +30,23 @@ spelling::spell_check_files(here::here('revision/review-response.qmd'))
 
 This manuscript describes an advancement in the computation of aquatic estuarine metabolism (i.e., primary production and reparation) using open-water dissolved oxygen (DO) time series. The authors adapted a Bayesian model originally developed for non-tidal, lotic systems (i.e., BASE) to 1) now work with time series that have missing dissolved oxygen observations and 2) can accommodate longer time periods for metabolism estimates. The latter could produce non- real estimates of metabolism in earlier methods while the former is achieved through linear interpolation during pre-processing and estimate removal by a user defined threshold during post-processing. The authors describe in sufficient detail how to operationalize the model and provide a comparison with a historically more standard arithmetic-based model that has been used in earlier studies of estuarine metabolism. Furthermore, the authors provide an R package “EBASE” to allow others to estimate estuarine metabolism using this method advancement; a package I am sure the coastal community will find useful. Overall, this paper was well written and the advancement significant. This paper should be considered for publication in L&O Methods following incorporation of the comments below.
 
-*Response: text goes here*
+*Response: Thank you for providing these thorough comments on our manuscript.  Please see our responses below.*
 
 There were two studies cited in the introduction (Line 98) as having used Bayesian techniques to estimate aquatic metabolism in estuaries. Please elaborate on how the method described in this study is consistent with and/or different from those in the cited studies.
 
-*Response: text goes here*
+*Response: We agree this clarification is needed.  The first study [@ciavatta2008] actually did not use a Bayesian approach, rather it provided simultaneous estimation of the metabolic parameters using a conventional empirical model framework.  This reference to a Bayesian approach was in error and we have removed this citation from the introduction. @tassone2019 does provide a good example for comparison with our work and we elaborate on this in the revised text on line 105: "@tassone2019 adapted a Bayesian approach developed for streams [@appling2018] in an estuarine setting to estimate metabolic rates in the James River.  Although this approach demonstrated the utility of such an approach in estuaries, much of the core model structure developed for streams was unchanged and may not have been fully descriptive of fundamental processes influencing metabolism in open-water environments."*
+
+*We then continue the justification for our use of BASE, adding the following:*
+
+*Line 108: "The underlying model components can also easily be updated given the relatively simple format of the approach."*
+
+*Line 115: "We focus on BASE given the relative simplicity and, therefore, ease of application compared to other stream-based Bayesian approaches [e.g., @appling2018]."*
+
+*The streamMetabolizer package is a great contribution to the field, although our implicit goal of this work was to modify a readily accessible open source approach such as BASE for our needs.  The framework was easily extendable for our chosen gas-exchange method [@Wanninkhof14] and modification of the software functionality (i.e., user-chosen optimization period and dealing with data gaps).*
 
 The authors describe pitfalls in their model, particularly when it comes to estimating the gas transfer velocity. Additionally, the authors provide evidence that sometimes the right answer (i.e., modeled DO time series, lines 349-352) can be achieved through incorrect processes. Similar issues have been described and addressed in the stream metabolism literature which was not cited or discussed in this study, please see Appling et al. 2018 - https://doi.org/10.1002/2017JG004140). Consider adding to the discussion how EBASE might incorporate these advancements to address these issues.
 
-*Response: text goes here*
+*Response: Thank you for pointing out this reference.  We have included an explicit mention of equifinality and a citation for @appling2018 on line 352.  Also please see our addition to the discussion on line 490.  This is described in full in response to the general comments from Reviewer 3.*
 
 Detiding (i.e., removing the influence of tidal cycles on time series data) the DO time series substantially improved model estimates and therefore was recommended as a step prior to applying the model. However, it was not clear how the authors detided their time series (they used Weighted Regression but it is unclear how this method removes tidal influence from the predicted time series – see lines 400-402). Please add additional information on the detiding approach and which variables were detided (i.e., was only DO detided? Wouldn’t all water-related input variables, such as water temperature and salinity, need to be detided?).
 
@@ -78,11 +86,11 @@ Line 96: Add the word statistical between ‘Bayesian’ and ‘techniques’ (i
 
 Line 98: These two cited studies – Ciavatta et al. 2008; Tassone and Bukaveckas 2019 - have used Bayesian approaches to estimate estuarine metabolism; what makes them limited? How is the approach described in this manuscript different from these two earlier studies? Have those earlier two studies informed the model selection/development described in this manuscript?
 
-*Response: text goes here*
+*Response: Please see our response to your general comment above.*
 
 Line 106: Curious why your method builds off BASE when there has been an updated Bayesian technique for stream metabolism that more accurately estimates uncertainty and reduces equifinality - please see Appling et al. (2018) cited above. Additionally, one of the sources cited above (Tassone and Bukaveckas 2019) used the updated Bayesian technique to estimate single- station estuarine metabolism.
 
-*Response: text goes here*
+*Response: Please see our response to your general comment above.*
 
 Line 126: Presumably, EBASE produces daily metabolic estimates. What constitutes a day in EBASE? Is it from midnight to midnight the following day or from 4 am to 4 am?
 
@@ -144,7 +152,7 @@ Line 324-327: I'm not sure if I follow correctly - are you seeking daily metabol
 
 Line 473-477: It is stated that “Bayesian…methods have not been rigorously explored for estimating metabolic rates in estuaries” however, I point back to the two cited studies in the introduction (line 98) that did use Bayesian techniques to estimate estuarine metabolism. Consider rewording this sentence and/or expand on why those earlier studies are not considered rigorous.
 
-*Response: text goes here*
+*Response: Please see our response to your general comment above.  Although @tassone2019 does provide another useful example, we still feel that these methods have not been thoroughly explored in estuaries.*
 
 Line 581: Maybe I missed it but how many MCMC simulations were used? How would a user change the number of MCMC simulations in the EBASE package? Can you provide a recommendation for the number of simulations to use or at least how many were used in this analysis?
 
@@ -186,11 +194,11 @@ I’m less familiar with this term, and the authors could do a little bit more t
 
 Diving into eq 3, higher water levels usually indicate higher flows and thus higher gas transfer velocity (Kw). I’m not exactly sure how temperature plays into this equation, and if it is appropriate for an estuary. It seems to suggest warm periods within a day have higher exchange rates, due to differences in kinetics at the water surface. However warmer temperatures may also reflect increased stratification and less vertical mixing (small lakes). There may be something to clean from changes in temperature that drive changes in turbulence, but simply using warmer = more exchange seems like an oversimplification. Eq 3 also includes a term related to water depth (H). In flowing waters this equation suggests that Kw increases with water level, likely a result of high-water levels = higher velocities = higher turbulence = higher kw. In an estuary, I’m not sure this relationship truly holds as water depth is not as good of a surrogate for velocity. Highest water level may be at slack tide and thus minimal water movements. It could be that change in water depth (assuming the tidal currents are strong relative to the river inputs) would be a better term to reflect instantaneous discharge. Or possibly flow could be included as a possible input parameter. But I realize this term is not typically available.
 
-*Response: We have noted an error in our description of Equation 3 that includes the depth-dependency.  As noted by Reviewer 3, @Grace15 do not include a depth-dependency in this equation. We have since removed the dependency and revised the text accordingly, emphasizing the importance of wind for the transfer velocity in open-water systems.  Regarding temperature, we feel justified in its inclusion for gas exchange given the previously noted relationship with the Schmidt number, a known factor to be important in open-water systems.*
+*Response: We have noted an error in our description of Equation 3 that includes the depth-dependency.  As noted by Reviewer 3, @Grace15 do not include a depth-dependency in this equation. We have since removed the dependency and revised the text accordingly, emphasizing the importance of wind for the transfer velocity in open-water systems.  Regarding temperature, we feel justified in its inclusion for gas exchange given the previously noted relationship with the Schmidt number, a known factor to be important in open-water systems.  Also see our response to your comment on line 164.*
 
 All told, perhaps the issue with poorly constraining b is related to assumptions in the equations used to model gas exchange in an estuary. The authors do a good job explaining that the model parameter b was difficult to constrain in the example dataset. This is understandable, and my comments are mainly my mental exploration of ways that might improve that aspect of the model. I’m guessing the authors have thought extensively about this problem, and I’m mainly offering ideas. Perhaps the authors could include some other ideas for why the b parameter is difficult to constrain? Or explore additional datasets to understand when/where it can be estimated more accurately? For example, if the model was applied to an artificial dataset from a stream, lake, or other type of estuary does it perform better? If so, what is different about the system, which might help with tuning the model? Would any of these help understand the parameterization/limitation of the current model, and or identify systems it is most appropriate?
 
-*Response: text goes here*
+*Response: Yes, we agree this issue is perplexing and worth exploring further.  We have mentioned in the original draft how this could be explored further, e.g., evaluation in other locations where gas exchange may be a more dominant component of the metabolic model (line 490).  We have also added a brief description of @appling2018 that confront this issue in stream metabolic models.  Please see our response to the general comments from Reviewer 3.*
 
 #### Specific comments
 
@@ -294,7 +302,9 @@ Beck et al. present a new software package to estimate ecosystem metabolism from
 
 In particular, the focus on the importance of accurately capturing the physical variables is a strength of the paper. It is made clear from the outcomes of the synthetic dataset analysis that it is better to use a literature estimate of the parameter b, a constant in the equation that governs air-water exchange, then to let the model estimate inaccurate values for b. The discussion around this issue was appropriate, but I wonder if some more very clear advice could be provided to a potential user that wants to use this package to answer questions about ecosystem metabolism in estuaries but does not have the aim of further refining the modelling approaches. Could they use the estimate from Wanninkhof (2014) as was used in subsequent analyses here? Would an appropriate sensitivity analysis be to vary this estimate by 20% (as mentioned L224) to check if their P and R results are highly sensitive to this parameter? Or is further testing in a range of estuaries required before this can be applied?
 
-*Response: text goes here*
+*Response: Thank you for these suggestions.  We agree an explicit description of how the approach can be applied in light of uncertainties in the $b$ parameter is needed.  Some discussion is already included (e.g., line 488).  We have also added text describing how @appling2018 addressed the issue, although this suggestions would be further model development.  Revisions were made to the first paragraph of the discussion.*
+
+*Line 490: "For application, users of EBASE may simply use a fixed value for $b$ (e.g., 0.251 $\left(\text{cm}~\text{hr}^{-1}\right)/\left(\text{m}^2~\text{s}^{-2}\right)$) or perform a simple sensitivity analysis by varying $b$ +/- a small percentage to determine how $P$ and $R$ may change.  Further model development may consider alternative approaches for dealing with equifinality, i.e., when the same modeled DO time series can be returned with different estimates of $P$, $R$, and $D$.  @appling2018 provide a useful example for a stream metabolic model that addresses equifinality by allowing model parameters to vary with key drivers at sub-daily scales (e.g., gas exchange versus discharge) and avoiding assumptions that model residuals are uncorrelated."*
 
 #### Specific comments:
 
@@ -320,6 +330,6 @@ L269: Should it be “availability” rather than “variability”? of course, 
 
 L352: The “right answer for wrong reasons” is interesting. It could be clearer here that even though DO is estimated accurately, the P and R estimates will be inaccurate in this scenario.
 
-*Response: Sentence was revised as follows: "...the potential for the model to produce the right answer (accurate $DO$) for the wrong reasons (inaccurate $P$, $R$, or $D$), since $DO$ is simply a mass balance of $P$, $R$, and $D$ (Equation 1)".*
+*Response: Sentence was revised as follows: "...the potential for the model to produce the right answer (accurate $DO$) for the wrong reasons (inaccurate $P$, $R$, or $D$), since $DO$ is simply a mass balance of $P$, $R$, and $D$ (Equation 1). This issue, or equifinality, has been encountered in stream metabolic models [@appling2018]."*
 
 ## References
