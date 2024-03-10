@@ -8,39 +8,32 @@ editor_options:
 
 \thispagestyle{empty}
 
+\hfill
+
 \today
 
 Dr. Paul F. Kemp, Editor-in-Chief\
 Limnology and Oceanography: Methods \bigskip
 
+\hfill
+
 Dear Dr. Kemp, \bigskip
 
-Enclosed please find our manuscript, titled \`Fitting metabolic models
-to dissolved oxygen data: The Estuarine BAyesian Single-station
+Enclosed please find our revised manuscript, titled \`Fitting metabolic
+models to dissolved oxygen data: The Estuarine BAyesian Single-station
 Estimation method (EBASE)', to be considered as a description of new
 methods in Limnology and Oceanography: Methods.
 
-This work advances the study of metabolic rates in estuaries by
-presenting a new Bayesian framework, EBASE, for fitting metabolic models
-to dissolved oxygen data. We are unaware of any existing methods that
-provide similar functionality in estuarine settings. We develop our
-approach by building and improving upon a similar Bayesian model
-developed for freshwater streams. Several parameters of the core
-metabolic model were modified to better represent the dynamics of
-estuaries. EBASE was also benchmarked against the conventional Odum
-open-water method for estimating metabolism using a synthetic time
-series with known parameters. Our results demonstrated that EBASE can
-reproduce the known metabolic rates with reasonable certainty. Lastly,
-the methods are available in an R package that includes options to vary
-the prior distributions for the metabolic parameters and the amount of
-data used in their estimation.
-
-Each author has contributed substantially to this work. All authors have
-contributed to the writing and review of the original draft. Further,
-Dr. Ray Najjar was instrumental in conceptualization of the method and
-Dr. Maria Herrmann greatly assisted in the methods assessment portion of
-the manuscript. Dr. Arriola was responsible for discussing and testing
-earlier versions of EBASE. All authors have approved the final draft.
+We sincerely thank all three reviewers for providing helpful and
+constructive comments on our manuscript. It is clear that all three
+dedicated a substantial amount of time to the review and for that we are
+grateful. We have made every effort to address the comments provided by
+each reviewer, as noted in our line by line responses. In particular, we
+have added critical references that were missing from the original draft
+and provided a more thorough comparison of our approach with existing
+methods. We also expand on recommendations for model application
+regarding parameters that are not well constrained and provide
+additional suggestions for further model development.
 
 We greatly appreciate the opportunity to publish this work in Limnology
 and Oceanography: Methods and are confident readers will consider it a
@@ -66,3 +59,5 @@ Raymond G. Najjar, The Pennslyvania State University, University Park,
 Pennsylvania, USA, [rgn1\@psu.edu](mailto:rgn1@psu.edu){.email}
 
 \bigskip
+
+\hfill
