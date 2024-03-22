@@ -100,7 +100,7 @@ where $b$ is constant, $U_{10}$ is the wind speed at 10 m above the water, and $
 @eq-ebase is similar to the oxygen mass balance equation in BASE [@Grace15], with the main difference being the treatment of gas exchange. While both assume that gas exchange is proportional to the concentration gradient across the air–water interface, the treatments of the proportionality differ. @Grace15 used the following for the volumetric gas flux ($Dvol$) in BASE:
 
 $$
-Dvol = [\, -K \cdot 1.024^{\left(T - \bar{T} \right)}\left(C_{sat} - C \right) ]\,
+Dvol = [\, K \cdot 1.024^{\left(T - \bar{T} \right)}\left(C_{sat} - C \right) ]\,
 $$ {#eq-gasexbase}
 
 where $T$ is the instantaneous water temperature, $\bar{T}$ is the average water temperature over each 24-hour period in the oxygen time series (both in $^{\circ}$C), $C$ is the measured dissolved oxygen, and $C_{sat}$ is the saturation concentration. $K$ is the reaeration coefficient, which was estimated from the data. In EBASE, gas flux per unit surface area of the air-water interface is proportional to the concentration gradient, with the proportionality taken from the well-established wind- and temperature-based parameterization for gas exchange of @Wanninkhof14 (see @eq-kw). EBASE also allows $b$ to be a free parameter that may reflect spatial and temporal variability in factors other than wind and temperature that may influence transfer velocity. @Wanninkhof14 estimated a fixed $b$ parameter as 0.251 $\left(\text{cm}~\text{hr}^{-1}\right)/\left(\text{m}^2~\text{s}^{-2}\right)$.
