@@ -244,121 +244,6 @@ priorsumcomp <- function(dat, met = 'r2'){
   
 }
 
-# plot for comparing Fwoxy and EBASE, used in optext and defex
-cmpplo <- function(res, fwdatcmp, subttl, ylbs = TRUE){
-  
-  cmp <- inner_join(fwdatcmp, res, by = c('Date', 'DateTimeStamp')) %>%
-    mutate(
-      a.x = a.x / H, # fwoxy is m-2, ebase is m-3
-    ) %>% 
-    select(-H, -converge, -dDO, -DO_obs.y, -rsq, -matches('lo$|hi$')) %>%
-    rename(
-      DO_mod.x = DO_obs.x,
-      DO_mod.y = DO_mod
-    ) %>%
-    pivot_longer(!all_of(c('DateTimeStamp', 'Date', 'grp')), names_to = 'var', values_to = 'val') %>%
-    separate(var, c('var', 'mod'), sep = '\\.') %>%
-    mutate(
-      mod = case_when(
-        mod == 'x' ~ 'Synthetic',
-        mod == 'y' ~ 'EBASE'
-      )
-    ) %>%
-    pivot_wider(names_from = 'mod', values_from = 'val')
-  
-  toplo1 <- cmp %>% 
-    filter(var %in% c('P', 'R', 'D')) %>% 
-    group_by(grp, var) %>% 
-    summarise(
-      Synthetic = mean(Synthetic, na.rm = T), 
-      EBASE = mean(EBASE, na.rm = T),
-      Date  = min(Date),
-      .groups = 'drop'
-    ) %>% 
-    pivot_longer(-c(Date, grp, var), names_to = 'model', values_to = 'est') %>% 
-    mutate(
-      var = factor(var, 
-                   levels = c('P', 'R', 'D'), 
-                   labels = c('P~(mmol~m^{2}~d^{-1})', 'R~(mmol~m^{2}~d^{-1})', 'D~(mmol~m^{2}~d^{-1})')
-      )
-    ) %>% 
-    select(-grp)
-  
-  ylab <- expression(paste(O [2], ' (mmol ', m^-3, ' ', d^-1, ')'))
-  
-  p1 <- ggplot(toplo1, aes(x = Date, y = est, group = model, color = model)) + 
-    geom_line(alpha = 1) +
-    # geom_point() + 
-    facet_wrap(~var, ncol = 1, strip.position = 'left', scales = 'free_y', labeller = label_parsed) + 
-    theme_minimal() + 
-    theme(
-      strip.placement = 'outside', 
-      strip.background = element_blank(), 
-      legend.position = 'top', 
-      legend.title = element_blank(),
-      strip.text = element_text(size = rel(0.7)), 
-      axis.text.x = element_blank()
-    ) + 
-    labs(
-      x = NULL, 
-      y = NULL,
-      subtitle = subttl
-    )
-  
-  labs <- c('O[2]~(mmol~m^{-3})',
-            'italic(a)~(mmol~m^{-3}~d^{-1})/(W~m^{-2})', 
-            'italic(b)~(cm~hr^{-1})/(m^{2}~s^{-2})'
-  )
-  
-  toplo2 <- cmp %>% 
-    filter(var %in% c('DO_mod', 'a', 'b')) %>% 
-    group_by(grp, var) %>%
-    summarise(
-      Synthetic = mean(Synthetic, na.rm = T),
-      EBASE = mean(EBASE, na.rm = T),
-      Date = min(Date),
-      .groups = 'drop'
-    ) %>%
-    pivot_longer(-c(Date, grp, var), names_to = 'model', values_to = 'est') %>% 
-    mutate(
-      var = factor(var, 
-                   levels = c('DO_mod', 'a', 'b'), 
-                   labels = labs
-      )
-    ) %>% 
-    select(-grp)
-  
-  p2 <- ggplot(toplo2, aes(x = Date, y = est, group = model, color = model)) + 
-    geom_line(alpha = 1) +
-    # geom_point() +
-    facet_wrap(~var, ncol = 1, strip.position = 'left', scales = 'free_y', labeller = label_parsed) + 
-    theme_minimal() + 
-    theme(
-      strip.placement = 'outside', 
-      strip.background = element_blank(), 
-      legend.position = 'top', 
-      legend.title = element_blank(), 
-      axis.text.x = element_text(size = 8),
-      strip.text = element_text(size = rel(0.7))
-    ) + 
-    labs(
-      x = NULL, 
-      y = NULL
-    )
-  
-  if(!ylbs){
-    p1 <- p1 + 
-      theme(strip.text = element_blank()) + 
-      labs(y = NULL)
-    p2 <- p2 + 
-      theme(strip.text = element_blank())
-    
-  }
-  
-  p1 + p2
-  
-}
-
 # compare synthetic with default parameters
 defplo <- function(apadef, fwdatcmp){
   
@@ -463,7 +348,7 @@ optex <- function(apagrd, fwdatcmp, apasumdat, rnkmetsum, met, lims = NULL){
     unnest(out)
   
   cmp <- inner_join(fwdatcmp, res, by = c('Date', 'DateTimeStamp')) %>%
-    select(-H, -converge, -dDO, -DO_obs.y, -rsq, -matches('lo$|hi$')) %>%
+    select(-Z, -converge, -dDO, -DO_obs.y, -rsq, -matches('lo$|hi$')) %>%
     rename(
       DO_mod.x = DO_obs.x,
       DO_mod.y = DO_mod
